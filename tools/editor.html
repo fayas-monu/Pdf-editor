@@ -3,126 +3,112 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Direct Click & Edit PDF Suite</title>
+  <title>Real PDF Text Editor</title>
   <link rel="stylesheet" href="../style.css">
   
-  <!-- PDF-LIB, PDF.JS, and FABRIC.JS Libraries -->
   <script src="https://unpkg.com/pdf-lib/dist/pdf-lib.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/5.3.1/fabric.min.js"></script>
 
   <style>
     .editor-wrapper {
       display: flex;
       flex-direction: column;
       align-items: center;
-      margin: 15px auto;
-      max-width: 1100px;
+      margin: 10px auto;
+      width: 100%;
     }
     .toolbar {
       background: #2c3e50;
       color: white;
-      padding: 10px 15px;
+      padding: 10px;
       width: 100%;
       display: flex;
-      gap: 12px;
+      gap: 10px;
       flex-wrap: wrap;
       align-items: center;
+      justify-content: center;
       border-radius: 8px 8px 0 0;
     }
     .toolbar button, .toolbar label {
       background: #e74c3c;
       color: white;
-      padding: 7px 12px;
+      padding: 8px 12px;
       border: none;
       border-radius: 4px;
       cursor: pointer;
       font-size: 0.85rem;
       font-weight: bold;
     }
-    .toolbar button:hover { background: #c0392b; }
     .toolbar input[type="file"] { display: none; }
-    
-    .tool-group {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      background: rgba(255, 255, 255, 0.1);
-      padding: 4px 8px;
-      border-radius: 4px;
-    }
-    .tool-group select, .tool-group input {
-      padding: 4px;
-      border-radius: 3px;
-      border: none;
-      font-size: 0.85rem;
-    }
 
-    #canvas-container {
+    #pdf-container {
       position: relative;
       background: #525659;
       width: 100%;
-      min-height: 550px;
+      overflow: auto;
       display: flex;
       justify-content: center;
-      padding: 20px;
-      overflow: auto;
-      border-radius: 0 0 8px 8px;
+      padding: 20px 0;
     }
 
-    .canvas-wrapper-inner {
+    .page-wrapper {
       position: relative;
       box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+      background: white;
+      margin: 0 auto;
     }
 
-    #fabric-canvas {
+    /* Text Layer for Direct Editing */
+    .textLayer {
       position: absolute;
-      top: 0;
       left: 0;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      overflow: hidden;
+      opacity: 0.9;
+      line-height: 1.0;
+    }
+
+    .textLayer span {
+      color: transparent;
+      position: absolute;
+      white-space: pre;
+      cursor: text;
+      transform-origin: 0% 0%;
+      border: 1px dotted transparent;
+    }
+
+    .textLayer span:hover, .textLayer span:focus {
+      color: #000 !important;
+      background: #fff !important;
+      border: 1px dashed #e74c3c !important;
+      outline: none;
     }
   </style>
 </head>
 <body>
 
   <header>
-    <h1>📄 Smart PDF Text Editor</h1>
-    <p>Click Anywhere on Page to Erase & Type New Text Instantly</p>
+    <h1>📄 True PDF Text Editor</h1>
+    <p>Click directly on any existing text in the PDF to edit it</p>
   </header>
 
   <div class="tool-container">
     <a href="../index.html" class="back-link">← Back to All Tools</a>
 
     <div class="editor-wrapper">
-      <!-- Controls Toolbar -->
       <div class="toolbar">
         <label for="pdf-file-input">📁 Open PDF</label>
         <input type="file" id="pdf-file-input" accept="application/pdf">
 
-        <button id="edit-mode-btn" onclick="toggleEditMode()" style="background:#f39c12;">🎯 Click-to-Edit: OFF</button>
-
-        <div class="tool-group">
-          <label style="background:none; padding:0;">Font:</label>
-          <select id="font-family" onchange="updateSelectedText()">
-            <option value="Arial">Arial</option>
-            <option value="Helvetica">Helvetica</option>
-            <option value="Times New Roman">Times New Roman</option>
-            <option value="Courier New">Courier New</option>
-          </select>
-
-          <label style="background:none; padding:0;">Size:</label>
-          <input type="number" id="font-size" value="18" min="8" max="72" style="width: 50px;" onchange="updateSelectedText()">
-
-          <input type="color" id="font-color" value="#000000" onchange="updateSelectedText()">
-        </div>
-
-        <button onclick="exportEditedPdf()" style="margin-left: auto; background: #27ae60;">💾 Export PDF</button>
+        <button onclick="exportEditedPdf()" style="background: #27ae60;">💾 Export PDF</button>
       </div>
 
-      <!-- PDF Viewing Canvas -->
-      <div id="canvas-container">
-        <div class="canvas-wrapper-inner" id="wrapper-inner">
-          <canvas id="pdf-background-canvas"></canvas>
-          <canvas id="fabric-canvas"></canvas>
+      <div id="pdf-container">
+        <div class="page-wrapper" id="page-wrapper">
+          <canvas id="pdf-render-canvas"></canvas>
+          <div id="text-layer" class="textLayer"></div>
         </div>
       </div>
     </div>
@@ -137,82 +123,9 @@
 
     let pdfBytes = null;
     let pdfDocObj = null;
-    let fabricCanvas = null;
     let currentViewport = null;
-    let isEditModeActive = false;
+    let textDivs = [];
 
-    // Initialize Interactive Fabric Canvas
-    function initFabric(width, height) {
-      if (fabricCanvas) {
-        fabricCanvas.dispose();
-      }
-      fabricCanvas = new fabric.Canvas('fabric-canvas', {
-        width: width,
-        height: height
-      });
-
-      // Handle Mouse Click Event for Auto-Erase & Replacement
-      fabricCanvas.on('mouse:down', function(options) {
-        if (!isEditModeActive) return;
-
-        // Ignore click if clicking an existing canvas object
-        if (options.target) return;
-
-        const pointer = fabricCanvas.getPointer(options.e);
-        const font = document.getElementById('font-family').value;
-        const size = parseInt(document.getElementById('font-size').value, 10);
-        const color = document.getElementById('font-color').value;
-
-        // 1. Auto-Erase Rectangle (Masks old underlying PDF text)
-        const maskRect = new fabric.Rect({
-          left: pointer.x - 2,
-          top: pointer.y - 2,
-          fill: 'white',
-          width: 140,
-          height: size + 6,
-          selectable: true
-        });
-
-        // 2. Editable Text Object over the Mask
-        const newText = new fabric.IText('New Text', {
-          left: pointer.x,
-          top: pointer.y,
-          fontFamily: font,
-          fontSize: size,
-          fill: color
-        });
-
-        // Group rect and text together or add independently
-        fabricCanvas.add(maskRect);
-        fabricCanvas.add(newText);
-        fabricCanvas.setActiveObject(newText);
-        newText.enterEditing();
-        newText.selectAll();
-      });
-    }
-
-    // Toggle Click-to-Edit Mode
-    function toggleEditMode() {
-      if (!fabricCanvas) {
-        alert("Please load a PDF file first!");
-        return;
-      }
-
-      isEditModeActive = !isEditModeActive;
-      const btn = document.getElementById('edit-mode-btn');
-
-      if (isEditModeActive) {
-        btn.innerText = "🎯 Click-to-Edit: ON";
-        btn.style.background = "#27ae60";
-        document.getElementById('status').innerText = "Click-to-Edit ON: Click on any text in the PDF to erase & replace it!";
-      } else {
-        btn.innerText = "🎯 Click-to-Edit: OFF";
-        btn.style.background = "#f39c12";
-        document.getElementById('status').innerText = "Click-to-Edit OFF.";
-      }
-    }
-
-    // Open & Load PDF File
     document.getElementById('pdf-file-input').addEventListener('change', async function(e) {
       const file = e.target.files[0];
       const status = document.getElementById('status');
@@ -225,40 +138,52 @@
       const loadingTask = pdfjsLib.getDocument({ data: pdfBytes });
       pdfDocObj = await loadingTask.promise;
 
-      // Render First Page
       const page = await pdfDocObj.getPage(1);
-      currentViewport = page.getViewport({ scale: 1.2 });
+      
+      const containerWidth = document.getElementById('pdf-container').clientWidth || 360;
+      const unscaledViewport = page.getViewport({ scale: 1.0 });
+      let scale = (containerWidth - 40) / unscaledViewport.width;
+      if (scale > 1.3) scale = 1.2;
 
-      const bgCanvas = document.getElementById('pdf-background-canvas');
-      const context = bgCanvas.getContext('2d');
-      bgCanvas.height = currentViewport.height;
-      bgCanvas.width = currentViewport.width;
+      currentViewport = page.getViewport({ scale: scale });
 
-      const renderContext = { canvasContext: context, viewport: currentViewport };
-      await page.render(renderContext).promise;
+      const canvas = document.getElementById('pdf-render-canvas');
+      const context = canvas.getContext('2d');
+      canvas.height = currentViewport.height;
+      canvas.width = currentViewport.width;
 
-      initFabric(currentViewport.width, currentViewport.height);
+      const pageWrapper = document.getElementById('page-wrapper');
+      pageWrapper.style.width = currentViewport.width + 'px';
+      pageWrapper.style.height = currentViewport.height + 'px';
 
-      status.style.color = "#27ae60";
-      status.innerText = "PDF Loaded Successfully! Turn ON 'Click-to-Edit' to edit text.";
+      // 1. Render Canvas Background
+      await page.render({ canvasContext: context, viewport: currentViewport }).promise;
+
+      // 2. Extract and Render Editable Text Layer
+      const textContent = await page.getTextContent();
+      const textLayerDiv = document.getElementById('text-layer');
+      textLayerDiv.innerHTML = '';
+      textDivs = [];
+
+      pdfjsLib.renderTextLayer({
+        textContent: textContent,
+        container: textLayerDiv,
+        viewport: currentViewport,
+        textDivs: textDivs
+      }).promise.then(() => {
+        // Make each text span directly editable
+        const spans = textLayerDiv.querySelectorAll('span');
+        spans.forEach(span => {
+          span.contentEditable = true;
+          span.setAttribute('data-original-text', span.innerText);
+        });
+
+        status.style.color = "#27ae60";
+        status.innerText = "PDF Loaded! Click directly on any text to edit or replace it.";
+      });
     });
 
-    // Update Font/Size/Color of Selected Element
-    function updateSelectedText() {
-      if (!fabricCanvas) return;
-      const activeObj = fabricCanvas.getActiveObject();
-
-      if (activeObj && activeObj.type === 'i-text') {
-        activeObj.set({
-          fontFamily: document.getElementById('font-family').value,
-          fontSize: parseInt(document.getElementById('font-size').value, 10),
-          fill: document.getElementById('font-color').value
-        });
-        fabricCanvas.renderAll();
-      }
-    }
-
-    // Export Final Edited PDF
+    // Save and Export Modified PDF
     async function exportEditedPdf() {
       if (!pdfBytes) {
         alert("No PDF loaded!");
@@ -269,34 +194,43 @@
       const firstPage = pdfDoc.getPages()[0];
       const pageHeight = firstPage.getHeight();
 
-      const objects = fabricCanvas.getObjects();
+      const textLayerDiv = document.getElementById('text-layer');
+      const spans = textLayerDiv.querySelectorAll('span');
 
-      for (let obj of objects) {
-        // Draw Auto-Whiteout Rectangles
-        if (obj.type === 'rect') {
-          const pdfX = (obj.left / currentViewport.width) * firstPage.getWidth();
-          const pdfY = pageHeight - ((obj.top / currentViewport.height) * pageHeight) - ((obj.height * obj.scaleY) / currentViewport.height * pageHeight);
-          const pdfW = ((obj.width * obj.scaleX) / currentViewport.width) * firstPage.getWidth();
-          const pdfH = ((obj.height * obj.scaleY) / currentViewport.height) * pageHeight;
+      for (let span of spans) {
+        const originalText = span.getAttribute('data-original-text');
+        const currentText = span.innerText;
 
+        // If user modified this specific text
+        if (originalText !== currentText) {
+          const rect = span.getBoundingClientRect();
+          const wrapperRect = textLayerDiv.getBoundingClientRect();
+
+          const left = rect.left - wrapperRect.left;
+          const top = rect.top - wrapperRect.top;
+          const width = rect.width;
+          const height = rect.height;
+
+          // Convert to PDF Coordinates
+          const pdfX = (left / currentViewport.width) * firstPage.getWidth();
+          const pdfY = pageHeight - ((top / currentViewport.height) * pageHeight) - ((height / currentViewport.height) * pageHeight);
+          const pdfW = (width / currentViewport.width) * firstPage.getWidth();
+          const pdfH = (height / currentViewport.height) * pageHeight;
+
+          // Erase old text area
           firstPage.drawRectangle({
-            x: pdfX,
-            y: pdfY,
-            width: pdfW,
-            height: pdfH,
+            x: pdfX - 1,
+            y: pdfY - 1,
+            width: pdfW + 4,
+            height: pdfH + 2,
             color: PDFLib.rgb(1, 1, 1)
           });
-        }
 
-        // Draw Replacement Texts
-        if (obj.type === 'i-text') {
-          const pdfX = (obj.left / currentViewport.width) * firstPage.getWidth();
-          const pdfY = pageHeight - ((obj.top / currentViewport.height) * pageHeight) - 14;
-
-          firstPage.drawText(obj.text, {
+          // Write new updated text
+          firstPage.drawText(currentText, {
             x: pdfX,
-            y: pdfY,
-            size: (obj.fontSize * (firstPage.getWidth() / currentViewport.width)),
+            y: pdfY + 2,
+            size: (height / currentViewport.height) * pageHeight * 0.75,
             color: PDFLib.rgb(0, 0, 0)
           });
         }
