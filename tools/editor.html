@@ -3,79 +3,70 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Sejda-Style PDF Editor</title>
-  <link rel="stylesheet" href="../style.css">
+  <title>Exact Sejda UI PDF Editor</title>
   
+  <!-- WASM & PDF Libraries -->
   <script src="https://unpkg.com/pdf-lib/dist/pdf-lib.min.js"></script>
+  <script src="https://unpkg.com/@pdf-lib/fontkit/dist/fontkit.umd.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
 
   <style>
-    .editor-wrapper {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      margin: 10px auto;
-      width: 100%;
-    }
+    * { box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+    body { margin: 0; background-color: #f5f6fa; }
+
     .main-toolbar {
-      background: #2c3e50;
+      background: #1e272e;
       color: white;
-      padding: 10px 15px;
-      width: 100%;
+      padding: 10px 20px;
       display: flex;
-      gap: 12px;
-      align-items: center;
       justify-content: space-between;
-      border-radius: 8px 8px 0 0;
+      align-items: center;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.2);
     }
-    .main-toolbar button, .main-toolbar label {
-      background: #27ae60;
+
+    .main-toolbar label, .main-toolbar button {
+      background: #05c46b;
       color: white;
       padding: 8px 16px;
       border: none;
-      border-radius: 4px;
+      border-radius: 5px;
       cursor: pointer;
-      font-size: 0.9rem;
       font-weight: bold;
+      font-size: 0.9rem;
     }
+
     .main-toolbar input[type="file"] { display: none; }
 
     #pdf-container {
       position: relative;
-      background: #525659;
       width: 100%;
       overflow: auto;
       display: flex;
       justify-content: center;
-      padding: 20px 0;
+      padding: 30px 10px;
     }
 
     .page-wrapper {
       position: relative;
-      box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+      box-shadow: 0 5px 25px rgba(0,0,0,0.15);
       background: white;
-      margin: 0 auto;
     }
 
     .textLayer {
       position: absolute;
-      left: 0;
-      top: 0;
-      right: 0;
-      bottom: 0;
+      left: 0; top: 0; right: 0; bottom: 0;
       overflow: hidden;
-      line-height: 1.0;
     }
 
     .textLayer span {
       position: absolute;
       white-space: pre;
       cursor: text;
-      transform-origin: 0% 0%;
-      box-sizing: border-box;
-      background-color: transparent;
+      background-color: #ffffff;
+      color: #000;
       border: 1px dashed transparent;
-      transition: border 0.1s;
+      outline: none;
+      user-select: text;
     }
 
     .textLayer span:hover {
@@ -83,87 +74,145 @@
     }
 
     .textLayer span:focus {
-      outline: none;
-      border: 1px solid #27ae60 !important;
-      background-color: #ffffff !important;
+      border: 1px solid #0abcd4 !important;
+      box-shadow: 0 0 6px rgba(10, 189, 212, 0.4);
       z-index: 100;
     }
 
-    /* Sejda Style Floating Contextual Toolbar */
-    #floating-toolbar {
+    /* --- Exact Sejda Toolbar Styling --- */
+    #sejda-toolbar {
       position: absolute;
       display: none;
       background: #ffffff;
-      border: 1px solid #00d2d3;
-      border-radius: 6px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-      padding: 4px 8px;
-      z-index: 1000;
-      gap: 6px;
-      align-items: center;
-      flex-wrap: nowrap;
-    }
-
-    #floating-toolbar button, #floating-toolbar input, #floating-toolbar select {
-      background: #f1f2f6;
-      border: 1px solid #ced6e0;
+      border: 1px solid #74b9ff;
       border-radius: 4px;
-      padding: 4px 8px;
-      font-size: 0.85rem;
-      font-weight: bold;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+      padding: 2px 4px;
+      z-index: 2000;
+      align-items: center;
+      gap: 2px;
+      height: 38px;
+    }
+
+    .sejda-btn {
+      background: transparent;
+      border: 1px solid transparent;
+      border-radius: 3px;
+      width: 32px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
       cursor: pointer;
-      color: #2f3542;
-    }
-
-    #floating-toolbar button:hover {
-      background: #e4e7eb;
-    }
-
-    #floating-toolbar input[type="color"] {
+      color: #0984e3;
       padding: 0;
-      width: 25px;
-      height: 25px;
-      border: none;
+    }
+
+    .sejda-btn:hover {
+      background-color: #eaf4fe;
+      border-color: #74b9ff;
+    }
+
+    .sejda-btn svg {
+      width: 18px;
+      height: 18px;
+      fill: #0984e3;
+    }
+
+    .sejda-divider {
+      width: 1px;
+      height: 22px;
+      background-color: #dfe6e9;
+      margin: 0 2px;
+    }
+
+    .color-picker-wrapper {
+      position: relative;
+      width: 32px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .color-picker-wrapper input[type="color"] {
+      position: absolute;
+      opacity: 0;
+      width: 100%;
+      height: 100%;
+      cursor: pointer;
     }
   </style>
 </head>
 <body>
 
-  <header>
-    <h1>📄 Sejda-Style Smart PDF Editor</h1>
-    <p>Tap on any text to edit, format, change size, or move seamlessly</p>
-  </header>
+  <div class="main-toolbar">
+    <label for="pdf-file-input">📁 Open PDF</label>
+    <input type="file" id="pdf-file-input" accept="application/pdf">
+    <span id="status" style="font-size: 0.9rem; color: #fbc531;">Select a PDF file to edit</span>
+    <button onclick="exportWasmPdf()">💾 Save PDF</button>
+  </div>
 
-  <div class="tool-container">
-    <a href="../index.html" class="back-link">← Back to All Tools</a>
+  <div id="pdf-container">
+    <div class="page-wrapper" id="page-wrapper">
+      <canvas id="pdf-render-canvas"></canvas>
+      <div id="text-layer" class="textLayer"></div>
 
-    <div class="editor-wrapper">
-      <div class="main-toolbar">
-        <label for="pdf-file-input">📁 Open PDF Document</label>
-        <input type="file" id="pdf-file-input" accept="application/pdf">
+      <!-- Exact Sejda Style Floating Toolbar with Vector SVG Icons -->
+      <div id="sejda-toolbar">
+        
+        <!-- Bold (B) -->
+        <button class="sejda-btn" onclick="applyFormat('bold')" title="Bold">
+          <svg viewBox="0 0 24 24"><path d="M15.6 10.79c.92-.67 1.57-1.74 1.57-2.95 0-2.22-1.78-4-4-4H7v14h7c2.12 0 3.87-1.67 3.98-3.77.02-.13.02-.26.02-.39 0-1.28-.62-2.42-1.6-3.12zM10 6.5h3c1.1 0 2 .9 2 2s-.9 2-2 2h-3v-4zm3.5 9.5H10v-4h3.5c1.1 0 2 .9 2 2s-.9 2-2 2z"/></svg>
+        </button>
 
-        <button onclick="exportEditedPdf()">💾 Save & Export PDF</button>
-      </div>
+        <!-- Italic (I) -->
+        <button class="sejda-btn" onclick="applyFormat('italic')" title="Italic">
+          <svg viewBox="0 0 24 24"><path d="M10 4v3h2.21l-3.42 8H6v3h8v-3h-2.21l3.42-8H18V4z"/></svg>
+        </button>
 
-      <div id="pdf-container">
-        <div class="page-wrapper" id="page-wrapper">
-          <canvas id="pdf-render-canvas"></canvas>
-          <div id="text-layer" class="textLayer"></div>
+        <!-- Font Size (T↕) -->
+        <button class="sejda-btn" onclick="adjustSize(1)" title="Increase/Decrease Size">
+          <svg viewBox="0 0 24 24"><path d="M9 4v3h2.5v11H14V7h2.5V4H9zm7 8h-1.5v6H16v-6zm1.5-2h-4.5v1.5h1.5V18h1.5v-6.5h1.5V10z"/></svg>
+        </button>
 
-          <!-- Sejda Contextual Floating Control Bar -->
-          <div id="floating-toolbar">
-            <button onclick="applyStyle('bold')" title="Bold"><b>B</b></button>
-            <button onclick="applyStyle('italic')" title="Italic"><i>I</i></button>
-            <button onclick="changeFontSize(1)" title="Increase Font Size">A+</button>
-            <button onclick="changeFontSize(-1)" title="Decrease Font Size">A-</button>
-            <input type="color" id="text-color-picker" title="Text Color" onchange="changeColor(this.value)">
-            <button onclick="deleteActiveText()" style="color:#e74c3c;" title="Delete Text">🗑️</button>
-          </div>
+        <!-- Font Family (Aa) -->
+        <button class="sejda-btn" onclick="toggleFontMenu()" title="Font Family">
+          <svg viewBox="0 0 24 24"><path d="M9.93 13.5h4.14L12 7.98zM20 2H4c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-4.05 16.5l-1.14-3H9.17l-1.12 3H5.96l5.11-13h1.86l5.11 13h-2.09z"/></svg>
+        </button>
+
+        <div class="sejda-divider"></div>
+
+        <!-- Color Palette -->
+        <div class="color-picker-wrapper sejda-btn" title="Color">
+          <svg viewBox="0 0 24 24"><path d="M12 3c-4.97 0-9 4.03-9 9 0 2.12.74 4.07 1.97 5.61.43.54 1.03.89 1.7.89h1.83c.83 0 1.5-.67 1.5-1.5 0-.38-.15-.73-.39-1-.25-.27-.39-.63-.39-1.01 0-.83.67-1.5 1.5-1.5h1.69c2.76 0 5-2.24 5-5 0-3.86-3.14-7-7-7zm-5.5 9c-.83 0-1.5-.67-1.5-1.5S5.67 9 6.5 9s1.5.67 1.5 1.5S7.33 12 6.5 12zm3-4C8.67 8 8 7.33 8 6.5S8.67 5 9.5 5s1.5.67 1.5 1.5S10.33 8 9.5 8zm5 0c-.83 0-1.5-.67-1.5-1.5S13.67 5 14.5 5s1.5.67 1.5 1.5S15.33 8 14.5 8zm3 4c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/></svg>
+          <input type="color" id="text-color" onchange="applyColor(this.value)">
         </div>
+
+        <!-- Link Icon -->
+        <button class="sejda-btn" title="Link">
+          <svg viewBox="0 0 24 24"><path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76 0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71 0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71 0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76 0 5-2.24 5-5s-2.24-5-5-5z"/></svg>
+        </button>
+
+        <div class="sejda-divider"></div>
+
+        <!-- Move Icon (4 Arrow Drag Handle) -->
+        <button class="sejda-btn" id="move-btn" title="Drag to Move">
+          <svg viewBox="0 0 24 24"><path d="M10 9h4V6h3l-5-5-5 5h3v3zm-1 1H6V7l-5 5 5 5v-3h3v-4zm14 2l-5-5v3h-3v4h3v3l5-5zm-9 3h-4v3H7l5 5 5-5h-3v-3z"/></svg>
+        </button>
+
+        <!-- Duplicate Icon (Copy) -->
+        <button class="sejda-btn" onclick="duplicateText()" title="Duplicate">
+          <svg viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
+        </button>
+
+        <!-- Delete Icon (Trash Bin) -->
+        <button class="sejda-btn" onclick="deleteText()" title="Delete">
+          <svg viewBox="0 0 24 24"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>
+        </button>
+
       </div>
     </div>
-
-    <div id="status" style="text-align: center; margin-top: 10px; font-weight: bold;"></div>
   </div>
 
   <script>
@@ -171,31 +220,31 @@
 
     pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js';
 
-    let pdfBytes = null;
+    let originalArrayBuffer = null;
     let pdfDocObj = null;
     let currentViewport = null;
     let activeSpan = null;
+    let isDragging = false;
+    let dragStartX, dragStartY, initialLeft, initialTop;
 
-    const floatingToolbar = document.getElementById('floating-toolbar');
+    const toolbar = document.getElementById('sejda-toolbar');
 
     document.getElementById('pdf-file-input').addEventListener('change', async function(e) {
       const file = e.target.files[0];
-      const status = document.getElementById('status');
       if (!file) return;
 
-      status.style.color = "#d35400";
-      status.innerText = "Loading PDF...";
+      document.getElementById('status').innerText = "Loading PDF...";
+      originalArrayBuffer = await file.arrayBuffer();
 
-      pdfBytes = await file.arrayBuffer();
-      const loadingTask = pdfjsLib.getDocument({ data: pdfBytes });
+      const loadingTask = pdfjsLib.getDocument({ data: originalArrayBuffer.slice(0) });
       pdfDocObj = await loadingTask.promise;
 
       const page = await pdfDocObj.getPage(1);
       
-      const containerWidth = document.getElementById('pdf-container').clientWidth || 360;
+      const containerWidth = document.getElementById('pdf-container').clientWidth || 400;
       const unscaledViewport = page.getViewport({ scale: 1.0 });
-      let scale = (containerWidth - 30) / unscaledViewport.width;
-      if (scale > 1.3) scale = 1.2;
+      let scale = (containerWidth - 40) / unscaledViewport.width;
+      if (scale > 1.4) scale = 1.3;
 
       currentViewport = page.getViewport({ scale: scale });
 
@@ -221,86 +270,130 @@
         textDivs: []
       }).promise.then(() => {
         const spans = textLayerDiv.querySelectorAll('span');
-        spans.forEach(span => {
-          span.contentEditable = true;
-          span.setAttribute('data-original-text', span.innerText);
+        spans.forEach(span => makeSpanEditable(span));
 
-          // Focus Event to show Sejda Floating Toolbar
-          span.addEventListener('focus', (e) => {
-            activeSpan = span;
-            positionFloatingToolbar(span);
-          });
-
-          span.addEventListener('input', () => {
-            positionFloatingToolbar(span);
-          });
-        });
-
-        status.style.color = "#27ae60";
-        status.innerText = "PDF Ready! Click on any text to edit with the floating toolbar.";
+        document.getElementById('status').innerText = "Ready to edit! Click any text.";
       });
     });
 
-    // Position Floating Toolbar above active text block
-    function positionFloatingToolbar(span) {
+    function makeSpanEditable(span) {
+      span.contentEditable = true;
+      if (!span.getAttribute('data-original-text')) {
+        span.setAttribute('data-original-text', span.innerText);
+      }
+
+      span.addEventListener('focus', () => {
+        activeSpan = span;
+        showToolbar(span);
+      });
+
+      span.addEventListener('input', () => {
+        showToolbar(span);
+      });
+    }
+
+    function showToolbar(span) {
       const rect = span.getBoundingClientRect();
       const wrapperRect = document.getElementById('page-wrapper').getBoundingClientRect();
 
-      const left = rect.left - wrapperRect.left;
-      const top = rect.top - wrapperRect.top - 42;
+      let left = rect.left - wrapperRect.left;
+      let top = rect.top - wrapperRect.top - 46;
 
-      floatingToolbar.style.left = `${Math.max(0, left)}px`;
-      floatingToolbar.style.top = `${Math.max(0, top)}px`;
-      floatingToolbar.style.display = 'flex';
+      if (top < 0) top = rect.top - wrapperRect.top + rect.height + 8;
+
+      toolbar.style.left = `${Math.max(0, left)}px`;
+      toolbar.style.top = `${top}px`;
+      toolbar.style.display = 'flex';
     }
 
-    // Hide Toolbar on outside click
     document.addEventListener('mousedown', (e) => {
-      if (!floatingToolbar.contains(e.target) && activeSpan && !activeSpan.contains(e.target)) {
-        floatingToolbar.style.display = 'none';
+      if (!toolbar.contains(e.target) && activeSpan && !activeSpan.contains(e.target) && !isDragging) {
+        toolbar.style.display = 'none';
       }
     });
 
-    // Apply Formatting (Bold/Italic)
-    function applyStyle(styleType) {
+    function applyFormat(type) {
       if (!activeSpan) return;
-      if (styleType === 'bold') {
+      if (type === 'bold') {
         activeSpan.style.fontWeight = activeSpan.style.fontWeight === 'bold' ? 'normal' : 'bold';
-      } else if (styleType === 'italic') {
+      } else if (type === 'italic') {
         activeSpan.style.fontStyle = activeSpan.style.fontStyle === 'italic' ? 'normal' : 'italic';
       }
     }
 
-    // Increase/Decrease Font Size
-    function changeFontSize(delta) {
+    function adjustSize(delta) {
       if (!activeSpan) return;
-      const currentSize = parseFloat(window.getComputedStyle(activeSpan).fontSize);
-      activeSpan.style.fontSize = `${currentSize + delta}px`;
+      const cur = parseFloat(window.getComputedStyle(activeSpan).fontSize);
+      activeSpan.style.fontSize = `${cur + delta}px`;
     }
 
-    // Change Font Color
-    function changeColor(colorHex) {
+    function applyColor(hex) {
       if (!activeSpan) return;
-      activeSpan.style.color = colorHex;
+      activeSpan.style.color = hex;
     }
 
-    // Delete Text Block
-    function deleteActiveText() {
+    function deleteText() {
       if (!activeSpan) return;
       activeSpan.innerText = '';
-      floatingToolbar.style.display = 'none';
+      toolbar.style.display = 'none';
     }
 
-    // Export Modified PDF
-    async function exportEditedPdf() {
-      if (!pdfBytes) {
-        alert("No PDF loaded!");
-        return;
-      }
+    function duplicateText() {
+      if (!activeSpan) return;
+      const clone = activeSpan.cloneNode(true);
+      const currentTop = parseFloat(activeSpan.style.top || 0);
+      clone.style.top = `${currentTop + 20}px`;
+      document.getElementById('text-layer').appendChild(clone);
+      makeSpanEditable(clone);
+      clone.focus();
+    }
 
-      const pdfDoc = await PDFLib.PDFDocument.load(pdfBytes);
-      const firstPage = pdfDoc.getPages()[0];
-      const pageHeight = firstPage.getHeight();
+    // Move Handle Drag Logic
+    const moveBtn = document.getElementById('move-btn');
+
+    moveBtn.addEventListener('mousedown', (e) => {
+      if (!activeSpan) return;
+      isDragging = true;
+      dragStartX = e.clientX;
+      dragStartY = e.clientY;
+
+      const rect = activeSpan.getBoundingClientRect();
+      const wrapperRect = document.getElementById('page-wrapper').getBoundingClientRect();
+      initialLeft = rect.left - wrapperRect.left;
+      initialTop = rect.top - wrapperRect.top;
+
+      document.addEventListener('mousemove', onMouseMove);
+      document.addEventListener('mouseup', onMouseUp);
+    });
+
+    function onMouseMove(e) {
+      if (!isDragging || !activeSpan) return;
+      const deltaX = e.clientX - dragStartX;
+      const deltaY = e.clientY - dragStartY;
+
+      activeSpan.style.left = `${initialLeft + deltaX}px`;
+      activeSpan.style.top = `${initialTop + deltaY}px`;
+
+      showToolbar(activeSpan);
+    }
+
+    function onMouseUp() {
+      isDragging = false;
+      document.removeEventListener('mousemove', onMouseMove);
+      document.removeEventListener('mouseup', onMouseUp);
+    }
+
+    // Export Updated WASM PDF
+    async function exportWasmPdf() {
+      if (!originalArrayBuffer) return;
+
+      document.getElementById('status').innerText = "Exporting PDF...";
+
+      const pdfDoc = await PDFLib.PDFDocument.load(originalArrayBuffer.slice(0));
+      pdfDoc.registerFontkit(fontkit);
+
+      const page = pdfDoc.getPages()[0];
+      const pageHeight = page.getHeight();
 
       const textLayerDiv = document.getElementById('text-layer');
       const spans = textLayerDiv.querySelectorAll('span');
@@ -309,37 +402,37 @@
         const originalText = span.getAttribute('data-original-text');
         const currentText = span.innerText;
 
-        if (originalText !== currentText || span.style.color || span.style.fontSize) {
-          const rect = span.getBoundingClientRect();
-          const wrapperRect = textLayerDiv.getBoundingClientRect();
+        const rect = span.getBoundingClientRect();
+        const wrapperRect = textLayerDiv.getBoundingClientRect();
 
-          const left = rect.left - wrapperRect.left;
-          const top = rect.top - wrapperRect.top;
-          const width = rect.width;
-          const height = rect.height;
+        const left = rect.left - wrapperRect.left;
+        const top = rect.top - wrapperRect.top;
+        const width = rect.width;
+        const height = rect.height;
 
-          const pdfX = (left / currentViewport.width) * firstPage.getWidth();
-          const pdfY = pageHeight - ((top / currentViewport.height) * pageHeight) - ((height / currentViewport.height) * pageHeight);
-          const pdfW = (width / currentViewport.width) * firstPage.getWidth();
-          const pdfH = (height / currentViewport.height) * pageHeight;
+        const pdfX = (left / currentViewport.width) * page.getWidth();
+        const pdfY = pageHeight - ((top / currentViewport.height) * pageHeight) - ((height / currentViewport.height) * pageHeight);
+        const pdfW = (width / currentViewport.width) * page.getWidth();
+        const pdfH = (height / currentViewport.height) * pageHeight;
 
-          // Whiteout old text area
-          firstPage.drawRectangle({
-            x: pdfX - 1,
-            y: pdfY - 1,
-            width: Math.max(pdfW + 6, 10),
-            height: pdfH + 2,
-            color: PDFLib.rgb(1, 1, 1)
+        page.drawRectangle({
+          x: pdfX - 1,
+          y: pdfY - 1,
+          width: Math.max(pdfW + 6, 10),
+          height: pdfH + 2,
+          color: PDFLib.rgb(1, 1, 1)
+        });
+
+        if (currentText.trim() !== '') {
+          const fontPx = parseFloat(window.getComputedStyle(span).fontSize);
+          const pdfFontSize = (fontPx / currentViewport.height) * pageHeight;
+
+          page.drawText(currentText, {
+            x: pdfX,
+            y: pdfY + 2,
+            size: pdfFontSize,
+            color: PDFLib.rgb(0, 0, 0)
           });
-
-          if (currentText.trim() !== '') {
-            firstPage.drawText(currentText, {
-              x: pdfX,
-              y: pdfY + 2,
-              size: (parseFloat(window.getComputedStyle(span).fontSize) / currentViewport.height) * pageHeight,
-              color: PDFLib.rgb(0, 0, 0)
-            });
-          }
         }
       }
 
@@ -347,8 +440,10 @@
       const blob = new Blob([modifiedBytes], { type: 'application/pdf' });
       const link = document.createElement('a');
       link.href = URL.createObjectURL(blob);
-      link.download = 'edited_document.pdf';
+      link.download = 'Sejda_Exact_UI.pdf';
       link.click();
+
+      document.getElementById('status').innerText = "PDF Exported Successfully!";
     }
   </script>
 
