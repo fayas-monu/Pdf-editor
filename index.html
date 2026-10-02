@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Free Online PDF Editor & Tools</title>
+  <link rel="stylesheet" href="style.css">
+  <!-- PDF-LIB & PDF.JS Libraries -->
+  <script src="https://unpkg.com/pdf-lib/dist/pdf-lib.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
+</head>
+<body>
+
+  <!-- Header -->
+  <header>
+    <h1>📄 Secure Online PDF Editor</h1>
+    <p>100% Free | Secure Local Processing | No File Uploads</p>
+  </header>
+
+  <!-- Main Tools Grid -->
+  <main class="container">
+    
+    <!-- Tool 1: Edit & Add Photo/Text -->
+    <div class="card">
+      <h3>✍️ Add Text & Photo to PDF</h3>
+      <p>Upload a PDF document to add custom text overlays or photo/logo attachments.</p>
+      
+      <label for="pdf-input">Select PDF File:</label>
+      <input type="file" id="pdf-input" accept="application/pdf">
+      
+      <label for="img-input">Select Image (PNG / JPG):</label>
+      <input type="file" id="img-input" accept="image/png, image/jpeg">
+      
+      <label for="text-input">Enter Text to Add:</label>
+      <input type="text" id="text-input" placeholder="e.g. John Doe / Confidential">
+      
+      <button onclick="processPdfEdit()">Update & Download PDF</button>
+    </div>
+
+    <!-- Tool 2: Merge PDFs -->
+    <div class="card">
+      <h3>🔗 Merge Multiple PDFs</h3>
+      <p>Combine multiple PDF files into a single unified document instantly.</p>
+      
+      <label for="merge-input">Select Multiple PDFs:</label>
+      <input type="file" id="merge-input" accept="application/pdf" multiple>
+      
+      <button onclick="mergePdfs()">Merge PDFs</button>
+    </div>
+
+  </main>
+
+  <!-- Status Message Area -->
+  <div id="status"></div>
+
+  <script src="script.js"></script>
+</body>
+</html>
