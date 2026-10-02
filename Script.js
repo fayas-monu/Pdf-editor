@@ -1,11 +1,8 @@
 // Credit: (hank!nd3 p4d4y41!
 
-pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js';
-
 let currentPdfBytes = null;
-let pdfDocObject = null;
 
-// Handle PDF Selection & Live Preview Rendering
+// Handle PDF Selection & Live Preview
 document.getElementById('pdf-input').addEventListener('change', async function(e) {
   const file = e.target.files[0];
   const status = document.getElementById('status');
@@ -17,7 +14,14 @@ document.getElementById('pdf-input').addEventListener('change', async function(e
 
   try {
     currentPdfBytes = await file.arrayBuffer();
-    renderPdfPreview(currentPdfBytes);
+    
+    // Show Preview using Blob URL
+    const blob = new Blob([currentPdfBytes], { type: 'application/pdf' });
+    const previewUrl = URL.createObjectURL(blob);
+    
+    const previewContainer = document.getElementById('pdf-preview-container');
+    previewContainer.innerHTML = `<iframe src="${previewUrl}" width="100%" height="500px" style="border:none;"></iframe>`;
+
     status.style.color = "#27ae60";
     status.innerText = "PDF Loaded Successfully!";
   } catch (err) {
@@ -26,28 +30,6 @@ document.getElementById('pdf-input').addEventListener('change', async function(e
     status.innerText = "Failed to load PDF file.";
   }
 });
-
-// Render Page Preview onto Canvas using PDF.js
-async function renderPdfPreview(pdfData) {
-  const loadingTask = pdfjsLib.getDocument({ data: pdfData });
-  pdfDocObject = await loadingTask.promise;
-  
-  // Render First Page
-  const page = await pdfDocObject.getPage(1);
-  const viewport = page.getViewport({ scale: 1.2 });
-
-  const canvas = document.getElementById('pdf-canvas');
-  const context = canvas.getContext('2d');
-  canvas.height = viewport.height;
-  canvas.width = viewport.width;
-
-  const renderContext = {
-    canvasContext: context,
-    viewport: viewport
-  };
-
-  await page.render(renderContext).promise;
-}
 
 // Process Changes & Download Modified PDF
 async function applyAndDownload() {
@@ -99,13 +81,17 @@ async function applyAndDownload() {
 
     const modifiedBytes = await pdfDoc.save();
     
-    // Update live preview with new PDF
-    await renderPdfPreview(modifiedBytes);
+    // Update live preview iframe with new PDF
+    const updatedBlob = new Blob([modifiedBytes], { type: 'application/pdf' });
+    const updatedUrl = URL.createObjectURL(updatedBlob);
+    
+    const previewContainer = document.getElementById('pdf-preview-container');
+    previewContainer.innerHTML = `<iframe src="${updatedUrl}" width="100%" height="500px" style="border:none;"></iframe>`;
 
     // Trigger Download
     downloadBlob(modifiedBytes, 'edited_document.pdf');
     status.style.color = "#27ae60";
-    status.innerText = "Downloaded Successfully!";
+    status.innerText = "Exported & Downloaded Successfully!";
 
   } catch (err) {
     console.error(err);
