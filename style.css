@@ -6,7 +6,7 @@
 }
 
 body {
-  background-color: #f4f7f6;
+  background-color: #f0f2f5;
   color: #333;
 }
 
@@ -14,67 +14,63 @@ header {
   background-color: #e74c3c;
   color: white;
   text-align: center;
-  padding: 2.5rem 1rem;
-}
-
-header h1 {
-  margin-bottom: 0.5rem;
+  padding: 1.5rem 1rem;
 }
 
 header p {
-  font-size: 0.95rem;
+  font-size: 0.9rem;
   opacity: 0.9;
+  margin-top: 4px;
 }
 
 .container {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-  gap: 25px;
-  max-width: 1000px;
-  margin: 40px auto;
-  padding: 0 20px;
+  grid-template-columns: 320px 1fr;
+  gap: 20px;
+  max-width: 1200px;
+  margin: 25px auto;
+  padding: 0 15px;
+}
+
+@media (max-width: 768px) {
+  .container {
+    grid-template-columns: 1fr;
+  }
 }
 
 .card {
   background: white;
-  padding: 25px;
-  border-radius: 12px;
-  box-shadow: 0 4px 15px rgba(0,0,0,0.05);
-  transition: transform 0.2s, box-shadow 0.2s;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.08);
 }
 
-.card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 6px 20px rgba(0,0,0,0.1);
-}
-
-.card h3 {
+.controls-card h3, .preview-card h3 {
   color: #2c3e50;
-  margin-bottom: 10px;
+  margin-bottom: 12px;
 }
 
-.card p {
-  color: #666;
-  font-size: 0.9rem;
-  margin-bottom: 20px;
-  line-height: 1.4;
+hr {
+  border: 0;
+  height: 1px;
+  background: #eee;
+  margin: 15px 0;
 }
 
 label {
   display: block;
   font-size: 0.85rem;
-  font-weight: bold;
+  font-weight: 600;
   color: #444;
   margin-bottom: 5px;
-  margin-top: 12px;
+  margin-top: 10px;
 }
 
 input[type="file"], input[type="text"] {
   width: 100%;
-  padding: 10px;
+  padding: 8px 10px;
   border: 1px solid #ccc;
-  border-radius: 6px;
-  margin-bottom: 10px;
+  border-radius: 5px;
 }
 
 button {
@@ -83,12 +79,12 @@ button {
   color: white;
   border: none;
   padding: 12px;
-  margin-top: 15px;
-  border-radius: 6px;
+  margin-top: 18px;
+  border-radius: 5px;
   font-weight: bold;
-  font-size: 0.95rem;
   cursor: pointer;
-  transition: background 0.3s;
+  font-size: 0.95rem;
+  transition: background 0.2s;
 }
 
 button:hover {
@@ -97,8 +93,31 @@ button:hover {
 
 #status {
   text-align: center;
-  margin: 20px auto;
+  margin-top: 12px;
   font-weight: bold;
-  color: #27ae60;
-  font-size: 1rem;
+  font-size: 0.85rem;
+}
+
+#pdf-preview-container {
+  width: 100%;
+  overflow: auto;
+  background: #525659;
+  padding: 15px;
+  border-radius: 6px;
+  min-height: 450px;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+}
+
+#pdf-canvas {
+  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+  background: white;
+  max-width: 100%;
+}
+
+.preview-hint {
+  font-size: 0.85rem;
+  color: #666;
+  margin-bottom: 10px;
 }
