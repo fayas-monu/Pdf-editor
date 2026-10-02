@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Real PDF Text Editor</title>
+  <title>Sejda-Style PDF Editor</title>
   <link rel="stylesheet" href="../style.css">
   
   <script src="https://unpkg.com/pdf-lib/dist/pdf-lib.min.js"></script>
@@ -17,29 +17,28 @@
       margin: 10px auto;
       width: 100%;
     }
-    .toolbar {
+    .main-toolbar {
       background: #2c3e50;
       color: white;
-      padding: 10px;
+      padding: 10px 15px;
       width: 100%;
       display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
+      gap: 12px;
       align-items: center;
-      justify-content: center;
+      justify-content: space-between;
       border-radius: 8px 8px 0 0;
     }
-    .toolbar button, .toolbar label {
-      background: #e74c3c;
+    .main-toolbar button, .main-toolbar label {
+      background: #27ae60;
       color: white;
-      padding: 8px 12px;
+      padding: 8px 16px;
       border: none;
       border-radius: 4px;
       cursor: pointer;
-      font-size: 0.85rem;
+      font-size: 0.9rem;
       font-weight: bold;
     }
-    .toolbar input[type="file"] { display: none; }
+    .main-toolbar input[type="file"] { display: none; }
 
     #pdf-container {
       position: relative;
@@ -58,7 +57,6 @@
       margin: 0 auto;
     }
 
-    /* Text Layer for Direct Editing */
     .textLayer {
       position: absolute;
       left: 0;
@@ -66,49 +64,101 @@
       right: 0;
       bottom: 0;
       overflow: hidden;
-      opacity: 0.9;
       line-height: 1.0;
     }
 
     .textLayer span {
-      color: transparent;
       position: absolute;
       white-space: pre;
       cursor: text;
       transform-origin: 0% 0%;
-      border: 1px dotted transparent;
+      box-sizing: border-box;
+      background-color: transparent;
+      border: 1px dashed transparent;
+      transition: border 0.1s;
     }
 
-    .textLayer span:hover, .textLayer span:focus {
-      color: #000 !important;
-      background: #fff !important;
-      border: 1px dashed #e74c3c !important;
+    .textLayer span:hover {
+      border: 1px dashed #3498db;
+    }
+
+    .textLayer span:focus {
       outline: none;
+      border: 1px solid #27ae60 !important;
+      background-color: #ffffff !important;
+      z-index: 100;
+    }
+
+    /* Sejda Style Floating Contextual Toolbar */
+    #floating-toolbar {
+      position: absolute;
+      display: none;
+      background: #ffffff;
+      border: 1px solid #00d2d3;
+      border-radius: 6px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+      padding: 4px 8px;
+      z-index: 1000;
+      gap: 6px;
+      align-items: center;
+      flex-wrap: nowrap;
+    }
+
+    #floating-toolbar button, #floating-toolbar input, #floating-toolbar select {
+      background: #f1f2f6;
+      border: 1px solid #ced6e0;
+      border-radius: 4px;
+      padding: 4px 8px;
+      font-size: 0.85rem;
+      font-weight: bold;
+      cursor: pointer;
+      color: #2f3542;
+    }
+
+    #floating-toolbar button:hover {
+      background: #e4e7eb;
+    }
+
+    #floating-toolbar input[type="color"] {
+      padding: 0;
+      width: 25px;
+      height: 25px;
+      border: none;
     }
   </style>
 </head>
 <body>
 
   <header>
-    <h1>📄 True PDF Text Editor</h1>
-    <p>Click directly on any existing text in the PDF to edit it</p>
+    <h1>📄 Sejda-Style Smart PDF Editor</h1>
+    <p>Tap on any text to edit, format, change size, or move seamlessly</p>
   </header>
 
   <div class="tool-container">
     <a href="../index.html" class="back-link">← Back to All Tools</a>
 
     <div class="editor-wrapper">
-      <div class="toolbar">
-        <label for="pdf-file-input">📁 Open PDF</label>
+      <div class="main-toolbar">
+        <label for="pdf-file-input">📁 Open PDF Document</label>
         <input type="file" id="pdf-file-input" accept="application/pdf">
 
-        <button onclick="exportEditedPdf()" style="background: #27ae60;">💾 Export PDF</button>
+        <button onclick="exportEditedPdf()">💾 Save & Export PDF</button>
       </div>
 
       <div id="pdf-container">
         <div class="page-wrapper" id="page-wrapper">
           <canvas id="pdf-render-canvas"></canvas>
           <div id="text-layer" class="textLayer"></div>
+
+          <!-- Sejda Contextual Floating Control Bar -->
+          <div id="floating-toolbar">
+            <button onclick="applyStyle('bold')" title="Bold"><b>B</b></button>
+            <button onclick="applyStyle('italic')" title="Italic"><i>I</i></button>
+            <button onclick="changeFontSize(1)" title="Increase Font Size">A+</button>
+            <button onclick="changeFontSize(-1)" title="Decrease Font Size">A-</button>
+            <input type="color" id="text-color-picker" title="Text Color" onchange="changeColor(this.value)">
+            <button onclick="deleteActiveText()" style="color:#e74c3c;" title="Delete Text">🗑️</button>
+          </div>
         </div>
       </div>
     </div>
@@ -124,7 +174,9 @@
     let pdfBytes = null;
     let pdfDocObj = null;
     let currentViewport = null;
-    let textDivs = [];
+    let activeSpan = null;
+
+    const floatingToolbar = document.getElementById('floating-toolbar');
 
     document.getElementById('pdf-file-input').addEventListener('change', async function(e) {
       const file = e.target.files[0];
@@ -142,7 +194,7 @@
       
       const containerWidth = document.getElementById('pdf-container').clientWidth || 360;
       const unscaledViewport = page.getViewport({ scale: 1.0 });
-      let scale = (containerWidth - 40) / unscaledViewport.width;
+      let scale = (containerWidth - 30) / unscaledViewport.width;
       if (scale > 1.3) scale = 1.2;
 
       currentViewport = page.getViewport({ scale: scale });
@@ -156,34 +208,90 @@
       pageWrapper.style.width = currentViewport.width + 'px';
       pageWrapper.style.height = currentViewport.height + 'px';
 
-      // 1. Render Canvas Background
       await page.render({ canvasContext: context, viewport: currentViewport }).promise;
 
-      // 2. Extract and Render Editable Text Layer
       const textContent = await page.getTextContent();
       const textLayerDiv = document.getElementById('text-layer');
       textLayerDiv.innerHTML = '';
-      textDivs = [];
 
       pdfjsLib.renderTextLayer({
         textContent: textContent,
         container: textLayerDiv,
         viewport: currentViewport,
-        textDivs: textDivs
+        textDivs: []
       }).promise.then(() => {
-        // Make each text span directly editable
         const spans = textLayerDiv.querySelectorAll('span');
         spans.forEach(span => {
           span.contentEditable = true;
           span.setAttribute('data-original-text', span.innerText);
+
+          // Focus Event to show Sejda Floating Toolbar
+          span.addEventListener('focus', (e) => {
+            activeSpan = span;
+            positionFloatingToolbar(span);
+          });
+
+          span.addEventListener('input', () => {
+            positionFloatingToolbar(span);
+          });
         });
 
         status.style.color = "#27ae60";
-        status.innerText = "PDF Loaded! Click directly on any text to edit or replace it.";
+        status.innerText = "PDF Ready! Click on any text to edit with the floating toolbar.";
       });
     });
 
-    // Save and Export Modified PDF
+    // Position Floating Toolbar above active text block
+    function positionFloatingToolbar(span) {
+      const rect = span.getBoundingClientRect();
+      const wrapperRect = document.getElementById('page-wrapper').getBoundingClientRect();
+
+      const left = rect.left - wrapperRect.left;
+      const top = rect.top - wrapperRect.top - 42;
+
+      floatingToolbar.style.left = `${Math.max(0, left)}px`;
+      floatingToolbar.style.top = `${Math.max(0, top)}px`;
+      floatingToolbar.style.display = 'flex';
+    }
+
+    // Hide Toolbar on outside click
+    document.addEventListener('mousedown', (e) => {
+      if (!floatingToolbar.contains(e.target) && activeSpan && !activeSpan.contains(e.target)) {
+        floatingToolbar.style.display = 'none';
+      }
+    });
+
+    // Apply Formatting (Bold/Italic)
+    function applyStyle(styleType) {
+      if (!activeSpan) return;
+      if (styleType === 'bold') {
+        activeSpan.style.fontWeight = activeSpan.style.fontWeight === 'bold' ? 'normal' : 'bold';
+      } else if (styleType === 'italic') {
+        activeSpan.style.fontStyle = activeSpan.style.fontStyle === 'italic' ? 'normal' : 'italic';
+      }
+    }
+
+    // Increase/Decrease Font Size
+    function changeFontSize(delta) {
+      if (!activeSpan) return;
+      const currentSize = parseFloat(window.getComputedStyle(activeSpan).fontSize);
+      activeSpan.style.fontSize = `${currentSize + delta}px`;
+    }
+
+    // Change Font Color
+    function changeColor(colorHex) {
+      if (!activeSpan) return;
+      activeSpan.style.color = colorHex;
+    }
+
+    // Delete Text Block
+    function deleteActiveText() {
+      if (!activeSpan) return;
+      activeSpan.innerText = '';
+      floatingToolbar.style.display = 'none';
+    }
+
+    // Export Modified PDF
     async function exportEditedPdf() {
       if (!pdfBytes) {
         alert("No PDF loaded!");
@@ -201,8 +309,7 @@
         const originalText = span.getAttribute('data-original-text');
         const currentText = span.innerText;
 
-        // If user modified this specific text
-        if (originalText !== currentText) {
+        if (originalText !== currentText || span.style.color || span.style.fontSize) {
           const rect = span.getBoundingClientRect();
           const wrapperRect = textLayerDiv.getBoundingClientRect();
 
@@ -211,28 +318,28 @@
           const width = rect.width;
           const height = rect.height;
 
-          // Convert to PDF Coordinates
           const pdfX = (left / currentViewport.width) * firstPage.getWidth();
           const pdfY = pageHeight - ((top / currentViewport.height) * pageHeight) - ((height / currentViewport.height) * pageHeight);
           const pdfW = (width / currentViewport.width) * firstPage.getWidth();
           const pdfH = (height / currentViewport.height) * pageHeight;
 
-          // Erase old text area
+          // Whiteout old text area
           firstPage.drawRectangle({
             x: pdfX - 1,
             y: pdfY - 1,
-            width: pdfW + 4,
+            width: Math.max(pdfW + 6, 10),
             height: pdfH + 2,
             color: PDFLib.rgb(1, 1, 1)
           });
 
-          // Write new updated text
-          firstPage.drawText(currentText, {
-            x: pdfX,
-            y: pdfY + 2,
-            size: (height / currentViewport.height) * pageHeight * 0.75,
-            color: PDFLib.rgb(0, 0, 0)
-          });
+          if (currentText.trim() !== '') {
+            firstPage.drawText(currentText, {
+              x: pdfX,
+              y: pdfY + 2,
+              size: (parseFloat(window.getComputedStyle(span).fontSize) / currentViewport.height) * pageHeight,
+              color: PDFLib.rgb(0, 0, 0)
+            });
+          }
         }
       }
 
