@@ -3,50 +3,40 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Live PDF Editor & Tools</title>
+  <title>Free Online PDF Tools Suite</title>
   <link rel="stylesheet" href="style.css">
-  <script src="https://unpkg.com/pdf-lib/dist/pdf-lib.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
 </head>
 <body>
 
   <header>
-    <h1>📄 Interactive PDF Editor</h1>
-    <p>Upload, Edit with Live Preview & Download Securely</p>
+    <h1>📄 Free Online PDF Tools</h1>
+    <p>Fast, Secure & Client-Side PDF Utilities</p>
   </header>
 
   <main class="container">
     
-    <!-- Controls Section -->
-    <div class="card controls-card">
-      <h3>1. Upload & Add Content</h3>
-      
-      <label for="pdf-input">Select PDF Document:</label>
-      <input type="file" id="pdf-input" accept="application/pdf">
+    <!-- Tool Card 1: PDF Editor -->
+    <a href="tools/editor.html" class="tool-card">
+      <div class="icon">✍️</div>
+      <h3>PDF Editor</h3>
+      <p>Add text, image, signature, and overlay content directly on your PDF pages.</p>
+    </a>
 
-      <hr>
-
-      <label for="text-input">Text Overlay:</label>
-      <input type="text" id="text-input" placeholder="Type text to place on PDF">
-
-      <label for="img-input">Add Image/Photo:</label>
-      <input type="file" id="img-input" accept="image/png, image/jpeg">
-
-      <button onclick="applyAndDownload()">Export & Download PDF</button>
-      <div id="status"></div>
+    <!-- Tool Card 2: PDF Merge (Coming Soon) -->
+    <div class="tool-card disabled">
+      <div class="icon">🔗</div>
+      <h3>Merge PDF</h3>
+      <p>Combine multiple PDF files into one single document instantly.</p>
     </div>
 
-    <!-- Live Preview Canvas Section -->
-    <div class="card preview-card">
-      <h3>2. Live PDF Preview</h3>
-      <p class="preview-hint">Your document preview will appear below after uploading:</p>
-      <div id="pdf-preview-container">
-        <canvas id="pdf-canvas"></canvas>
-      </div>
+    <!-- Tool Card 3: PDF to Image (Coming Soon) -->
+    <div class="tool-card disabled">
+      <div class="icon">🖼️</div>
+      <h3>PDF to Image</h3>
+      <p>Convert PDF pages into high-quality JPG or PNG images.</p>
     </div>
 
   </main>
 
-  <script src="script.js"></script>
 </body>
 </html>
