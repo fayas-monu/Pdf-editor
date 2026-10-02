@@ -3,105 +3,261 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>PDF Editor - Add Text & Images</title>
+  <title>Interactive PDF & OCR Editor</title>
   <link rel="stylesheet" href="../style.css">
+  
+  <!-- PDF-LIB, PDF.JS, and TESSERACT.JS Libraries -->
   <script src="https://unpkg.com/pdf-lib/dist/pdf-lib.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+
+  <style>
+    .editor-wrapper {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin: 20px auto;
+      max-width: 1000px;
+    }
+    .toolbar {
+      background: #2c3e50;
+      color: white;
+      padding: 12px 20px;
+      width: 100%;
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      align-items: center;
+      border-radius: 8px 8px 0 0;
+    }
+    .toolbar button, .toolbar label {
+      background: #e74c3c;
+      color: white;
+      padding: 8px 14px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 0.85rem;
+      font-weight: bold;
+    }
+    .toolbar button:hover { background: #c0392b; }
+    .toolbar input[type="file"] { display: none; }
+
+    #pdf-container {
+      position: relative;
+      background: #525659;
+      width: 100%;
+      min-height: 500px;
+      display: flex;
+      justify-content: center;
+      padding: 20px;
+      overflow: auto;
+      border-radius: 0 0 8px 8px;
+    }
+
+    #canvas-wrapper {
+      position: relative;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+    }
+
+    canvas {
+      display: block;
+      background: white;
+    }
+
+    /* Editable Text Layer */
+    .draggable-text {
+      position: absolute;
+      border: 1px dashed #e74c3c;
+      background: rgba(255, 255, 255, 0.8);
+      color: black;
+      padding: 2px 5px;
+      font-family: Arial, sans-serif;
+      font-size: 16px;
+      outline: none;
+      cursor: move;
+    }
+  </style>
 </head>
 <body>
 
   <header>
-    <h1>✍️ Online PDF Editor</h1>
-    <p>Overlay text and image attachments onto your PDF pages</p>
+    <h1>📄 Interactive PDF & OCR Editor</h1>
+    <p>Open PDF, Edit Words On-Screen, or Recognize Text via OCR</p>
   </header>
 
   <div class="tool-container">
     <a href="../index.html" class="back-link">← Back to All Tools</a>
 
-    <div class="editor-card">
-      <label for="pdf-file">1. Select PDF File:</label>
-      <input type="file" id="pdf-file" accept="application/pdf">
+    <div class="editor-wrapper">
+      <!-- Toolbar -->
+      <div class="toolbar">
+        <label for="pdf-file-input">📁 Open PDF</label>
+        <input type="file" id="pdf-file-input" accept="application/pdf">
 
-      <label for="overlay-text">2. Enter Text Overlay:</label>
-      <input type="text" id="overlay-text" placeholder="Type text to place on page">
+        <button onclick="enableAddText()">✍️ Add Editable Text</button>
+        <button onclick="runOcrScan()">🔍 Run OCR (Recognize Scanned Text)</button>
+        <button onclick="exportEditedPdf()" style="margin-left: auto; background: #27ae60;">💾 Export & Download</button>
+      </div>
 
-      <label for="image-file">3. Select Image/Photo (Optional):</label>
-      <input type="file" id="image-file" accept="image/png, image/jpeg">
-
-      <button onclick="processAndDownload()">Export & Download PDF</button>
-
-      <div id="status"></div>
+      <!-- PDF Canvas Viewport -->
+      <div id="pdf-container">
+        <div id="canvas-wrapper">
+          <canvas id="pdf-render-canvas"></canvas>
+        </div>
+      </div>
     </div>
+
+    <div id="status" style="text-align: center; margin-top: 10px; font-weight: bold;"></div>
   </div>
 
   <script>
     // Credit: (hank!nd3 p4d4y41!
 
-    async function processAndDownload() {
-      const pdfFileInput = document.getElementById('pdf-file').files[0];
-      const imageFileInput = document.getElementById('image-file').files[0];
-      const textOverlay = document.getElementById('overlay-text').value;
+    pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js';
+
+    let pdfBytes = null;
+    let pdfDocObj = null;
+    let currentViewport = null;
+    let addedTextElements = [];
+
+    // 1. Open and Render PDF on Canvas
+    document.getElementById('pdf-file-input').addEventListener('change', async function(e) {
+      const file = e.target.files[0];
+      const status = document.getElementById('status');
+      if (!file) return;
+
+      status.style.color = "#d35400";
+      status.innerText = "Loading PDF...";
+
+      pdfBytes = await file.arrayBuffer();
+      const loadingTask = pdfjsLib.getDocument({ data: pdfBytes });
+      pdfDocObj = await loadingTask.promise;
+
+      // Render First Page
+      const page = await pdfDocObj.getPage(1);
+      currentViewport = page.getViewport({ scale: 1.2 });
+
+      const canvas = document.getElementById('pdf-render-canvas');
+      const context = canvas.getContext('2d');
+      canvas.height = currentViewport.height;
+      canvas.width = currentViewport.width;
+
+      const renderContext = { canvasContext: context, viewport: currentViewport };
+      await page.render(renderContext).promise;
+
+      status.style.color = "#27ae60";
+      status.innerText = "PDF Loaded! Click 'Add Editable Text' or 'Run OCR' to start editing.";
+    });
+
+    // 2. Add On-Screen Drag-and-Drop Editable Text Layer
+    function enableAddText() {
+      if (!pdfDocObj) {
+        alert("Please load a PDF file first!");
+        return;
+      }
+
+      const wrapper = document.getElementById('canvas-wrapper');
+      const textDiv = document.createElement('div');
+      textDiv.className = 'draggable-text';
+      textDiv.contentEditable = true;
+      textDiv.innerText = 'Click & Type Text Here';
+      textDiv.style.left = '50px';
+      textDiv.style.top = '50px';
+
+      // Drag Logic
+      let isDragging = false, startX, startY;
+      textDiv.addEventListener('mousedown', (e) => {
+        isDragging = true;
+        startX = e.clientX - textDiv.offsetLeft;
+        startY = e.clientY - textDiv.offsetTop;
+      });
+
+      document.addEventListener('mousemove', (e) => {
+        if (isDragging) {
+          textDiv.style.left = (e.clientX - startX) + 'px';
+          textDiv.style.top = (e.clientY - startY) + 'px';
+        }
+      });
+
+      document.addEventListener('mouseup', () => { isDragging = false; });
+
+      wrapper.appendChild(textDiv);
+      addedTextElements.push(textDiv);
+    }
+
+    // 3. OCR Feature using Tesseract.js (Extract text from Scanned Pages)
+    async function runOcrScan() {
+      const canvas = document.getElementById('pdf-render-canvas');
       const status = document.getElementById('status');
 
-      if (!pdfFileInput) {
-        alert("Please select a PDF file first!");
+      if (!pdfDocObj) {
+        alert("Please load a PDF file first!");
         return;
       }
 
       status.style.color = "#d35400";
-      status.innerText = "Processing PDF... Please wait...";
+      status.innerText = "Running OCR scan on PDF page... Please wait...";
 
       try {
-        const pdfBytes = await pdfFileInput.arrayBuffer();
-        const pdfDoc = await PDFLib.PDFDocument.load(pdfBytes);
-        const firstPage = pdfDoc.getPages()[0];
-
-        // Draw Text Overlay
-        if (textOverlay) {
-          firstPage.drawText(textOverlay, {
-            x: 50,
-            y: 700,
-            size: 20,
-            color: PDFLib.rgb(0, 0, 0)
-          });
-        }
-
-        // Embed Image
-        if (imageFileInput) {
-          const imgBytes = await imageFileInput.arrayBuffer();
-          let img;
-          if (imageFileInput.type === 'image/jpeg') {
-            img = await pdfDoc.embedJpg(imgBytes);
-          } else if (imageFileInput.type === 'image/png') {
-            img = await pdfDoc.embedPng(imgBytes);
-          }
-
-          if (img) {
-            firstPage.drawImage(img, {
-              x: 400,
-              y: 650,
-              width: 100,
-              height: 100
-            });
-          }
-        }
-
-        const modifiedBytes = await pdfDoc.save();
-
-        // Download output file
-        const blob = new Blob([modifiedBytes], { type: 'application/pdf' });
-        const link = document.createElement('a');
-        link.href = URL.createObjectURL(blob);
-        link.download = 'edited_document.pdf';
-        link.click();
-
+        const { data: { text } } = await Tesseract.recognize(canvas, 'eng');
         status.style.color = "#27ae60";
-        status.innerText = "PDF Exported Successfully!";
-
+        status.innerText = "OCR Completed successfully!";
+        
+        // Add extracted text as an editable element
+        const wrapper = document.getElementById('canvas-wrapper');
+        const textDiv = document.createElement('div');
+        textDiv.className = 'draggable-text';
+        textDiv.contentEditable = true;
+        textDiv.innerText = text.substring(0, 100) + '...';
+        textDiv.style.left = '30px';
+        textDiv.style.top = '30px';
+        wrapper.appendChild(textDiv);
+        addedTextElements.push(textDiv);
+        
+        alert("Extracted OCR Text preview:\n\n" + text);
       } catch (err) {
         console.error(err);
         status.style.color = "#c0392b";
-        status.innerText = "Failed to process PDF.";
+        status.innerText = "OCR Recognition Failed.";
       }
+    }
+
+    // 4. Save and Export Final PDF with Overlay Text
+    async function exportEditedPdf() {
+      if (!pdfBytes) {
+        alert("No PDF loaded!");
+        return;
+      }
+
+      const pdfDoc = await PDFLib.PDFDocument.load(pdfBytes);
+      const firstPage = pdfDoc.getPages()[0];
+      const pageHeight = firstPage.getHeight();
+
+      // Burn added/edited text into the PDF
+      addedTextElements.forEach((el) => {
+        const text = el.innerText;
+        const x = parseFloat(el.style.left);
+        const y = parseFloat(el.style.top);
+
+        // Convert Canvas Coordinates to PDF Coordinates
+        const pdfX = (x / currentViewport.width) * firstPage.getWidth();
+        const pdfY = pageHeight - ((y / currentViewport.height) * pageHeight) - 15;
+
+        firstPage.drawText(text, {
+          x: pdfX,
+          y: pdfY,
+          size: 16,
+          color: PDFLib.rgb(0, 0, 0)
+        });
+      });
+
+      const modifiedBytes = await pdfDoc.save();
+      const blob = new Blob([modifiedBytes], { type: 'application/pdf' });
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = 'ocr_edited_document.pdf';
+      link.click();
     }
   </script>
 
