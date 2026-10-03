@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>iLovePDF Style Visual PDF Cropper</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js"></script>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+    body { background-color: #f3f5f8; color: #333; }
+    header { background: #fff; border-bottom: 1px solid #e0e0e0; padding: 12px 30px; display: flex; justify-content: space-between; align-items: center; }
+    .logo { display: flex; align-items: center; gap: 10px; font-size: 20px; font-weight: 800; color: #e5322d; text-decoration: none; }
+    .container { max-width: 900px; margin: 30px auto; padding: 20px; text-align: center; }
+    .upload-area { background: #fff; border: 2px dashed #e5322d; border-radius: 12px; padding: 40px 20px; cursor: pointer; margin-bottom: 20px; }
+    .upload-area i { font-size: 40px; color: #e5322d; margin-bottom: 10px; }
+    
+    /* PDF Viewer Area */
+    #editorArea { display: none; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
+    .canvas-wrapper { position: relative; display: inline-block; margin: 20px auto; border: 1px solid #ccc; background: #e8e8e8; user-select: none; }
+    #pdfCanvas { display: block; }
+    
+    /* iLovePDF-style Visual Overlay Box */
+    #cropOverlay {
+      position: absolute;
+      border: 2px dashed #e5322d;
+      background: rgba(229, 50, 45, 0.15);
+      cursor: move;
+      top: 10%; left: 10%; width: 80%; height: 80%;
+      box-sizing: border-box;
+    }
+    
+    .btn { background: #e5322d; color: #fff; border: none; padding: 12px 30px; font-size: 16px; border-radius: 6px; cursor: pointer; font-weight: 600; margin-top: 15px; }
+    .btn:hover { background: #c62828; }
+    #status { font-weight: 600; color: #e5322d; margin: 10px 0; }
+  </style>
+</head>
+<body>
+  <header>
+    <a href="../index.html" class="logo"><i class="fa-solid fa-file-pdf"></i> PDF Edit Tool</a>
+  </header>
+
+  <div class="container">
+    <h1>Visual PDF Cropper</h1>
+    <p style="color:#666; margin-bottom: 20px;">Adjust the selection box on the PDF preview to crop your document.</p>
+
+    <div class="upload-area" id="uploadArea" onclick="document.getElementById('fileInput').click()">
+      <i class="fa-solid fa-crop-simple"></i>
+      <h3>Select PDF file</h3>
+      <input type="file" id="fileInput" accept="application/pdf" style="display:none;" onchange="handleFile(this.files[0])">
+    </div>
+
+    <div id="status"></div>
+
+    <div id="editorArea">
+      <div class="canvas-wrapper" id="canvasWrapper">
+        <canvas id="pdfCanvas"></canvas>
+        <div id="cropOverlay"></div>
+      </div>
+      <br>
+      <button class="btn" onclick="applyCrop()">Crop PDF & Download</button>
+    </div>
+  </div>
+
+  <script>
+    pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+
+    let selectedFile = null;
+    let pdfPageWidth = 0;
+    let pdfPageHeight = 0;
+    let renderScale = 1;
+
+    async function handleFile(file) {
+      if (!file) return;
+      selectedFile = file;
+      document.getElementById('uploadArea').style.display = 'none';
+      document.getElementById('status').innerText = "Loading PDF preview...";
+
+      const arrayBuffer = await selectedFile.arrayBuffer();
+      const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+      const page = await pdf.getPage(1);
+
+      const unscaledViewport = page.getViewport({ scale: 1 });
+      pdfPageWidth = unscaledViewport.width;
+      pdfPageHeight = unscaledViewport.height;
+
+      // Fit preview canvas within screen
+      const maxWidth = 600;
+      renderScale = maxWidth / pdfPageWidth;
+      const viewport = page.getViewport({ scale: renderScale });
+
+      const canvas = document.getElementById('pdfCanvas');
+      const context = canvas.getContext('2d');
+      canvas.width = viewport.width;
+      canvas.height = viewport.height;
+
+      await page.render({ canvasContext: context, viewport: viewport }).promise;
+
+      document.getElementById('status').innerText = "";
+      document.getElementById('editorArea').style.display = 'block';
+
+      initDrag();
+    }
+
+    // Simple Drag/Resize handling for Crop Box
+    function initDrag() {
+      const overlay = document.getElementById('cropOverlay');
+      const wrapper = document.getElementById('canvasWrapper');
+      let isDragging = false, startX, startY, initialLeft, initialTop;
+
+      overlay.addEventListener('mousedown', (e) => {
+        isDragging = true;
+        startX = e.clientX;
+        startY = e.clientY;
+        initialLeft = overlay.offsetLeft;
+        initialTop = overlay.offsetTop;
+      });
+
+      window.addEventListener('mousemove', (e) => {
+        if (!isDragging) return;
+        let dx = e.clientX - startX;
+        let dy = e.clientY - startY;
+
+        let newLeft = Math.max(0, Math.min(initialLeft + dx, wrapper.clientWidth - overlay.clientWidth));
+        let newTop = Math.max(0, Math.min(initialTop + dy, wrapper.clientHeight - overlay.clientHeight));
+
+        overlay.style.left = newLeft + 'px';
+        overlay.style.top = newTop + 'px';
+      });
+
+      window.addEventListener('mouseup', () => isDragging = false);
+    }
+
+    async function applyCrop() {
+      if (!selectedFile) return;
+
+      document.getElementById('status').innerText = "Cropping PDF...";
+
+      const overlay = document.getElementById('cropOverlay');
+      const canvas = document.getElementById('pdfCanvas');
+
+      // Calculate ratios from rendered canvas to actual PDF points
+      const scaleX = pdfPageWidth / canvas.width;
+      const scaleY = pdfPageHeight / canvas.height;
+
+      const cropX = overlay.offsetLeft * scaleX;
+      const cropY = overlay.offsetTop * scaleY;
+      const cropW = overlay.clientWidth * scaleX;
+      const cropH = overlay.clientHeight * scaleY;
+
+      const arrayBuffer = await selectedFile.arrayBuffer();
+      const { PDFDocument } = PDFLib;
+      const pdfDoc = await PDFDocument.load(arrayBuffer);
+
+      const pages = pdfDoc.getPages();
+      pages.forEach(page => {
+        const { height } = page.getSize();
+        // PDF-lib coordinate system starts from bottom-left
+        const pdfY = height - cropY - cropH;
+        page.setCropBox(cropX, pdfY, cropW, cropH);
+      });
+
+      const croppedBytes = await pdfDoc.save();
+      const blob = new Blob([croppedBytes], { type: 'application/pdf' });
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = `cropped_${selectedFile.name}`;
+      link.click();
+
+      document.getElementById('status').innerText = "Crop Completed & Downloaded!";
+    }
+  </script>
+</body>
+</html>
