@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Perfect Sejda PDF Editor</title>
+  <title>Exact Font & Clean Delete PDF Editor</title>
   
   <!-- WASM & PDF Libraries -->
   <script src="https://unpkg.com/pdf-lib/dist/pdf-lib.min.js"></script>
@@ -11,7 +11,7 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
 
   <style>
-    * { box-sizing: border-box; font-family: system-ui, -apple-system, sans-serif; }
+    * { box-sizing: border-box; font-family: inherit; }
     body { margin: 0; background-color: #525659; }
 
     .main-toolbar {
@@ -61,19 +61,20 @@
       overflow: hidden;
     }
 
-    /* Perfect Whiteout to remove underlying PDF text overlap */
+    /* Exact Font Overlay styling with automatic Whiteout */
     .textLayer span {
       position: absolute;
       white-space: pre;
       cursor: text;
-      background-color: #ffffff !important; /* Completely hides original background text */
+      background-color: #ffffff !important; /* Block out original canvas text permanently */
       color: #000000;
       border: 1px dashed transparent;
       outline: none;
       user-select: text;
       line-height: 1.0;
-      padding: 1px 2px;
-      margin: -1px;
+      padding: 0px 1px;
+      margin: 0;
+      transform-origin: 0% 0%;
     }
 
     .textLayer span:hover {
@@ -86,7 +87,7 @@
       z-index: 100;
     }
 
-    /* --- Exact Sejda Floating Toolbar Design --- */
+    /* --- Sejda Floating Toolbar UI --- */
     #sejda-toolbar {
       position: absolute;
       display: none;
@@ -117,9 +118,7 @@
       padding: 0 6px;
     }
 
-    .sejda-btn:active {
-      background-color: #eaf4fe;
-    }
+    .sejda-btn:active { background-color: #eaf4fe; }
 
     .sejda-divider {
       width: 1px;
@@ -149,7 +148,7 @@
   <div class="main-toolbar">
     <label for="pdf-file-input">📂 Open PDF</label>
     <input type="file" id="pdf-file-input" accept="application/pdf">
-    <span id="status" style="font-size: 0.85rem; color: #fbc531;">Open a PDF to edit</span>
+    <span id="status" style="font-size: 0.85rem; color: #fbc531;">Select a PDF to edit</span>
     <button onclick="exportWasmPdf()">💾 Save PDF</button>
   </div>
 
@@ -158,38 +157,21 @@
       <canvas id="pdf-render-canvas"></canvas>
       <div id="text-layer" class="textLayer"></div>
 
-      <!-- Sejda Toolbar UI with Clean & Clear Controls -->
+      <!-- Sejda Floating Toolbar Controls -->
       <div id="sejda-toolbar">
-        
-        <!-- Bold -->
         <button class="sejda-btn" onclick="applyFormat('bold')" title="Bold"><b>B</b></button>
-
-        <!-- Italic -->
         <button class="sejda-btn" onclick="applyFormat('italic')" title="Italic"><i>I</i></button>
-
-        <!-- Font Size -->
         <button class="sejda-btn" onclick="adjustSize(1)" title="Font Size Up">T↑</button>
         <button class="sejda-btn" onclick="adjustSize(-1)" title="Font Size Down">t↓</button>
-
         <div class="sejda-divider"></div>
-
-        <!-- Color Palette -->
         <div class="color-picker-wrapper sejda-btn" title="Color">
           🎨
           <input type="color" id="text-color" onchange="applyColor(this.value)">
         </div>
-
         <div class="sejda-divider"></div>
-
-        <!-- Move Handle -->
         <button class="sejda-btn" id="move-btn" style="cursor: move;" title="Drag to Move">✥ Move</button>
-
-        <!-- Duplicate -->
         <button class="sejda-btn" onclick="duplicateText()" title="Duplicate">❐</button>
-
-        <!-- Delete -->
         <button class="sejda-btn" onclick="deleteText()" style="color: #e74c3c;" title="Delete">🗑</button>
-
       </div>
     </div>
   </div>
@@ -212,7 +194,7 @@
       const file = e.target.files[0];
       if (!file) return;
 
-      document.getElementById('status').innerText = "Loading PDF...";
+      document.getElementById('status').innerText = "Loading PDF & Fonts...";
       originalArrayBuffer = await file.arrayBuffer();
 
       const loadingTask = pdfjsLib.getDocument({ data: originalArrayBuffer.slice(0) });
@@ -242,17 +224,28 @@
       const textLayerDiv = document.getElementById('text-layer');
       textLayerDiv.innerHTML = '';
 
-      pdfjsLib.renderTextLayer({
+      // Render Text Layer with PDF.JS Exact Font Mapping
+      await pdfjsLib.renderTextLayer({
         textContent: textContent,
         container: textLayerDiv,
         viewport: currentViewport,
         textDivs: []
-      }).promise.then(() => {
-        const spans = textLayerDiv.querySelectorAll('span');
-        spans.forEach(span => makeSpanEditable(span));
+      }).promise;
 
-        document.getElementById('status').innerText = "Ready! Tap text to edit.";
+      // Extract exact Font and Styles matching original PDF
+      const spans = textLayerDiv.querySelectorAll('span');
+      spans.forEach((span, index) => {
+        const styleItem = textContent.items[index];
+        if (styleItem) {
+          // Extract exact font family name from PDF
+          if (styleItem.fontName) {
+            span.style.fontFamily = `"${styleItem.fontName}", sans-serif, monospace`;
+          }
+        }
+        makeSpanEditable(span);
       });
+
+      document.getElementById('status').innerText = "Ready! Click text to edit.";
     });
 
     function makeSpanEditable(span) {
@@ -317,9 +310,10 @@
       activeSpan.style.color = hex;
     }
 
+    // Complete deletion by clearing text and maintaining whiteout box
     function deleteText() {
       if (!activeSpan) return;
-      activeSpan.innerText = '';
+      activeSpan.innerText = ' '; // Clears text but keeps whiteout over original PDF content
       toolbar.style.display = 'none';
     }
 
@@ -327,13 +321,13 @@
       if (!activeSpan) return;
       const clone = activeSpan.cloneNode(true);
       const currentTop = parseFloat(activeSpan.style.top || 0);
-      clone.style.top = `${currentTop + 20}px`;
+      clone.style.top = `${currentTop + 18}px`;
       document.getElementById('text-layer').appendChild(clone);
       makeSpanEditable(clone);
       clone.focus();
     }
 
-    // Touch & Mouse Drag Handle Logic for Mobile
+    // Drag Handle Logic for Mobile and Desktop
     const moveBtn = document.getElementById('move-btn');
 
     const startDrag = (e) => {
@@ -383,11 +377,11 @@
       document.removeEventListener('touchend', stopDrag);
     }
 
-    // Export WASM PDF
+    // Export WASM PDF with Original Whiteout Overlay
     async function exportWasmPdf() {
       if (!originalArrayBuffer) return;
 
-      document.getElementById('status').innerText = "Saving PDF...";
+      document.getElementById('status').innerText = "Exporting Clean PDF...";
 
       const pdfDoc = await PDFLib.PDFDocument.load(originalArrayBuffer.slice(0));
       pdfDoc.registerFontkit(fontkit);
@@ -399,7 +393,6 @@
       const spans = textLayerDiv.querySelectorAll('span');
 
       for (let span of spans) {
-        const originalText = span.getAttribute('data-original-text');
         const currentText = span.innerText;
 
         const rect = span.getBoundingClientRect();
@@ -415,11 +408,11 @@
         const pdfW = (width / currentViewport.width) * page.getWidth();
         const pdfH = (height / currentViewport.height) * pageHeight;
 
-        // Cover old text with solid white rect in export
+        // Whiteout existing text on export completely
         page.drawRectangle({
           x: pdfX - 1,
           y: pdfY - 1,
-          width: Math.max(pdfW + 6, 12),
+          width: Math.max(pdfW + 4, 10),
           height: pdfH + 2,
           color: PDFLib.rgb(1, 1, 1)
         });
@@ -428,9 +421,9 @@
           const fontPx = parseFloat(window.getComputedStyle(span).fontSize);
           const pdfFontSize = (fontPx / currentViewport.height) * pageHeight;
 
-          page.drawText(currentText, {
+          page.drawText(currentText.trim(), {
             x: pdfX,
-            y: pdfY + 2,
+            y: pdfY + 1,
             size: pdfFontSize,
             color: PDFLib.rgb(0, 0, 0)
           });
@@ -441,7 +434,7 @@
       const blob = new Blob([modifiedBytes], { type: 'application/pdf' });
       const link = document.createElement('a');
       link.href = URL.createObjectURL(blob);
-      link.download = 'Edited_Document.pdf';
+      link.download = 'Clean_Edited_Document.pdf';
       link.click();
 
       document.getElementById('status').innerText = "PDF Saved Successfully!";
