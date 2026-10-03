@@ -3,143 +3,74 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Exact Font & Clean Delete PDF Editor</title>
+  <title>Exact PDF Editor Engine</title>
   
-  <!-- WASM & PDF Libraries -->
   <script src="https://unpkg.com/pdf-lib/dist/pdf-lib.min.js"></script>
   <script src="https://unpkg.com/@pdf-lib/fontkit/dist/fontkit.umd.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
 
   <style>
-    * { box-sizing: border-box; font-family: inherit; }
-    body { margin: 0; background-color: #525659; }
+    * { box-sizing: border-box; font-family: sans-serif; }
+    body { margin: 0; background-color: #2f3640; color: #fff; }
 
     .main-toolbar {
       background: #1e272e;
-      color: white;
-      padding: 10px 15px;
+      padding: 12px 20px;
       display: flex;
       justify-content: space-between;
       align-items: center;
       position: sticky;
       top: 0;
       z-index: 3000;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.3);
     }
 
     .main-toolbar label, .main-toolbar button {
-      background: #05c46b;
+      background: #0984e3;
       color: white;
-      padding: 8px 14px;
+      padding: 9px 16px;
       border: none;
-      border-radius: 5px;
+      border-radius: 6px;
       cursor: pointer;
       font-weight: bold;
-      font-size: 0.85rem;
     }
 
     .main-toolbar input[type="file"] { display: none; }
 
     #pdf-container {
-      position: relative;
-      width: 100%;
-      overflow: auto;
       display: flex;
       justify-content: center;
-      padding: 20px 5px;
+      padding: 20px 10px;
     }
 
     .page-wrapper {
       position: relative;
-      box-shadow: 0 5px 25px rgba(0,0,0,0.3);
       background: white;
+      box-shadow: 0 8px 30px rgba(0,0,0,0.5);
     }
 
     .textLayer {
       position: absolute;
       left: 0; top: 0; right: 0; bottom: 0;
-      overflow: hidden;
     }
 
-    /* Exact Font Overlay styling with automatic Whiteout */
+    /* This completely hides the original canvas text underneath */
     .textLayer span {
       position: absolute;
       white-space: pre;
       cursor: text;
-      background-color: #ffffff !important; /* Block out original canvas text permanently */
+      background-color: #ffffff !important;
       color: #000000;
       border: 1px dashed transparent;
       outline: none;
-      user-select: text;
       line-height: 1.0;
-      padding: 0px 1px;
-      margin: 0;
-      transform-origin: 0% 0%;
+      padding: 1px 2px;
     }
 
-    .textLayer span:hover {
-      border: 1px dashed #0984e3;
-    }
-
+    .textLayer span:hover { border: 1px dashed #0984e3; }
     .textLayer span:focus {
-      border: 1px solid #0abcd4 !important;
-      box-shadow: 0 0 5px rgba(10, 189, 212, 0.5);
+      border: 1px solid #e1b12c !important;
+      box-shadow: 0 0 5px rgba(225, 177, 44, 0.5);
       z-index: 100;
-    }
-
-    /* --- Sejda Floating Toolbar UI --- */
-    #sejda-toolbar {
-      position: absolute;
-      display: none;
-      background: #ffffff;
-      border: 1px solid #0abcd4;
-      border-radius: 6px;
-      box-shadow: 0 4px 18px rgba(0,0,0,0.25);
-      padding: 3px 6px;
-      z-index: 4000;
-      align-items: center;
-      gap: 3px;
-      height: 42px;
-    }
-
-    .sejda-btn {
-      background: #f8f9fa;
-      border: 1px solid #dcdde1;
-      border-radius: 4px;
-      min-width: 32px;
-      height: 34px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      color: #0984e3;
-      font-weight: bold;
-      font-size: 0.95rem;
-      padding: 0 6px;
-    }
-
-    .sejda-btn:active { background-color: #eaf4fe; }
-
-    .sejda-divider {
-      width: 1px;
-      height: 24px;
-      background-color: #dcdde1;
-      margin: 0 2px;
-    }
-
-    .color-picker-wrapper {
-      position: relative;
-      width: 32px;
-      height: 34px;
-    }
-
-    .color-picker-wrapper input[type="color"] {
-      position: absolute;
-      left: 0; top: 0;
-      opacity: 0;
-      width: 100%;
-      height: 100%;
-      cursor: pointer;
     }
   </style>
 </head>
@@ -148,31 +79,14 @@
   <div class="main-toolbar">
     <label for="pdf-file-input">📂 Open PDF</label>
     <input type="file" id="pdf-file-input" accept="application/pdf">
-    <span id="status" style="font-size: 0.85rem; color: #fbc531;">Select a PDF to edit</span>
-    <button onclick="exportWasmPdf()">💾 Save PDF</button>
+    <span id="status" style="color: #fbc531;">Select PDF</span>
+    <button onclick="exportCleanPdf()">💾 Save PDF</button>
   </div>
 
   <div id="pdf-container">
     <div class="page-wrapper" id="page-wrapper">
       <canvas id="pdf-render-canvas"></canvas>
       <div id="text-layer" class="textLayer"></div>
-
-      <!-- Sejda Floating Toolbar Controls -->
-      <div id="sejda-toolbar">
-        <button class="sejda-btn" onclick="applyFormat('bold')" title="Bold"><b>B</b></button>
-        <button class="sejda-btn" onclick="applyFormat('italic')" title="Italic"><i>I</i></button>
-        <button class="sejda-btn" onclick="adjustSize(1)" title="Font Size Up">T↑</button>
-        <button class="sejda-btn" onclick="adjustSize(-1)" title="Font Size Down">t↓</button>
-        <div class="sejda-divider"></div>
-        <div class="color-picker-wrapper sejda-btn" title="Color">
-          🎨
-          <input type="color" id="text-color" onchange="applyColor(this.value)">
-        </div>
-        <div class="sejda-divider"></div>
-        <button class="sejda-btn" id="move-btn" style="cursor: move;" title="Drag to Move">✥ Move</button>
-        <button class="sejda-btn" onclick="duplicateText()" title="Duplicate">❐</button>
-        <button class="sejda-btn" onclick="deleteText()" style="color: #e74c3c;" title="Delete">🗑</button>
-      </div>
     </div>
   </div>
 
@@ -181,28 +95,22 @@
 
     pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js';
 
-    let originalArrayBuffer = null;
-    let pdfDocObj = null;
+    let originalBuffer = null;
     let currentViewport = null;
-    let activeSpan = null;
-    let isDragging = false;
-    let dragStartX, dragStartY, initialLeft, initialTop;
-
-    const toolbar = document.getElementById('sejda-toolbar');
 
     document.getElementById('pdf-file-input').addEventListener('change', async function(e) {
       const file = e.target.files[0];
       if (!file) return;
 
-      document.getElementById('status').innerText = "Loading PDF & Fonts...";
-      originalArrayBuffer = await file.arrayBuffer();
+      document.getElementById('status').innerText = "Loading PDF...";
+      originalBuffer = await file.arrayBuffer();
 
-      const loadingTask = pdfjsLib.getDocument({ data: originalArrayBuffer.slice(0) });
-      pdfDocObj = await loadingTask.promise;
+      const loadingTask = pdfjsLib.getDocument({ data: originalBuffer.slice(0) });
+      const pdfDocObj = await loadingTask.promise;
 
       const page = await pdfDocObj.getPage(1);
       
-      const containerWidth = document.getElementById('pdf-container').clientWidth || 360;
+      const containerWidth = document.getElementById('pdf-container').clientWidth || 380;
       const unscaledViewport = page.getViewport({ scale: 1.0 });
       let scale = (containerWidth - 20) / unscaledViewport.width;
       if (scale > 1.4) scale = 1.3;
@@ -224,166 +132,32 @@
       const textLayerDiv = document.getElementById('text-layer');
       textLayerDiv.innerHTML = '';
 
-      // Render Text Layer with PDF.JS Exact Font Mapping
-      await pdfjsLib.renderTextLayer({
-        textContent: textContent,
-        container: textLayerDiv,
-        viewport: currentViewport,
-        textDivs: []
-      }).promise;
+      textContent.items.forEach((item) => {
+        const span = document.createElement('span');
+        span.contentEditable = true;
+        span.innerText = item.str;
 
-      // Extract exact Font and Styles matching original PDF
-      const spans = textLayerDiv.querySelectorAll('span');
-      spans.forEach((span, index) => {
-        const styleItem = textContent.items[index];
-        if (styleItem) {
-          // Extract exact font family name from PDF
-          if (styleItem.fontName) {
-            span.style.fontFamily = `"${styleItem.fontName}", sans-serif, monospace`;
-          }
+        const tx = pdfjsLib.Util.transform(currentViewport.transform, item.transform);
+        span.style.left = tx[4] + 'px';
+        span.style.top = (tx[5] - (item.height * currentViewport.scale)) + 'px';
+        span.style.fontSize = (Math.sqrt(item.transform[0] * item.transform[0]) * currentViewport.scale) + 'px';
+        
+        if (item.fontName) {
+          span.style.fontFamily = `"${item.fontName}", sans-serif`;
         }
-        makeSpanEditable(span);
+
+        textLayerDiv.appendChild(span);
       });
 
-      document.getElementById('status').innerText = "Ready! Click text to edit.";
+      document.getElementById('status').innerText = "Ready! Click any text to edit or delete.";
     });
 
-    function makeSpanEditable(span) {
-      span.contentEditable = true;
-      if (!span.getAttribute('data-original-text')) {
-        span.setAttribute('data-original-text', span.innerText);
-      }
+    async function exportCleanPdf() {
+      if (!originalBuffer) return;
 
-      span.addEventListener('focus', () => {
-        activeSpan = span;
-        showToolbar(span);
-      });
+      document.getElementById('status').innerText = "Generating Final PDF...";
 
-      span.addEventListener('input', () => {
-        showToolbar(span);
-      });
-    }
-
-    function showToolbar(span) {
-      const rect = span.getBoundingClientRect();
-      const wrapperRect = document.getElementById('page-wrapper').getBoundingClientRect();
-
-      let left = rect.left - wrapperRect.left;
-      let top = rect.top - wrapperRect.top - 50;
-
-      if (top < 0) top = rect.top - wrapperRect.top + rect.height + 8;
-
-      toolbar.style.left = `${Math.max(5, left)}px`;
-      toolbar.style.top = `${top}px`;
-      toolbar.style.display = 'flex';
-    }
-
-    document.addEventListener('mousedown', (e) => {
-      if (!toolbar.contains(e.target) && activeSpan && !activeSpan.contains(e.target) && !isDragging) {
-        toolbar.style.display = 'none';
-      }
-    });
-
-    document.addEventListener('touchstart', (e) => {
-      if (!toolbar.contains(e.target) && activeSpan && !activeSpan.contains(e.target) && !isDragging) {
-        toolbar.style.display = 'none';
-      }
-    }, { passive: true });
-
-    function applyFormat(type) {
-      if (!activeSpan) return;
-      if (type === 'bold') {
-        activeSpan.style.fontWeight = activeSpan.style.fontWeight === 'bold' ? 'normal' : 'bold';
-      } else if (type === 'italic') {
-        activeSpan.style.fontStyle = activeSpan.style.fontStyle === 'italic' ? 'normal' : 'italic';
-      }
-    }
-
-    function adjustSize(delta) {
-      if (!activeSpan) return;
-      const cur = parseFloat(window.getComputedStyle(activeSpan).fontSize);
-      activeSpan.style.fontSize = `${cur + delta}px`;
-    }
-
-    function applyColor(hex) {
-      if (!activeSpan) return;
-      activeSpan.style.color = hex;
-    }
-
-    // Complete deletion by clearing text and maintaining whiteout box
-    function deleteText() {
-      if (!activeSpan) return;
-      activeSpan.innerText = ' '; // Clears text but keeps whiteout over original PDF content
-      toolbar.style.display = 'none';
-    }
-
-    function duplicateText() {
-      if (!activeSpan) return;
-      const clone = activeSpan.cloneNode(true);
-      const currentTop = parseFloat(activeSpan.style.top || 0);
-      clone.style.top = `${currentTop + 18}px`;
-      document.getElementById('text-layer').appendChild(clone);
-      makeSpanEditable(clone);
-      clone.focus();
-    }
-
-    // Drag Handle Logic for Mobile and Desktop
-    const moveBtn = document.getElementById('move-btn');
-
-    const startDrag = (e) => {
-      if (!activeSpan) return;
-      isDragging = true;
-      const clientX = e.touches ? e.touches[0].clientX : e.clientX;
-      const clientY = e.touches ? e.touches[0].clientY : e.clientY;
-
-      dragStartX = clientX;
-      dragStartY = clientY;
-
-      const rect = activeSpan.getBoundingClientRect();
-      const wrapperRect = document.getElementById('page-wrapper').getBoundingClientRect();
-      initialLeft = rect.left - wrapperRect.left;
-      initialTop = rect.top - wrapperRect.top;
-
-      document.addEventListener('mousemove', onMove);
-      document.addEventListener('touchmove', onMove, { passive: false });
-      document.addEventListener('mouseup', stopDrag);
-      document.addEventListener('touchend', stopDrag);
-    };
-
-    moveBtn.addEventListener('mousedown', startDrag);
-    moveBtn.addEventListener('touchstart', startDrag, { passive: false });
-
-    function onMove(e) {
-      if (!isDragging || !activeSpan) return;
-      if (e.cancelable) e.preventDefault();
-
-      const clientX = e.touches ? e.touches[0].clientX : e.clientX;
-      const clientY = e.touches ? e.touches[0].clientY : e.clientY;
-
-      const deltaX = clientX - dragStartX;
-      const deltaY = clientY - dragStartY;
-
-      activeSpan.style.left = `${initialLeft + deltaX}px`;
-      activeSpan.style.top = `${initialTop + deltaY}px`;
-
-      showToolbar(activeSpan);
-    }
-
-    function stopDrag() {
-      isDragging = false;
-      document.removeEventListener('mousemove', onMove);
-      document.removeEventListener('touchmove', onMove);
-      document.removeEventListener('mouseup', stopDrag);
-      document.removeEventListener('touchend', stopDrag);
-    }
-
-    // Export WASM PDF with Original Whiteout Overlay
-    async function exportWasmPdf() {
-      if (!originalArrayBuffer) return;
-
-      document.getElementById('status').innerText = "Exporting Clean PDF...";
-
-      const pdfDoc = await PDFLib.PDFDocument.load(originalArrayBuffer.slice(0));
+      const pdfDoc = await PDFLib.PDFDocument.load(originalBuffer.slice(0));
       pdfDoc.registerFontkit(fontkit);
 
       const page = pdfDoc.getPages()[0];
@@ -408,7 +182,7 @@
         const pdfW = (width / currentViewport.width) * page.getWidth();
         const pdfH = (height / currentViewport.height) * pageHeight;
 
-        // Whiteout existing text on export completely
+        // Cover the old text cleanly with White Box Overlay
         page.drawRectangle({
           x: pdfX - 1,
           y: pdfY - 1,
@@ -434,10 +208,10 @@
       const blob = new Blob([modifiedBytes], { type: 'application/pdf' });
       const link = document.createElement('a');
       link.href = URL.createObjectURL(blob);
-      link.download = 'Clean_Edited_Document.pdf';
+      link.download = 'Clean_Edited_PDF.pdf';
       link.click();
 
-      document.getElementById('status').innerText = "PDF Saved Successfully!";
+      document.getElementById('status').innerText = "Saved Successfully!";
     }
   </script>
 
