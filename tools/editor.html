@@ -3,14 +3,14 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Exact PDF Editor Engine</title>
+  <title>Exact PDF Master Editor</title>
   
   <script src="https://unpkg.com/pdf-lib/dist/pdf-lib.min.js"></script>
   <script src="https://unpkg.com/@pdf-lib/fontkit/dist/fontkit.umd.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
 
   <style>
-    * { box-sizing: border-box; font-family: sans-serif; }
+    * { box-sizing: border-box; font-family: Arial, sans-serif; }
     body { margin: 0; background-color: #2f3640; color: #fff; }
 
     .main-toolbar {
@@ -53,12 +53,12 @@
       left: 0; top: 0; right: 0; bottom: 0;
     }
 
-    /* This completely hides the original canvas text underneath */
+    /* Transparent on Canvas, White on Edit */
     .textLayer span {
       position: absolute;
       white-space: pre;
       cursor: text;
-      background-color: #ffffff !important;
+      background-color: #ffffff;
       color: #000000;
       border: 1px dashed transparent;
       outline: none;
@@ -69,7 +69,7 @@
     .textLayer span:hover { border: 1px dashed #0984e3; }
     .textLayer span:focus {
       border: 1px solid #e1b12c !important;
-      box-shadow: 0 0 5px rgba(225, 177, 44, 0.5);
+      background-color: #ffffff !important;
       z-index: 100;
     }
   </style>
@@ -138,18 +138,23 @@
         span.innerText = item.str;
 
         const tx = pdfjsLib.Util.transform(currentViewport.transform, item.transform);
-        span.style.left = tx[4] + 'px';
-        span.style.top = (tx[5] - (item.height * currentViewport.scale)) + 'px';
+        const x = tx[4];
+        const y = tx[5] - (item.height * currentViewport.scale);
+        const w = item.width * currentViewport.scale;
+        const h = item.height * currentViewport.scale;
+
+        span.style.left = x + 'px';
+        span.style.top = y + 'px';
         span.style.fontSize = (Math.sqrt(item.transform[0] * item.transform[0]) * currentViewport.scale) + 'px';
-        
-        if (item.fontName) {
-          span.style.fontFamily = `"${item.fontName}", sans-serif`;
-        }
+
+        // Direct Canvas Erase: Erases original text from background image directly on load!
+        context.fillStyle = '#ffffff';
+        context.fillRect(x - 1, y - 1, w + 4, h + 2);
 
         textLayerDiv.appendChild(span);
       });
 
-      document.getElementById('status').innerText = "Ready! Click any text to edit or delete.";
+      document.getElementById('status').innerText = "Ready! Tap text to edit.";
     });
 
     async function exportCleanPdf() {
@@ -182,7 +187,7 @@
         const pdfW = (width / currentViewport.width) * page.getWidth();
         const pdfH = (height / currentViewport.height) * pageHeight;
 
-        // Cover the old text cleanly with White Box Overlay
+        // Erase inside exported PDF binary level
         page.drawRectangle({
           x: pdfX - 1,
           y: pdfY - 1,
