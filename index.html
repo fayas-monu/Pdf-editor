@@ -3,40 +3,403 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Free Online PDF Tools Suite</title>
-  <link rel="stylesheet" href="style.css">
+  <title>Every tool you need to work with PDFs in one place</title>
+  
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+
+    body {
+      background-color: #f3f5f8;
+      color: #333333;
+    }
+
+    /* Header Navigation */
+    header {
+      background-color: #ffffff;
+      border-bottom: 1px solid #e0e0e0;
+      padding: 12px 30px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+    }
+
+    .logo-container {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 22px;
+      font-weight: 800;
+      color: #e5322d;
+      text-decoration: none;
+    }
+
+    .logo-container i {
+      font-size: 26px;
+    }
+
+    nav {
+      display: flex;
+      gap: 20px;
+    }
+
+    nav a {
+      text-decoration: none;
+      color: #4a4a4a;
+      font-weight: 600;
+      font-size: 14px;
+      text-transform: uppercase;
+      transition: color 0.2s;
+    }
+
+    nav a:hover {
+      color: #e5322d;
+    }
+
+    .auth-buttons {
+      display: flex;
+      gap: 12px;
+    }
+
+    .btn-login {
+      background: transparent;
+      border: none;
+      color: #333;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .btn-signup {
+      background: #e5322d;
+      color: white;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 4px;
+      font-weight: 600;
+      cursor: pointer;
+      text-decoration: none;
+    }
+
+    /* Hero Section */
+    .hero {
+      text-align: center;
+      padding: 40px 20px 20px 20px;
+    }
+
+    .hero h1 {
+      font-size: 32px;
+      font-weight: 700;
+      color: #161616;
+      margin-bottom: 10px;
+    }
+
+    .hero p {
+      font-size: 15px;
+      color: #666666;
+      max-width: 750px;
+      margin: 0 auto 25px auto;
+      line-height: 1.5;
+    }
+
+    /* Category Filter Tabs */
+    .filter-tabs {
+      display: flex;
+      justify-content: center;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 35px;
+    }
+
+    .tab-btn {
+      background: #ffffff;
+      border: 1px solid #dcdcdc;
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-size: 13px;
+      font-weight: 600;
+      color: #555;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .tab-btn.active, .tab-btn:hover {
+      background: #333333;
+      color: #ffffff;
+      border-color: #333333;
+    }
+
+    /* Tools Grid */
+    .tools-container {
+      max-width: 1250px;
+      margin: 0 auto;
+      padding: 0 20px 60px 20px;
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(270px, 1fr));
+      gap: 20px;
+    }
+
+    .tool-card {
+      background: #ffffff;
+      border-radius: 10px;
+      padding: 24px;
+      text-decoration: none;
+      color: inherit;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.03);
+      border: 1px solid #f0f0f0;
+      transition: transform 0.2s, box-shadow 0.2s;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+    }
+
+    .tool-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+    }
+
+    .icon-wrapper {
+      width: 44px;
+      height: 44px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 16px;
+      font-size: 22px;
+    }
+
+    .tool-title {
+      font-size: 18px;
+      font-weight: 700;
+      color: #1a1a1a;
+      margin-bottom: 8px;
+    }
+
+    .tool-desc {
+      font-size: 13px;
+      color: #707070;
+      line-height: 1.4;
+    }
+
+    .badge {
+      position: absolute;
+      top: 15px;
+      right: 15px;
+      font-size: 10px;
+      font-weight: bold;
+      padding: 3px 6px;
+      border-radius: 4px;
+      text-transform: uppercase;
+    }
+
+    .badge-new { background: #e3f2fd; color: #1976d2; }
+
+    /* Custom Icon Color Classes */
+    .ic-red { background: #ffebee; color: #e5322d; }
+    .ic-orange { background: #fff3e0; color: #f57c00; }
+    .ic-blue { background: #e3f2fd; color: #1976d2; }
+    .ic-green { background: #e8f5e9; color: #388e3c; }
+    .ic-purple { background: #f3e5f5; color: #7b1fa2; }
+    .ic-yellow { background: #fffde7; color: #fbc02d; }
+    .ic-teal { background: #e0f2f1; color: #00796b; }
+
+    @media (max-width: 768px) {
+      header { flex-direction: column; gap: 15px; }
+      nav { flex-wrap: wrap; justify-content: center; }
+    }
+  </style>
 </head>
 <body>
 
+  <!-- Header -->
   <header>
-    <h1>📄 Free Online PDF Tools</h1>
-    <p>Fast, Secure & Client-Side PDF Utilities</p>
+    <a href="#" class="logo-container">
+      <i class="fa-solid fa-file-pdf"></i>
+      <span>iLovePDF</span>
+    </a>
+    <nav>
+      <a href="#">Merge PDF</a>
+      <a href="#">Split PDF</a>
+      <a href="#">Compress PDF</a>
+      <a href="#">Convert PDF</a>
+      <a href="#">All PDF Tools</a>
+    </nav>
+    <div class="auth-buttons">
+      <button class="btn-login">Log in</button>
+      <a href="#" class="btn-signup">Sign up</a>
+    </div>
   </header>
 
-  <main class="container">
+  <!-- Hero -->
+  <div class="hero">
+    <h1>Every tool you need to work with PDFs in one place</h1>
+    <p>Every tool you need to use PDFs, at your fingertips. All are 100% FREE and easy to use! Merge, split, compress, convert, rotate, unlock and watermark PDFs with just a few clicks.</p>
     
-    <!-- Tool Card 1: PDF Editor -->
-    <a href="tools/editor.html" class="tool-card">
-      <div class="icon">✍️</div>
-      <h3>PDF Editor</h3>
-      <p>Add text, image, signature, and overlay content directly on your PDF pages.</p>
+    <!-- Category Tabs -->
+    <div class="filter-tabs">
+      <button class="tab-btn active">All</button>
+      <button class="tab-btn">Organize PDF</button>
+      <button class="tab-btn">Optimize PDF</button>
+      <button class="tab-btn">Convert PDF</button>
+      <button class="tab-btn">Edit PDF</button>
+      <button class="tab-btn">PDF Security</button>
+    </div>
+  </div>
+
+  <!-- Tools Grid -->
+  <div class="tools-container">
+
+    <!-- Merge PDF -->
+    <a href="#" class="tool-card">
+      <div class="icon-wrapper ic-red"><i class="fa-solid fa-object-group"></i></div>
+      <div class="tool-title">Merge PDF</div>
+      <div class="tool-desc">Combine PDFs in the order you want with the easiest PDF merger available.</div>
     </a>
 
-    <!-- Tool Card 2: PDF Merge (Coming Soon) -->
-    <div class="tool-card disabled">
-      <div class="icon">🔗</div>
-      <h3>Merge PDF</h3>
-      <p>Combine multiple PDF files into one single document instantly.</p>
-    </div>
+    <!-- Split PDF -->
+    <a href="#" class="tool-card">
+      <div class="icon-wrapper ic-orange"><i class="fa-solid fa-scissors"></i></div>
+      <div class="tool-title">Split PDF</div>
+      <div class="tool-desc">Separate one page or a whole set for easy conversion into independent PDF files.</div>
+    </a>
 
-    <!-- Tool Card 3: PDF to Image (Coming Soon) -->
-    <div class="tool-card disabled">
-      <div class="icon">🖼️</div>
-      <h3>PDF to Image</h3>
-      <p>Convert PDF pages into high-quality JPG or PNG images.</p>
-    </div>
+    <!-- Compress PDF -->
+    <a href="#" class="tool-card">
+      <div class="icon-wrapper ic-green"><i class="fa-solid fa-file-contract"></i></div>
+      <div class="tool-title">Compress PDF</div>
+      <div class="tool-desc">Reduce file size while optimizing for maximal PDF quality.</div>
+    </a>
 
-  </main>
+    <!-- PDF to Word -->
+    <a href="#" class="tool-card">
+      <div class="icon-wrapper ic-blue"><i class="fa-solid fa-file-word"></i></div>
+      <div class="tool-title">PDF to Word</div>
+      <div class="tool-desc">Easily convert your PDF files into easy to edit DOC and DOCX documents.</div>
+    </a>
+
+    <!-- PDF to PowerPoint -->
+    <a href="#" class="tool-card">
+      <div class="icon-wrapper ic-orange"><i class="fa-solid fa-file-powerpoint"></i></div>
+      <div class="tool-title">PDF to PowerPoint</div>
+      <div class="tool-desc">Turn your PDF files into easy to edit PPT and PPTX slideshows.</div>
+    </a>
+
+    <!-- PDF to Excel -->
+    <a href="#" class="tool-card">
+      <div class="icon-wrapper ic-green"><i class="fa-solid fa-file-excel"></i></div>
+      <div class="tool-title">PDF to Excel</div>
+      <div class="tool-desc">Pull data straight from PDFs into Excel spreadsheets in a few short seconds.</div>
+    </a>
+
+    <!-- Word to PDF -->
+    <a href="#" class="tool-card">
+      <div class="icon-wrapper ic-blue"><i class="fa-solid fa-file-export"></i></div>
+      <div class="tool-title">Word to PDF</div>
+      <div class="tool-desc">Make DOC and DOCX files easy to read by converting them to PDF.</div>
+    </a>
+
+    <!-- PowerPoint to PDF -->
+    <a href="#" class="tool-card">
+      <div class="icon-wrapper ic-red"><i class="fa-solid fa-file-arrow-up"></i></div>
+      <div class="tool-title">PowerPoint to PDF</div>
+      <div class="tool-desc">Make PPT and PPTX slideshows easy to view by converting them to PDF.</div>
+    </a>
+
+    <!-- Excel to PDF -->
+    <a href="#" class="tool-card">
+      <div class="icon-wrapper ic-green"><i class="fa-solid fa-table"></i></div>
+      <div class="tool-title">Excel to PDF</div>
+      <div class="tool-desc">Make EXCEL spreadsheets easy to read by converting them to PDF.</div>
+    </a>
+
+    <!-- Edit PDF -->
+    <a href="tools/editor.html" class="tool-card">
+      <div class="icon-wrapper ic-yellow"><i class="fa-solid fa-pen-to-square"></i></div>
+      <div class="tool-title">Edit PDF</div>
+      <div class="tool-desc">Add text, images, shapes or freehand annotations to a PDF document.</div>
+    </a>
+
+    <!-- PDF to JPG -->
+    <a href="#" class="tool-card">
+      <div class="icon-wrapper ic-yellow"><i class="fa-solid fa-file-image"></i></div>
+      <div class="tool-title">PDF to JPG</div>
+      <div class="tool-desc">Extract all images contained in a PDF or convert each page to a JPG file.</div>
+    </a>
+
+    <!-- JPG to PDF -->
+    <a href="#" class="tool-card">
+      <div class="icon-wrapper ic-red"><i class="fa-solid fa-image"></i></div>
+      <div class="tool-title">JPG to PDF</div>
+      <div class="tool-desc">Convert JPG images to PDF in seconds. Easily adjust orientation and margins.</div>
+    </a>
+
+    <!-- Sign PDF -->
+    <a href="#" class="tool-card">
+      <div class="icon-wrapper ic-purple"><i class="fa-solid fa-signature"></i></div>
+      <div class="tool-title">Sign PDF</div>
+      <div class="tool-desc">Sign yourself or request electronic signatures from others.</div>
+    </a>
+
+    <!-- Watermark -->
+    <a href="#" class="tool-card">
+      <div class="icon-wrapper ic-teal"><i class="fa-solid fa-stamp"></i></div>
+      <div class="tool-title">Watermark</div>
+      <div class="tool-desc">Stamp an image or text over your PDF in seconds. Choose position, typography and transparency.</div>
+    </a>
+
+    <!-- Rotate PDF -->
+    <a href="#" class="tool-card">
+      <div class="icon-wrapper ic-purple"><i class="fa-solid fa-rotate-right"></i></div>
+      <div class="tool-title">Rotate PDF</div>
+      <div class="tool-desc">Rotate your PDFs the way you need them. You can even rotate multiple PDFs at once!</div>
+    </a>
+
+    <!-- Unlock PDF -->
+    <a href="#" class="tool-card">
+      <div class="icon-wrapper ic-blue"><i class="fa-solid fa-lock-open"></i></div>
+      <div class="tool-title">Unlock PDF</div>
+      <div class="tool-desc">Remove PDF password security, giving you the freedom to use your PDFs as you want.</div>
+    </a>
+
+    <!-- Protect PDF -->
+    <a href="#" class="tool-card">
+      <div class="icon-wrapper ic-blue"><i class="fa-solid fa-shield-halved"></i></div>
+      <div class="tool-title">Protect PDF</div>
+      <div class="tool-desc">Protect PDF files with a password. Encrypt PDF documents to prevent unauthorized access.</div>
+    </a>
+
+    <!-- Organize PDF -->
+    <a href="#" class="tool-card">
+      <div class="icon-wrapper ic-red"><i class="fa-solid fa-folder-tree"></i></div>
+      <div class="tool-title">Organize PDF</div>
+      <div class="tool-desc">Sort pages of your PDF file however you like. Delete PDF pages or add PDF pages.</div>
+    </a>
+
+    <!-- Page Numbers -->
+    <a href="#" class="tool-card">
+      <div class="icon-wrapper ic-purple"><i class="fa-solid fa-list-ol"></i></div>
+      <div class="tool-title">Page numbers</div>
+      <div class="tool-desc">Add page numbers into PDFs with ease. Choose position, dimensions, format and typography!</div>
+    </a>
+
+    <!-- OCR PDF -->
+    <a href="#" class="tool-card">
+      <div class="icon-wrapper ic-teal"><i class="fa-solid fa-eye"></i></div>
+      <div class="tool-title">OCR PDF</div>
+      <div class="tool-desc">Easily convert scanned PDF into searchable and selectable documents.</div>
+    </a>
+
+  </div>
 
 </body>
 </html>
