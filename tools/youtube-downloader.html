@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>YouTube Downloader (MP3 & MP4) - PDF EDIT TOOL</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+
+    body {
+      background-color: #f3f5f8;
+      color: #333;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+
+    header {
+      background-color: #ffffff;
+      border-bottom: 1px solid #e0e0e0;
+      padding: 14px 30px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .logo-container {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 20px;
+      font-weight: 900;
+      color: #e5322d;
+      text-decoration: none;
+    }
+
+    .container {
+      max-width: 800px;
+      margin: 50px auto;
+      background: #fff;
+      padding: 40px;
+      border-radius: 12px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+      text-align: center;
+      width: 90%;
+    }
+
+    h1 {
+      font-size: 28px;
+      margin-bottom: 10px;
+      color: #111;
+    }
+
+    p {
+      color: #666;
+      font-size: 15px;
+      margin-bottom: 30px;
+    }
+
+    .input-group {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 25px;
+    }
+
+    .input-group input {
+      flex: 1;
+      padding: 14px 18px;
+      border: 2px solid #e0e0e0;
+      border-radius: 8px;
+      font-size: 15px;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    .input-group input:focus {
+      border-color: #e5322d;
+    }
+
+    .btn-fetch {
+      background: #e5322d;
+      color: #fff;
+      border: none;
+      padding: 14px 25px;
+      font-size: 15px;
+      font-weight: bold;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .btn-fetch:hover {
+      background: #c62828;
+    }
+
+    .download-options {
+      display: none;
+      margin-top: 30px;
+      padding-top: 20px;
+      border-top: 1px solid #eee;
+    }
+
+    .btn-action {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 12px 24px;
+      border-radius: 6px;
+      font-weight: bold;
+      text-decoration: none;
+      color: #fff;
+      margin: 10px;
+      cursor: pointer;
+    }
+
+    .btn-mp3 { background: #2e7d32; }
+    .btn-mp3:hover { background: #1b5e20; }
+
+    .btn-mp4 { background: #1976d2; }
+    .btn-mp4:hover { background: #0d47a1; }
+
+    .status {
+      margin-top: 15px;
+      font-size: 14px;
+      font-weight: bold;
+    }
+
+    footer {
+      background: #ffffff;
+      border-top: 1px solid #e0e0e0;
+      margin-top: auto;
+      padding: 20px;
+      text-align: center;
+      font-size: 13px;
+      color: #777;
+    }
+
+    .insta-link {
+      color: #e1306c;
+      text-decoration: none;
+      font-weight: 600;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <a href="../index.html" class="logo-container">
+      <i class="fa-solid fa-file-pdf"></i>
+      <span>PDF EDIT TOOL</span>
+    </a>
+  </header>
+
+  <div class="container">
+    <h1><i class="fa-brands fa-youtube" style="color: #e5322d;"></i> YouTube Downloader</h1>
+    <p>Paste any YouTube video URL to download as MP3 Audio or MP4 Video.</p>
+
+    <div class="input-group">
+      <input type="text" id="ytUrl" placeholder="Paste YouTube link here... (e.g. https://youtu.be/...)">
+      <button class="btn-fetch" onclick="processYouTubeLink()">Get Links</button>
+    </div>
+
+    <div class="status" id="statusMsg"></div>
+
+    <div class="download-options" id="downloadBox">
+      <h3>Select Download Format:</h3>
+      <br>
+      <button class="btn-action btn-mp3" onclick="downloadMedia('audio')">
+        <i class="fa-solid fa-music"></i> Download MP3 (Audio)
+      </button>
+      <button class="btn-action btn-mp4" onclick="downloadMedia('video')">
+        <i class="fa-solid fa-video"></i> Download MP4 (Video)
+      </button>
+    </div>
+  </div>
+
+  <footer>
+    &copy; 2026 PDF EDIT TOOL | Credit: <strong>(hank!nd3 p4d4y41! | Fayas-Monu</strong> 
+    <a href="https://www.instagram.com/____fa_y_as_____?stkn=Mm9ncTF3Z21iejgz" target="_blank" class="insta-link">
+      <i class="fa-brands fa-instagram"></i> Instagram
+    </a>
+  </footer>
+
+  <script>
+    let currentUrl = "";
+
+    function processYouTubeLink() {
+      const urlInput = document.getElementById('ytUrl').value.trim();
+      const status = document.getElementById('statusMsg');
+      const box = document.getElementById('downloadBox');
+
+      if (!urlInput || (!urlInput.includes('youtube.com') && !urlInput.includes('youtu.be'))) {
+        status.style.color = '#d32f2f';
+        status.innerText = "Please enter a valid YouTube link!";
+        box.style.display = 'none';
+        return;
+      }
+
+      currentUrl = urlInput;
+      status.style.color = '#2e7d32';
+      status.innerText = "Link verified! Choose your format below.";
+      box.style.display = 'block';
+    }
+
+    function downloadMedia(type) {
+      const status = document.getElementById('statusMsg');
+      status.style.color = '#1976d2';
+      status.innerText = "Redirecting to download stream... Please wait!";
+
+      // Open download stream via public converter API
+      if (type === 'audio') {
+        window.open(`https://loader.to/api/button/?url=${encodeURIComponent(currentUrl)}&f=mp3`, '_blank');
+      } else {
+        window.open(`https://loader.to/api/button/?url=${encodeURIComponent(currentUrl)}&f=1080`, '_blank');
+      }
+    }
+  </script>
+</body>
+</html>
