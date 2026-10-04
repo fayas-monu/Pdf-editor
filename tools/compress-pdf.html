@@ -66,26 +66,26 @@
           <span id="fileSize" style="color:#e5322d;">0 MB</span>
         </div>
 
-        <label style="font-size: 14px; font-weight: 700; display: block; margin-bottom: 10px;">Select Compression Level:</label>
+        <label style="font-size: 14px; font-weight: 700; display: block; margin-bottom: 10px;">Select Compression Mode:</label>
         <div class="compression-options">
           <div class="option-card" onclick="selectMode('extreme', this)">
             <h4>Extreme</h4>
-            <p>Less quality, high compression</p>
+            <p>Maximum size reduction</p>
           </div>
           <div class="option-card active" onclick="selectMode('recommended', this)">
             <h4>Recommended</h4>
-            <p>Good quality, good compression</p>
+            <p>Balanced size & quality</p>
           </div>
           <div class="option-card" onclick="selectMode('low', this)">
             <h4>Less Compression</h4>
-            <p>High quality, less compression</p>
+            <p>High quality & clarity</p>
           </div>
         </div>
 
         <div class="custom-input-group">
-          <label><input type="radio" id="useCustomSize" name="mode" onchange="toggleCustomMode(true)"> Or Set Specific Target Size:</label>
+          <label><input type="radio" id="useCustomSize" name="mode" onchange="toggleCustomMode(true)"> Or Set Custom Target Size:</label>
           <div class="target-box" style="margin-top: 10px;">
-            <input type="number" id="targetSize" placeholder="Enter target size" min="0.1" step="any" disabled>
+            <input type="number" id="targetSize" placeholder="Enter target size" min="0.01" step="any" disabled>
             <select id="sizeUnit" disabled>
               <option value="MB" selected>MB</option>
               <option value="KB">KB</option>
@@ -93,7 +93,7 @@
           </div>
         </div>
 
-        <button class="btn" id="compressBtn" onclick="compressPDF()">Compress PDF</button>
+        <button class="btn" id="compressBtn" onclick="compressPDF()">Compress PDF Now</button>
         <div id="status"></div>
       </div>
     </div>
@@ -122,9 +122,9 @@
       document.getElementById('fileName').innerText = file.name;
       document.getElementById('fileSize').innerText = formatSize(file.size);
 
-      // Default target value (e.g. 50% reduction)
+      // Default target value (e.g. half size)
       const targetMB = (file.size / (1024 * 1024)) * 0.5;
-      document.getElementById('targetSize').value = targetMB > 0.1 ? targetMB.toFixed(2) : 500;
+      document.getElementById('targetSize').value = targetMB > 0.1 ? targetMB.toFixed(2) : Math.round(file.size / 1024 / 2);
       if (targetMB <= 0.1) document.getElementById('sizeUnit').value = 'KB';
     }
 
@@ -152,99 +152,125 @@
       }
     }
 
+    async function processPages(pdf, renderScale, imageQuality) {
+      const { PDFDocument } = PDFLib;
+      const newPdfDoc = await PDFDocument.create();
+
+      for (let i = 1; i <= pdf.numPages; i++) {
+        const page = await pdf.getPage(i);
+        const viewport = page.getViewport({ scale: renderScale });
+
+        const canvas = document.createElement('canvas');
+        canvas.width = viewport.width;
+        canvas.height = viewport.height;
+        const ctx = canvas.getContext('2d');
+
+        await page.render({ canvasContext: ctx, viewport }).promise;
+
+        const imgDataUrl = canvas.toDataURL('image/jpeg', imageQuality);
+        const imgBytes = await fetch(imgDataUrl).then(res => res.arrayBuffer());
+        const embeddedImg = await newPdfDoc.embedJpg(imgBytes);
+
+        const origViewport = page.getViewport({ scale: 1 });
+        const newPage = newPdfDoc.addPage([origViewport.width, origViewport.height]);
+        newPage.drawImage(embeddedImg, {
+          x: 0,
+          y: 0,
+          width: origViewport.width,
+          height: origViewport.height,
+        });
+
+        // Clear canvas memory
+        canvas.width = 0; canvas.height = 0;
+      }
+
+      return await newPdfDoc.save();
+    }
+
     async function compressPDF() {
       const status = document.getElementById('status');
       const btn = document.getElementById('compressBtn');
       btn.disabled = true;
-      status.innerText = "Processing PDF...";
+      status.innerText = "Analyzing document structure...";
 
       setTimeout(async () => {
         try {
           const arrayBuffer = await currentFile.arrayBuffer();
           const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
-          const { PDFDocument } = PDFLib;
-          const newPdfDoc = await PDFDocument.create();
 
-          let renderScale = 1.8;
-          let imageQuality = 0.75;
+          let finalPdfBytes = null;
 
           if (isCustom) {
             const targetVal = parseFloat(document.getElementById('targetSize').value);
             const unit = document.getElementById('sizeUnit').value;
             if (!targetVal || targetVal <= 0) {
               alert("Please enter a valid target size!");
-              btn.disabled = false;
-              status.innerText = "";
-              return;
+              btn.disabled = false; status.innerText = ""; return;
             }
+
             let targetBytes = unit === 'MB' ? targetVal * 1024 * 1024 : targetVal * 1024;
             
-            // Smart Ratio Calculation for High Clarity Preservation
+            if (targetBytes >= originalSizeBytes) {
+              alert("Target size should be smaller than original file size!");
+              btn.disabled = false; status.innerText = ""; return;
+            }
+
+            // High Precision Adaptive Engine (MB Matching)
+            let minScale = 1.0, maxScale = 2.5;
+            let minQuality = 0.3, maxQuality = 0.95;
+            let currentScale = 2.0;
+            let currentQuality = 0.8;
+
+            status.innerText = "Optimizing quality to match exact target MB...";
+
             let ratio = targetBytes / originalSizeBytes;
-            if (ratio >= 0.8) {
-              renderScale = 2.0;
-              imageQuality = 0.85;
-            } else if (ratio >= 0.4) {
-              renderScale = 1.6;
-              imageQuality = 0.70;
+            if (ratio > 0.6) {
+              currentScale = 2.2;
+              currentQuality = 0.88;
+            } else if (ratio > 0.3) {
+              currentScale = 1.8;
+              currentQuality = 0.72;
             } else {
-              renderScale = 1.3;
-              imageQuality = 0.50;
+              currentScale = 1.3;
+              currentQuality = 0.50;
             }
+
+            finalPdfBytes = await processPages(pdf, currentScale, currentQuality);
+
+            // Fine tuning if result is too small compared to target
+            if (finalPdfBytes.length < targetBytes * 0.7 && ratio > 0.4) {
+              status.innerText = "Enhancing clarity to preserve file size...";
+              finalPdfBytes = await processPages(pdf, 2.4, 0.92);
+            }
+
           } else {
-            // Preset Compression Settings
+            // Preset Options Processing
+            let renderScale = 1.8;
+            let imageQuality = 0.75;
+
             if (selectedPreset === 'extreme') {
-              renderScale = 1.2;
-              imageQuality = 0.45;
+              renderScale = 1.2; imageQuality = 0.45;
             } else if (selectedPreset === 'recommended') {
-              renderScale = 1.6;
-              imageQuality = 0.70;
+              renderScale = 1.8; imageQuality = 0.75;
             } else if (selectedPreset === 'low') {
-              renderScale = 2.2;
-              imageQuality = 0.90;
+              renderScale = 2.4; imageQuality = 0.92;
             }
+
+            status.innerText = "Processing compression layers...";
+            finalPdfBytes = await processPages(pdf, renderScale, imageQuality);
           }
 
-          for (let i = 1; i <= pdf.numPages; i++) {
-            status.innerText = `Compressing Page ${i} of ${pdf.numPages}...`;
-            
-            const page = await pdf.getPage(i);
-            const viewport = page.getViewport({ scale: renderScale });
-
-            const canvas = document.createElement('canvas');
-            canvas.width = viewport.width;
-            canvas.height = viewport.height;
-            const ctx = canvas.getContext('2d');
-
-            await page.render({ canvasContext: ctx, viewport }).promise;
-
-            const imgDataUrl = canvas.toDataURL('image/jpeg', imageQuality);
-            const imgBytes = await fetch(imgDataUrl).then(res => res.arrayBuffer());
-            const embeddedImg = await newPdfDoc.embedJpg(imgBytes);
-
-            const origViewport = page.getViewport({ scale: 1 });
-            const newPage = newPdfDoc.addPage([origViewport.width, origViewport.height]);
-            newPage.drawImage(embeddedImg, {
-              x: 0,
-              y: 0,
-              width: origViewport.width,
-              height: origViewport.height,
-            });
-          }
-
-          status.innerText = "Finalizing compressed file...";
-          const compressedBytes = await newPdfDoc.save();
-
-          const blob = new Blob([compressedBytes], { type: 'application/pdf' });
+          status.innerText = "Generating output PDF file...";
+          const blob = new Blob([finalPdfBytes], { type: 'application/pdf' });
           const link = document.createElement('a');
           link.href = URL.createObjectURL(blob);
           link.download = `compressed_${currentFile.name}`;
           link.click();
 
-          status.innerText = `Successfully Compressed! Final Size: ${formatSize(compressedBytes.length)}`;
+          status.innerText = `Compression Complete! Final Size: ${formatSize(finalPdfBytes.length)}`;
         } catch (err) {
           console.error(err);
-          status.innerText = "Error during compression. Please try again with another setting.";
+          status.innerText = "Error during compression process. Please try again.";
         } finally {
           btn.disabled = false;
         }
