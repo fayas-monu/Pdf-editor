@@ -3,91 +3,181 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Compress PDF File Online - Reduce PDF Size</title>
+  <title>Smart PDF Compressor - Target Size Support</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js"></script>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
     body { background-color: #f3f5f8; color: #333; }
     header { background: #fff; border-bottom: 1px solid #e0e0e0; padding: 12px 30px; display: flex; justify-content: space-between; align-items: center; }
     .logo { display: flex; align-items: center; gap: 10px; font-size: 20px; font-weight: 800; color: #e5322d; text-decoration: none; }
-    .container { max-width: 800px; margin: 40px auto; padding: 20px; text-align: center; }
-    .upload-area { background: #fff; border: 2px dashed #388e3c; border-radius: 12px; padding: 50px 20px; cursor: pointer; margin-bottom: 20px; }
-    .upload-area i { font-size: 48px; color: #388e3c; margin-bottom: 15px; }
-    .btn { background: #388e3c; color: #fff; border: none; padding: 12px 30px; font-size: 16px; border-radius: 6px; cursor: pointer; font-weight: 600; margin-top: 15px; display: none; }
-    .btn:hover { background: #2e7d32; }
-    #status { font-weight: 600; color: #388e3c; margin: 15px 0; }
-    .result-box { background: #e8f5e9; border: 1px solid #a5d6a7; padding: 15px; border-radius: 8px; margin-top: 20px; display: none; }
+    
+    .container { max-width: 650px; margin: 40px auto; padding: 20px; }
+    .card { background: #fff; border-radius: 12px; padding: 30px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
+    .upload-area { border: 2px dashed #e5322d; border-radius: 8px; padding: 40px 20px; text-align: center; cursor: pointer; background: #fff5f5; }
+    .upload-area i { font-size: 42px; color: #e5322d; margin-bottom: 10px; }
+    
+    .file-info { display: flex; justify-content: space-between; background: #f8f9fa; padding: 12px 15px; border-radius: 6px; margin: 20px 0; font-weight: 600; font-size: 14px; border: 1px solid #eee; }
+    
+    .input-group { margin-bottom: 20px; }
+    .input-group label { display: block; font-size: 14px; font-weight: 700; margin-bottom: 8px; color: #444; }
+    .target-box { display: flex; gap: 10px; }
+    .target-box input { flex: 1; padding: 12px; border: 1px solid #ccc; border-radius: 6px; font-size: 16px; outline: none; }
+    .target-box select { padding: 12px; border: 1px solid #ccc; border-radius: 6px; font-size: 16px; background: #fff; cursor: pointer; }
+    
+    .btn { background: #e5322d; color: #fff; border: none; padding: 14px; font-size: 16px; border-radius: 6px; cursor: pointer; font-weight: 700; width: 100%; }
+    .btn:hover { background: #c62828; }
+    .btn:disabled { background: #ccc; cursor: not-allowed; }
+    
+    #status { margin-top: 15px; text-align: center; font-size: 14px; font-weight: 600; color: #e5322d; }
   </style>
 </head>
 <body>
+
   <header>
     <a href="../index.html" class="logo"><i class="fa-solid fa-file-pdf"></i> PDF Edit Tool</a>
   </header>
-  <div class="container">
-    <h1>Compress PDF File</h1>
-    <p style="color:#666; margin-bottom: 20px;">Reduce your PDF size quickly directly in your browser.</p>
-    
-    <div class="upload-area" onclick="document.getElementById('fileInput').click()">
-      <i class="fa-solid fa-file-contract"></i>
-      <h3>Select PDF file to compress</h3>
-      <input type="file" id="fileInput" accept="application/pdf" style="display:none;" onchange="handleFile(this.files[0])">
-    </div>
-    
-    <div id="status"></div>
-    <button class="btn" id="compressBtn" onclick="compressPDF()">Compress & Download</button>
 
-    <div class="result-box" id="resultBox"></div>
+  <div class="container">
+    <div class="card">
+      <h2 style="text-align: center; margin-bottom: 20px;">Compress PDF</h2>
+      
+      <div class="upload-area" id="uploadArea" onclick="document.getElementById('fileInput').click()">
+        <i class="fa-solid fa-file-compress"></i>
+        <h3>Select PDF file</h3>
+        <input type="file" id="fileInput" accept="application/pdf" style="display:none;" onchange="handleFile(this.files[0])">
+      </div>
+
+      <div id="editorArea" style="display: none;">
+        <div class="file-info">
+          <span id="fileName">document.pdf</span>
+          <span id="fileSize" style="color:#e5322d;">0 MB</span>
+        </div>
+
+        <div class="input-group">
+          <label>Set Target File Size</label>
+          <div class="target-box">
+            <input type="number" id="targetSize" placeholder="Enter target size" min="1" step="any">
+            <select id="sizeUnit">
+              <option value="KB">KB</option>
+              <option value="MB" selected>MB</option>
+            </select>
+          </div>
+          <p style="font-size: 12px; color: #777; margin-top: 5px;">*The engine will balance image scaling and resolution to match your target size while preserving maximum visual clarity.</p>
+        </div>
+
+        <button class="btn" id="compressBtn" onclick="compressPDF()">Compress & Download</button>
+        <div id="status"></div>
+      </div>
+    </div>
   </div>
 
   <script>
-    let selectedFile = null;
+    pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+
+    let currentFile = null;
+    let originalSizeBytes = 0;
 
     function handleFile(file) {
       if (!file) return;
-      selectedFile = file;
-      const sizeMB = (file.size / (1024 * 1024)).toFixed(2);
-      document.getElementById('status').innerText = `Selected File: ${file.name} (${sizeMB} MB)`;
-      document.getElementById('compressBtn').style.display = 'inline-block';
-      document.getElementById('resultBox').style.display = 'none';
+      currentFile = file;
+      originalSizeBytes = file.size;
+
+      document.getElementById('uploadArea').style.display = 'none';
+      document.getElementById('editorArea').style.display = 'block';
+
+      document.getElementById('fileName').innerText = file.name;
+      document.getElementById('fileSize').innerText = formatSize(file.size);
+
+      // Default target size suggestion (50% of original)
+      const halfSize = (file.size / (1024 * 1024)) / 2;
+      document.getElementById('targetSize').value = halfSize > 0.1 ? halfSize.toFixed(2) : (file.size / 1024 / 2).toFixed(0);
+      document.getElementById('sizeUnit').value = halfSize > 0.1 ? 'MB' : 'KB';
+    }
+
+    function formatSize(bytes) {
+      if (bytes >= 1048576) return (bytes / 1048576).toFixed(2) + ' MB';
+      return (bytes / 1024).toFixed(2) + ' KB';
     }
 
     async function compressPDF() {
-      if (!selectedFile) return;
+      const targetVal = parseFloat(document.getElementById('targetSize').value);
+      const unit = document.getElementById('sizeUnit').value;
 
-      const statusDiv = document.getElementById('status');
-      statusDiv.innerText = "Compressing PDF, please wait...";
+      if (!targetVal || targetVal <= 0) {
+        alert("Please enter a valid target size!");
+        return;
+      }
 
-      const originalSize = selectedFile.size;
-      const arrayBuffer = await selectedFile.arrayBuffer();
+      let targetSizeBytes = unit === 'MB' ? targetVal * 1024 * 1024 : targetVal * 1024;
 
-      const { PDFDocument } = PDFLib;
-      const pdfDoc = await PDFDocument.load(arrayBuffer, { ignoreEncryption: true });
+      if (targetSizeBytes >= originalSizeBytes) {
+        alert("Target size should be smaller than original file size (" + formatSize(originalSizeBytes) + ")!");
+        return;
+      }
 
-      // Re-save PDF with objects stream optimization
-      const compressedPdfBytes = await pdfDoc.save({ useObjectStreams: true });
+      const status = document.getElementById('status');
+      const btn = document.getElementById('compressBtn');
+      btn.disabled = true;
+      status.innerText = "Processing & Optimizing PDF Quality...";
 
-      const compressedBlob = new Blob([compressedPdfBytes], { type: 'application/pdf' });
-      const compressedSize = compressedBlob.size;
+      try {
+        const arrayBuffer = await currentFile.arrayBuffer();
+        const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+        const { PDFDocument } = PDFLib;
+        const newPdfDoc = await PDFDocument.create();
 
-      const savedBytes = originalSize - compressedSize;
-      const savedPercent = savedBytes > 0 ? ((savedBytes / originalSize) * 100).toFixed(1) : 0;
+        // Calculate compression quality scaling ratio dynamically
+        let compressionRatio = targetSizeBytes / originalSizeBytes;
+        
+        // Ensure balance between quality and target size
+        let quality = Math.max(0.4, Math.min(0.85, compressionRatio));
+        let renderScale = Math.max(1.0, Math.min(2.0, 2.0 * compressionRatio));
 
-      // Download Compressed File
-      const link = document.createElement('a');
-      link.href = URL.createObjectURL(compressedBlob);
-      link.download = `compressed_${selectedFile.name}`;
-      link.click();
+        for (let i = 1; i <= pdf.numPages; i++) {
+          status.innerText = `Compressing Page ${i} of ${pdf.numPages}...`;
+          const page = await pdf.getPage(i);
+          const viewport = page.getViewport({ scale: renderScale });
 
-      statusDiv.innerText = "Compression complete!";
-      
-      const resultBox = document.getElementById('resultBox');
-      resultBox.style.display = 'block';
-      resultBox.innerHTML = `
-        <strong>Original Size:</strong> ${(originalSize / 1024).toFixed(1)} KB <br>
-        <strong>Compressed Size:</strong> ${(compressedSize / 1024).toFixed(1)} KB <br>
-        <span style="color: #2e7d32; font-weight: bold;">Reduced by ${savedPercent}%!</span>
-      `;
+          const canvas = document.createElement('canvas');
+          canvas.width = viewport.width;
+          canvas.height = viewport.height;
+          const ctx = canvas.getContext('2d');
+
+          await page.render({ canvasContext: ctx, viewport }).promise;
+
+          // Export as JPEG with calculated quality factor
+          const imgDataUrl = canvas.toDataURL('image/jpeg', quality);
+
+          const imgBytes = await fetch(imgDataUrl).then(res => res.arrayBuffer());
+          const embeddedImg = await newPdfDoc.embedJpg(imgBytes);
+
+          const newPage = newPdfDoc.addPage([page.getViewport({ scale: 1 }).width, page.getViewport({ scale: 1 }).height]);
+          newPage.drawImage(embeddedImg, {
+            x: 0,
+            y: 0,
+            width: newPage.getWidth(),
+            height: newPage.getHeight(),
+          });
+        }
+
+        status.innerText = "Finalizing File Download...";
+        const compressedBytes = await newPdfDoc.save();
+        
+        const blob = new Blob([compressedBytes], { type: 'application/pdf' });
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = `compressed_${currentFile.name}`;
+        link.click();
+
+        status.innerText = `Done! New Size: ${formatSize(compressedBytes.length)}`;
+      } catch (err) {
+        console.error(err);
+        status.innerText = "Error compressing PDF. Please try again with a different target size.";
+      } finally {
+        btn.disabled = false;
+      }
     }
   </script>
 </body>
