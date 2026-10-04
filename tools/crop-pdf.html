@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-  <title>Crop PDF - iLovePDF Style</title>
+  <title>iLovePDF Exact Clone - Crop PDF</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js"></script>
@@ -13,41 +13,57 @@
     header { background: #fff; border-bottom: 1px solid #e0e0e0; padding: 12px 20px; display: flex; justify-content: space-between; align-items: center; z-index: 10; }
     .logo { display: flex; align-items: center; gap: 8px; font-size: 18px; font-weight: 800; color: #e5322d; text-decoration: none; }
     
-    /* Layout */
-    .main-wrapper { display: flex; flex: 1; overflow: hidden; position: relative; }
-    .pdf-preview-area { flex: 1; overflow-y: auto; padding: 20px; background: #eef2f5; text-align: center; }
+    .main-wrapper { display: flex; flex: 1; overflow: hidden; }
+    .pdf-preview-area { flex: 1; overflow-y: auto; padding: 30px; background: #eef2f5; text-align: center; }
     .sidebar { width: 320px; background: #fff; border-left: 1px solid #e0e0e0; padding: 20px; display: flex; flex-direction: column; justify-content: space-between; box-shadow: -2px 0 10px rgba(0,0,0,0.03); }
     
-    /* Upload Box */
     .upload-container { max-width: 600px; margin: 60px auto; text-align: center; }
     .upload-area { background: #fff; border: 2px dashed #e5322d; border-radius: 12px; padding: 50px 20px; cursor: pointer; }
     .upload-area i { font-size: 48px; color: #e5322d; margin-bottom: 15px; }
 
-    /* Page Card Wrapper */
-    .page-card { position: relative; display: inline-block; margin-bottom: 25px; background: #fff; box-shadow: 0 4px 12px rgba(0,0,0,0.15); border-radius: 4px; overflow: hidden; }
+    .page-card { position: relative; display: inline-block; margin-bottom: 30px; background: #fff; box-shadow: 0 4px 15px rgba(0,0,0,0.15); border-radius: 4px; user-select: none; }
     .page-card canvas { display: block; }
-    .page-num-badge { position: absolute; top: 8px; left: 8px; background: rgba(0,0,0,0.6); color: #fff; padding: 2px 8px; border-radius: 4px; font-size: 12px; font-weight: 600; z-index: 5; }
+    .page-num-badge { position: absolute; top: 8px; left: 8px; background: rgba(0,0,0,0.65); color: #fff; padding: 2px 8px; border-radius: 4px; font-size: 12px; font-weight: 600; z-index: 5; }
     
-    /* Interactive Crop Overlay Box */
+    /* iLovePDF Interactive Crop Box */
     .crop-box {
       position: absolute;
       border: 2px dashed #e5322d;
-      background: rgba(229, 50, 45, 0.15);
+      background: rgba(229, 50, 45, 0.12);
       cursor: move;
       touch-action: none;
       z-index: 4;
+      box-sizing: border-box;
     }
     
-    /* Option Selection Radio UI */
+    /* 8 Resize Handles */
+    .handle {
+      position: absolute;
+      width: 12px;
+      height: 12px;
+      background: #e5322d;
+      border: 2px solid #fff;
+      border-radius: 50%;
+      z-index: 6;
+      touch-action: none;
+    }
+    .handle.nw { top: -6px; left: -6px; cursor: nwse-resize; }
+    .handle.ne { top: -6px; right: -6px; cursor: nesw-resize; }
+    .handle.sw { bottom: -6px; left: -6px; cursor: nesw-resize; }
+    .handle.se { bottom: -6px; right: -6px; cursor: nwse-resize; }
+    .handle.n { top: -6px; left: calc(50% - 6px); cursor: ns-resize; }
+    .handle.s { bottom: -6px; left: calc(50% - 6px); cursor: ns-resize; }
+    .handle.w { top: calc(50% - 6px); left: -6px; cursor: ew-resize; }
+    .handle.e { top: calc(50% - 6px); right: -6px; cursor: ew-resize; }
+
     .option-group { background: #f8f9fa; border: 1px solid #e0e0e0; border-radius: 8px; padding: 15px; margin-top: 15px; }
-    .radio-item { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; cursor: pointer; font-size: 14px; font-weight: 500; }
+    .radio-item { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; cursor: pointer; font-size: 14px; font-weight: 600; }
     .radio-item:last-child { margin-bottom: 0; }
     .radio-item input { accent-color: #e5322d; width: 18px; height: 18px; cursor: pointer; }
 
-    /* Controls */
     .btn-crop { background: #e5322d; color: #fff; border: none; padding: 14px; font-size: 16px; border-radius: 6px; cursor: pointer; font-weight: 700; width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px; }
     .btn-crop:hover { background: #c62828; }
-    
+
     @media (max-width: 768px) {
       .main-wrapper { flex-direction: column; overflow-y: auto; }
       .sidebar { width: 100%; border-left: none; border-top: 1px solid #e0e0e0; }
@@ -69,16 +85,15 @@
   </div>
 
   <div class="main-wrapper" id="editorView" style="display: none;">
-    <div class="pdf-preview-area" id="pagesContainer">
-      <!-- All pages rendered here -->
-    </div>
+    <div class="pdf-preview-area" id="pagesContainer"></div>
 
     <div class="sidebar">
       <div>
         <h3 style="margin-bottom: 5px;">Crop PDF</h3>
-        <p style="font-size: 13px; color: #666;">Click and drag to select the area you want to keep.</p>
+        <p style="font-size: 13px; color: #666;">Click and drag to select the area you want to keep. Resize if needed.</p>
         
         <div class="option-group">
+          <label style="font-size: 12px; color: #888; font-weight: 700; text-transform: uppercase; display: block; margin-bottom: 8px;">Pages</label>
           <label class="radio-item">
             <input type="radio" name="pageOption" value="all" id="optAll" checked onchange="toggleCropMode()">
             <span>All pages</span>
@@ -146,7 +161,7 @@
       toggleCropMode();
     }
 
-    function createCropOverlay(w, h, pageNum) {
+    function createCropBox(pageNum, w, h) {
       const box = document.createElement('div');
       box.className = 'crop-box';
       box.id = `cropBox-${pageNum}`;
@@ -155,126 +170,168 @@
       box.style.width = (w * 0.8) + 'px';
       box.style.height = (h * 0.8) + 'px';
 
-      makeDraggableAndResizable(box);
+      box.innerHTML = `
+        <div class="handle nw" data-handle="nw"></div>
+        <div class="handle ne" data-handle="ne"></div>
+        <div class="handle sw" data-handle="sw"></div>
+        <div class="handle se" data-handle="se"></div>
+        <div class="handle n" data-handle="n"></div>
+        <div class="handle s" data-handle="s"></div>
+        <div class="handle w" data-handle="w"></div>
+        <div class="handle e" data-handle="e"></div>
+      `;
+
+      initInteract(box, pageNum);
       return box;
     }
 
     function toggleCropMode() {
       const isAll = document.getElementById('optAll').checked;
-      
-      // Clear existing crop boxes
       document.querySelectorAll('.crop-box').forEach(el => el.remove());
 
-      if (isAll) {
-        // Add single crop box on Page 1 (applies to all)
-        const firstCard = document.getElementById('page-card-1');
-        if (firstCard) {
-          const dim = pageDimensions[0];
-          const overlay = createCropOverlay(dim.w, dim.h, 1);
-          firstCard.appendChild(overlay);
+      for (let i = 1; i <= pdfDoc.numPages; i++) {
+        const card = document.getElementById(`page-card-${i}`);
+        const dim = pageDimensions[i - 1];
+        const box = createCropBox(i, dim.w, dim.h);
+
+        if (isAll && i > 1) {
+          box.style.pointerEvents = 'none'; // Disable direct interaction for lower pages in 'All' mode
         }
-      } else {
-        // Add separate crop boxes for every page
-        for (let i = 1; i <= pdfDoc.numPages; i++) {
-          const card = document.getElementById(`page-card-${i}`);
-          if (card) {
-            const dim = pageDimensions[i - 1];
-            const overlay = createCropOverlay(dim.w, dim.h, i);
-            card.appendChild(overlay);
-          }
+        card.appendChild(box);
+      }
+      syncBoxesFromFirstPage();
+    }
+
+    function syncBoxesFromFirstPage() {
+      const isAll = document.getElementById('optAll').checked;
+      if (!isAll) return;
+
+      const mainBox = document.getElementById('cropBox-1');
+      if (!mainBox) return;
+
+      const l = mainBox.style.left;
+      const t = mainBox.style.top;
+      const w = mainBox.style.width;
+      const h = mainBox.style.height;
+
+      for (let i = 2; i <= pdfDoc.numPages; i++) {
+        const targetBox = document.getElementById(`cropBox-${i}`);
+        if (targetBox) {
+          targetBox.style.left = l;
+          targetBox.style.top = t;
+          targetBox.style.width = w;
+          targetBox.style.height = h;
         }
       }
     }
 
-    // Touch & Mouse Dragging Engine
-    function makeDraggableAndResizable(elm) {
-      let pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
+    // Precise Drag and Resize Logic
+    function initInteract(box, pageNum) {
+      let activeAction = null;
+      let startX, startY, startL, startT, startW, startH;
 
-      elm.addEventListener('mousedown', dragStart);
-      elm.addEventListener('touchstart', dragStart, { passive: false });
+      const onStart = (e) => {
+        const target = e.target;
+        const evt = e.touches ? e.touches[0] : e;
+        startX = evt.clientX;
+        startY = evt.clientY;
 
-      function dragStart(e) {
+        startL = box.offsetLeft;
+        startT = box.offsetTop;
+        startW = box.offsetWidth;
+        startH = box.offsetHeight;
+
+        if (target.classList.contains('handle')) {
+          activeAction = target.dataset.handle;
+        } else if (target.classList.contains('crop-box')) {
+          activeAction = 'move';
+        }
+
+        if (activeAction) {
+          e.preventDefault();
+          document.addEventListener('mousemove', onMove);
+          document.addEventListener('touchmove', onMove, { passive: false });
+          document.addEventListener('mouseup', onEnd);
+          document.addEventListener('touchend', onEnd);
+        }
+      };
+
+      const onMove = (e) => {
+        if (!activeAction) return;
         e.preventDefault();
-        const event = e.touches ? e.touches[0] : e;
-        pos3 = event.clientX;
-        pos4 = event.clientY;
+        const evt = e.touches ? e.touches[0] : e;
+        const dx = evt.clientX - startX;
+        const dy = evt.clientY - startY;
 
-        document.addEventListener('mousemove', dragMove);
-        document.addEventListener('touchmove', dragMove, { passive: false });
-        document.addEventListener('mouseup', dragEnd);
-        document.addEventListener('touchend', dragEnd);
-      }
+        const parent = box.parentElement;
+        const maxW = parent.offsetWidth;
+        const maxH = parent.offsetHeight;
 
-      function dragMove(e) {
-        e.preventDefault();
-        const event = e.touches ? e.touches[0] : e;
-        pos1 = pos3 - event.clientX;
-        pos2 = pos4 - event.clientY;
-        pos3 = event.clientX;
-        pos4 = event.clientY;
+        if (activeAction === 'move') {
+          let newL = Math.max(0, Math.min(startL + dx, maxW - startW));
+          let newT = Math.max(0, Math.min(startT + dy, maxH - startH));
+          box.style.left = newL + 'px';
+          box.style.top = newT + 'px';
+        } else {
+          // Resizing logic for all 8 handles
+          let newW = startW, newH = startH, newL = startL, newT = startT;
 
-        const parent = elm.parentElement;
-        let newTop = elm.offsetTop - pos2;
-        let newLeft = elm.offsetLeft - pos1;
+          if (activeAction.includes('e')) newW = Math.min(maxW - startL, Math.max(30, startW + dx));
+          if (activeAction.includes('s')) newH = Math.min(maxH - startT, Math.max(30, startH + dy));
+          if (activeAction.includes('w')) {
+            let possibleW = Math.max(30, startW - dx);
+            newL = startL + (startW - possibleW);
+            if (newL >= 0) { newW = possibleW; box.style.left = newL + 'px'; }
+          }
+          if (activeAction.includes('n')) {
+            let possibleH = Math.max(30, startH - dy);
+            newT = startT + (startH - possibleH);
+            if (newT >= 0) { newH = possibleH; box.style.top = newT + 'px'; }
+          }
 
-        if (newTop >= 0 && newTop + elm.offsetHeight <= parent.offsetHeight) elm.style.top = newTop + "px";
-        if (newLeft >= 0 && newLeft + elm.offsetWidth <= parent.offsetWidth) elm.style.left = newLeft + "px";
-      }
+          box.style.width = newW + 'px';
+          box.style.height = newH + 'px';
+        }
 
-      function dragEnd() {
-        document.removeEventListener('mousemove', dragMove);
-        document.removeEventListener('touchmove', dragMove);
-      }
+        syncBoxesFromFirstPage();
+      };
+
+      const onEnd = () => {
+        activeAction = null;
+        document.removeEventListener('mousemove', onMove);
+        document.removeEventListener('touchmove', onMove);
+      };
+
+      box.addEventListener('mousedown', onStart);
+      box.addEventListener('touchstart', onStart, { passive: false });
     }
 
     async function processCrop() {
-      const isAll = document.getElementById('optAll').checked;
       const arrayBuffer = await currentFile.arrayBuffer();
       const { PDFDocument } = PDFLib;
       const pdf = await PDFDocument.load(arrayBuffer);
       const pages = pdf.getPages();
 
-      if (isAll) {
-        // Apply Page 1 Crop Box to ALL pages
-        const cropBox = document.getElementById('cropBox-1');
-        const canvas = cropBox.parentElement.querySelector('canvas');
+      pages.forEach((page, idx) => {
+        const pageNum = idx + 1;
+        const cropBox = document.getElementById(`cropBox-${pageNum}`);
+        if (cropBox) {
+          const canvas = cropBox.parentElement.querySelector('canvas');
+          const dim = pageDimensions[idx];
 
-        const scaleX = pageDimensions[0].originalW / canvas.width;
-        const scaleY = pageDimensions[0].originalH / canvas.height;
+          const scaleX = dim.originalW / canvas.width;
+          const scaleY = dim.originalH / canvas.height;
 
-        const cropX = cropBox.offsetLeft * scaleX;
-        const cropY = cropBox.offsetTop * scaleY;
-        const cropW = cropBox.offsetWidth * scaleX;
-        const cropH = cropBox.offsetHeight * scaleY;
+          const cropX = cropBox.offsetLeft * scaleX;
+          const cropY = cropBox.offsetTop * scaleY;
+          const cropW = cropBox.offsetWidth * scaleX;
+          const cropH = cropBox.offsetHeight * scaleY;
 
-        pages.forEach(page => {
           const { height } = page.getSize();
           const pdfY = height - cropY - cropH;
           page.setCropBox(cropX, pdfY, cropW, cropH);
-        });
-      } else {
-        // Apply individual Crop Boxes to each page
-        pages.forEach((page, idx) => {
-          const pageNum = idx + 1;
-          const cropBox = document.getElementById(`cropBox-${pageNum}`);
-          if (cropBox) {
-            const canvas = cropBox.parentElement.querySelector('canvas');
-            const dim = pageDimensions[idx];
-
-            const scaleX = dim.originalW / canvas.width;
-            const scaleY = dim.originalH / canvas.height;
-
-            const cropX = cropBox.offsetLeft * scaleX;
-            const cropY = cropBox.offsetTop * scaleY;
-            const cropW = cropBox.offsetWidth * scaleX;
-            const cropH = cropBox.offsetHeight * scaleY;
-
-            const { height } = page.getSize();
-            const pdfY = height - cropY - cropH;
-            page.setCropBox(cropX, pdfY, cropW, cropH);
-          }
-        });
-      }
+        }
+      });
 
       const croppedBytes = await pdf.save();
       const blob = new Blob([croppedBytes], { type: 'application/pdf' });
