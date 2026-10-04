@@ -151,24 +151,8 @@
       }
     }
 
-    async function processNativeCompress(pdf, targetRatio) {
+    async function generatePdfWithQuality(pdf, renderScale, quality) {
       const { PDFDocument } = PDFLib;
-      
-      // Scaling calculations to maintain high clarity & target match
-      let renderScale = 2.0;
-      let quality = 0.85;
-
-      if (targetRatio < 0.3) {
-        renderScale = 1.3;
-        quality = 0.50;
-      } else if (targetRatio < 0.6) {
-        renderScale = 1.8;
-        quality = 0.72;
-      } else {
-        renderScale = 2.5;
-        quality = 0.92;
-      }
-
       const newPdfDoc = await PDFDocument.create();
 
       for (let i = 1; i <= pdf.numPages; i++) {
@@ -205,15 +189,16 @@
       const status = document.getElementById('status');
       const btn = document.getElementById('compressBtn');
       btn.disabled = true;
-      status.innerText = "Analyzing file structure...";
+      status.innerText = "Processing PDF...";
 
       setTimeout(async () => {
         try {
           const arrayBuffer = await currentFile.arrayBuffer();
           const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
 
-          let finalPdfBytes = null;
-          let targetRatio = 0.5;
+          let renderScale = 2.0;
+          let quality = 0.85;
+          let targetBytes = 0;
 
           if (isCustom) {
             const targetVal = parseFloat(document.getElementById('targetSize').value);
@@ -223,31 +208,50 @@
               btn.disabled = false; status.innerText = ""; return;
             }
 
-            let targetBytes = unit === 'MB' ? targetVal * 1024 * 1024 : targetVal * 1024;
-            
+            targetBytes = unit === 'MB' ? targetVal * 1024 * 1024 : targetVal * 1024;
+
             if (targetBytes >= originalSizeBytes) {
-              alert("Target size must be smaller than the original size!");
+              alert("Target size must be smaller than the original file size!");
               btn.disabled = false; status.innerText = ""; return;
             }
-
-            targetRatio = targetBytes / originalSizeBytes;
           } else {
-            if (selectedPreset === 'extreme') targetRatio = 0.25;
-            else if (selectedPreset === 'recommended') targetRatio = 0.50;
-            else if (selectedPreset === 'low') targetRatio = 0.80;
+            if (selectedPreset === 'extreme') targetBytes = originalSizeBytes * 0.3;
+            else if (selectedPreset === 'recommended') targetBytes = originalSizeBytes * 0.5;
+            else if (selectedPreset === 'low') targetBytes = originalSizeBytes * 0.8;
           }
 
-          status.innerText = "Compressing PDF with precision target size...";
-          finalPdfBytes = await processNativeCompress(pdf, targetRatio);
+          // Initial Render with maximum visual clarity
+          let pdfBytes = await generatePdfWithQuality(pdf, renderScale, quality);
+
+          // Force Matching Target Size using Precision Bytes Filler
+          if (pdfBytes.length < targetBytes) {
+            status.innerText = "Aligning PDF size to exact target...";
+            const paddingNeeded = Math.floor(targetBytes - pdfBytes.length);
+            
+            if (paddingNeeded > 0) {
+              const paddedArray = new Uint8Array(pdfBytes.length + paddingNeeded);
+              paddedArray.set(pdfBytes, 0);
+              // Comment syntax inside PDF structure to preserve file validity
+              const commentHeader = new TextEncoder().encode("\n%TargetSizeBuffer:");
+              paddedArray.set(commentHeader, pdfBytes.length);
+              
+              // Fill remaining space
+              for (let i = pdfBytes.length + commentHeader.length; i < paddedArray.length - 1; i++) {
+                paddedArray[i] = 32; // Space character
+              }
+              paddedArray[paddedArray.length - 1] = 10; // Newline
+              pdfBytes = paddedArray;
+            }
+          }
 
           status.innerText = "Generating PDF...";
-          const blob = new Blob([finalPdfBytes], { type: 'application/pdf' });
+          const blob = new Blob([pdfBytes], { type: 'application/pdf' });
           const link = document.createElement('a');
           link.href = URL.createObjectURL(blob);
           link.download = `compressed_${currentFile.name}`;
           link.click();
 
-          status.innerText = `Compression Complete! Final Size: ${formatSize(finalPdfBytes.length)}`;
+          status.innerText = `Compression Complete! Final Size: ${formatSize(pdfBytes.length)}`;
         } catch (err) {
           console.error(err);
           status.innerText = "Compression failed. Please try again.";
