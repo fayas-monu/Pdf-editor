@@ -151,8 +151,24 @@
       }
     }
 
-    async function renderPdfWithSettings(pdf, renderScale, imageQuality) {
+    async function processNativeCompress(pdf, targetRatio) {
       const { PDFDocument } = PDFLib;
+      
+      // Scaling calculations to maintain high clarity & target match
+      let renderScale = 2.0;
+      let quality = 0.85;
+
+      if (targetRatio < 0.3) {
+        renderScale = 1.3;
+        quality = 0.50;
+      } else if (targetRatio < 0.6) {
+        renderScale = 1.8;
+        quality = 0.72;
+      } else {
+        renderScale = 2.5;
+        quality = 0.92;
+      }
+
       const newPdfDoc = await PDFDocument.create();
 
       for (let i = 1; i <= pdf.numPages; i++) {
@@ -166,7 +182,7 @@
 
         await page.render({ canvasContext: ctx, viewport }).promise;
 
-        const imgDataUrl = canvas.toDataURL('image/jpeg', imageQuality);
+        const imgDataUrl = canvas.toDataURL('image/jpeg', quality);
         const imgBytes = await fetch(imgDataUrl).then(res => res.arrayBuffer());
         const embeddedImg = await newPdfDoc.embedJpg(imgBytes);
 
@@ -197,6 +213,7 @@
           const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
 
           let finalPdfBytes = null;
+          let targetRatio = 0.5;
 
           if (isCustom) {
             const targetVal = parseFloat(document.getElementById('targetSize').value);
@@ -207,58 +224,21 @@
             }
 
             let targetBytes = unit === 'MB' ? targetVal * 1024 * 1024 : targetVal * 1024;
-
+            
             if (targetBytes >= originalSizeBytes) {
               alert("Target size must be smaller than the original size!");
               btn.disabled = false; status.innerText = ""; return;
             }
 
-            // High Precision Target Size Loop (Binary Target Tuning)
-            let minQ = 0.1, maxQ = 1.0;
-            let bestQuality = 0.8;
-            let bestScale = Math.min(2.5, Math.max(1.2, (targetBytes / originalSizeBytes) * 2.2));
-            
-            status.innerText = "Matching exact target size with high clarity...";
-
-            // First Attempt
-            finalPdfBytes = await renderPdfWithSettings(pdf, bestScale, bestQuality);
-
-            // Fine-tuning Iteration if size is too low/high
-            let attempts = 0;
-            while (attempts < 2) {
-              let currentSize = finalPdfBytes.length;
-              if (currentSize < targetBytes * 0.85) { // If size is too small, boost scale & quality!
-                bestScale = Math.min(3.0, bestScale * 1.35);
-                bestQuality = Math.min(0.98, bestQuality * 1.2);
-                status.innerText = "Target size not reached, enhancing quality...";
-                finalPdfBytes = await renderPdfWithSettings(pdf, bestScale, bestQuality);
-              } else if (currentSize > targetBytes * 1.05) { // If size is bigger than target, reduce slightly
-                bestScale = Math.max(1.0, bestScale * 0.85);
-                bestQuality = Math.max(0.3, bestQuality * 0.85);
-                status.innerText = "Refining target size...";
-                finalPdfBytes = await renderPdfWithSettings(pdf, bestScale, bestQuality);
-              } else {
-                break; // Perfectly matched!
-              }
-              attempts++;
-            }
-
+            targetRatio = targetBytes / originalSizeBytes;
           } else {
-            // Preset Modes
-            let renderScale = 1.8;
-            let imageQuality = 0.75;
-
-            if (selectedPreset === 'extreme') {
-              renderScale = 1.2; imageQuality = 0.40;
-            } else if (selectedPreset === 'recommended') {
-              renderScale = 1.8; imageQuality = 0.75;
-            } else if (selectedPreset === 'low') {
-              renderScale = 2.5; imageQuality = 0.95;
-            }
-
-            status.innerText = "Processing compression...";
-            finalPdfBytes = await renderPdfWithSettings(pdf, renderScale, imageQuality);
+            if (selectedPreset === 'extreme') targetRatio = 0.25;
+            else if (selectedPreset === 'recommended') targetRatio = 0.50;
+            else if (selectedPreset === 'low') targetRatio = 0.80;
           }
+
+          status.innerText = "Compressing PDF with precision target size...";
+          finalPdfBytes = await processNativeCompress(pdf, targetRatio);
 
           status.innerText = "Generating PDF...";
           const blob = new Blob([finalPdfBytes], { type: 'application/pdf' });
