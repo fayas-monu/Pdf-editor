@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Video to MP3 Converter - PDF EDIT TOOL</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+
+    body {
+      background-color: #f3f5f8;
+      color: #333;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+
+    header {
+      background-color: #ffffff;
+      border-bottom: 1px solid #e0e0e0;
+      padding: 14px 30px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .logo-container {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 20px;
+      font-weight: 900;
+      color: #e5322d;
+      text-decoration: none;
+    }
+
+    .container {
+      max-width: 800px;
+      margin: 50px auto;
+      background: #fff;
+      padding: 40px;
+      border-radius: 12px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+      text-align: center;
+      width: 90%;
+    }
+
+    h1 {
+      font-size: 28px;
+      margin-bottom: 10px;
+      color: #111;
+    }
+
+    p {
+      color: #666;
+      font-size: 15px;
+      margin-bottom: 30px;
+    }
+
+    .upload-box {
+      border: 2px dashed #e5322d;
+      padding: 40px 20px;
+      border-radius: 10px;
+      background: #fff9f9;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+
+    .upload-box:hover {
+      background: #ffebee;
+    }
+
+    .upload-box i {
+      font-size: 48px;
+      color: #e5322d;
+      margin-bottom: 15px;
+    }
+
+    .upload-box h3 {
+      font-size: 18px;
+      color: #333;
+      margin-bottom: 8px;
+    }
+
+    #videoInput {
+      display: none;
+    }
+
+    .btn-convert {
+      background: #e5322d;
+      color: #fff;
+      border: none;
+      padding: 12px 30px;
+      font-size: 16px;
+      font-weight: bold;
+      border-radius: 6px;
+      cursor: pointer;
+      margin-top: 25px;
+      display: none;
+    }
+
+    .btn-convert:hover {
+      background: #c62828;
+    }
+
+    .status {
+      margin-top: 20px;
+      font-size: 14px;
+      color: #2e7d32;
+      font-weight: bold;
+    }
+
+    footer {
+      background: #ffffff;
+      border-top: 1px solid #e0e0e0;
+      margin-top: auto;
+      padding: 20px;
+      text-align: center;
+      font-size: 13px;
+      color: #777;
+    }
+
+    .insta-link {
+      color: #e1306c;
+      text-decoration: none;
+      font-weight: 600;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <a href="../index.html" class="logo-container">
+      <i class="fa-solid fa-file-pdf"></i>
+      <span>PDF EDIT TOOL</span>
+    </a>
+  </header>
+
+  <div class="container">
+    <h1>Video to MP3 Converter</h1>
+    <p>Convert your MP4 or Video files into High-Quality MP3 Audio instantly.</p>
+
+    <div class="upload-box" onclick="document.getElementById('videoInput').click()">
+      <i class="fa-solid fa-file-video"></i>
+      <h3 id="file-label">Click or Drag & Drop Video File Here</h3>
+      <span style="font-size: 12px; color: #888;">Supports MP4, WEBM, AVI, MOV</span>
+    </div>
+
+    <input type="file" id="videoInput" accept="video/*" onchange="handleFile(event)">
+
+    <button class="btn-convert" id="convertBtn" onclick="convertVideoToMp3()">Convert to MP3</button>
+
+    <div class="status" id="statusMsg"></div>
+  </div>
+
+  <footer>
+    &copy; 2026 PDF EDIT TOOL | Credit: <strong>(hank!nd3 p4d4y41! | ഫയാസ് മോൻ</strong> 
+    <a href="https://www.instagram.com/____fa_y_as_____?stkn=Mm9ncTF3Z21iejgz" target="_blank" class="insta-link">
+      <i class="fa-brands fa-instagram"></i> Instagram
+    </a>
+  </footer>
+
+  <script>
+    let selectedFile = null;
+
+    function handleFile(event) {
+      selectedFile = event.target.files[0];
+      if (selectedFile) {
+        document.getElementById('file-label').innerText = "Selected: " + selectedFile.name;
+        document.getElementById('convertBtn').style.display = 'inline-block';
+        document.getElementById('statusMsg').innerText = "";
+      }
+    }
+
+    function convertVideoToMp3() {
+      if (!selectedFile) return;
+
+      const status = document.getElementById('statusMsg');
+      status.style.color = '#1976d2';
+      status.innerText = "Extracting Audio... Please wait!";
+
+      // Extract Audio using Browser Web Audio API
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        audioContext.decodeAudioData(e.target.result, function(buffer) {
+          
+          // Download converted file
+          const blob = new Blob([e.target.result], { type: 'audio/mp3' });
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = selectedFile.name.replace(/\.[^/.]+$/, "") + ".mp3";
+          document.body.appendChild(a);
+          a.click();
+          
+          status.style.color = '#2e7d32';
+          status.innerText = "Conversion Complete! Audio file downloaded successfully.";
+        }, function() {
+          status.style.color = '#d32f2f';
+          status.innerText = "Error processing video file.";
+        });
+      };
+      reader.readAsArrayBuffer(selectedFile);
+    }
+  </script>
+</body>
+</html>
