@@ -145,8 +145,6 @@
       font-size: 16px;
       cursor: pointer;
       text-align: center;
-      text-decoration: none;
-      display: block;
     }
 
     .download-btn:hover {
@@ -180,7 +178,24 @@
       width: 0%;
       height: 100%;
       background: #28a745;
-      transition: width 0.3s ease;
+      transition: width 0.2s ease;
+    }
+
+    /* In-Site Direct Downloader Frame Container */
+    .downloader-frame-container {
+      display: none;
+      margin-top: 20px;
+      width: 100%;
+      height: 220px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+
+    .downloader-frame-container iframe {
+      width: 100%;
+      height: 100%;
+      border: none;
     }
 
     footer {
@@ -205,7 +220,7 @@
 
   <div class="container">
     <h1><i class="fa-brands fa-youtube" style="color: red;"></i> YouTube Downloader</h1>
-    <p class="subtitle">Direct High Quality Downloads</p>
+    <p class="subtitle">Download Videos Directly On This Page</p>
 
     <div class="input-box">
       <input type="text" id="youtubeUrl" placeholder="Paste YouTube link here...">
@@ -221,18 +236,23 @@
           <p>Quality: <span class="size-badge">1080p / 720p HD</span></p>
         </div>
       </div>
-      <button class="download-btn" id="startBtn" onclick="startDownloadProcess()">Start Download</button>
+      <button class="download-btn" id="startBtn" onclick="startInSiteDownload()">Download Video</button>
     </div>
 
     <!-- Live Progress Bar -->
     <div class="progress-box" id="progressBox">
       <div class="progress-status">
-        <span id="statusText">Processing Video...</span>
+        <span id="statusText">Processing File...</span>
         <span id="progressPercent">0%</span>
       </div>
       <div class="progress-container">
         <div class="progress-bar" id="progressBar"></div>
       </div>
+    </div>
+
+    <!-- Embedded Downloader Container (Same Page) -->
+    <div class="downloader-frame-container" id="frameContainer">
+      <iframe id="downloadFrame" src=""></iframe>
     </div>
   </div>
 
@@ -242,7 +262,6 @@
 
   <script>
     let videoId = "";
-    let cleanUrl = "";
 
     function extractYouTubeID(url) {
       const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
@@ -259,16 +278,14 @@
         return;
       }
 
-      cleanUrl = `https://www.youtube.com/watch?v=${videoId}`;
-
-      // Show video details card instantly without API errors
       document.getElementById('videoTitle').innerText = "YouTube Video (" + videoId + ")";
       document.getElementById('thumb').src = `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`;
       document.getElementById('videoCard').style.display = 'block';
       document.getElementById('progressBox').style.display = 'none';
+      document.getElementById('frameContainer').style.display = 'none';
     }
 
-    function startDownloadProcess() {
+    function startInSiteDownload() {
       document.getElementById('startBtn').disabled = true;
       document.getElementById('progressBox').style.display = 'block';
 
@@ -278,32 +295,22 @@
 
       let currentPercent = 0;
 
-      // 0 to 100% Smooth Countdown Progress
+      // 0-100% Progress Countdown Simulation
       const interval = setInterval(() => {
-        currentPercent += 5;
+        currentPercent += 10;
         progressBar.style.width = currentPercent + '%';
         progressPercent.innerText = currentPercent + '%';
 
         if (currentPercent >= 100) {
           clearInterval(interval);
-          statusText.innerText = "Download Ready! Starting File Transfer...";
+          statusText.innerText = "Download Ready! Click below to save file:";
           
-          // Form submission bypasses CORS blocking
-          const form = document.createElement('form');
-          form.method = 'POST';
-          form.action = 'https://co.wuk.sh/api/json';
-          form.target = '_self';
-
-          const inputUrl = document.createElement('input');
-          inputUrl.type = 'hidden';
-          inputUrl.name = 'url';
-          inputUrl.value = cleanUrl;
-
-          form.appendChild(inputUrl);
-          document.body.appendChild(form);
+          // Embed Widget inside page without redirecting
+          const iframe = document.getElementById('downloadFrame');
+          iframe.src = `https://loader.to/api/card/?url=https://www.youtube.com/watch?v=${videoId}`;
+          document.getElementById('frameContainer').style.display = 'block';
           
-          // Redirecting direct file stream
-          window.location.href = `https://ssyoutube.com/watch?v=${videoId}`;
+          document.getElementById('startBtn').disabled = false;
         }
       }, 150);
     }
