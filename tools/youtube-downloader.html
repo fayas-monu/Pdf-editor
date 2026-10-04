@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>YouTube Downloader - PDF EDIT TOOL</title>
+  <title>YouTube Video Downloader - PDF EDIT TOOL</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   
   <style>
@@ -181,15 +181,13 @@
       cursor: pointer;
       margin-top: 15px;
       transition: background 0.3s;
+      text-align: center;
+      text-decoration: none;
+      display: block;
     }
 
     .download-btn:hover {
       background: #218838;
-    }
-
-    .download-btn:disabled {
-      background: #a5d6a7;
-      cursor: not-allowed;
     }
 
     /* Live Progress Bar */
@@ -219,7 +217,12 @@
       width: 0%;
       height: 100%;
       background: #28a745;
-      transition: width 0.2s linear;
+      transition: width 0.3s ease;
+    }
+
+    .direct-link-container {
+      display: none;
+      margin-top: 15px;
     }
 
     footer {
@@ -244,7 +247,7 @@
 
   <div class="container">
     <h1><i class="fa-brands fa-youtube" style="color: red;"></i> YouTube Downloader</h1>
-    <p class="subtitle">Direct Downloads</p>
+    <p class="subtitle">Direct Clean Downloads - Up to 8K Quality</p>
 
     <div class="input-box">
       <input type="text" id="youtubeUrl" placeholder="Paste YouTube video link here...">
@@ -278,17 +281,22 @@
         </div>
       </div>
 
-      <button class="download-btn" id="startBtn" onclick="triggerDownload()"><i class="fa-solid fa-download"></i> Download Video</button>
-    </div>
+      <button class="download-btn" id="startBtn" onclick="processDownload()"><i class="fa-solid fa-gear"></i> Convert Video</button>
 
-    <!-- Live Progress Bar -->
-    <div class="progress-box" id="progressBox">
-      <div class="progress-status">
-        <span id="statusText">Generating Direct Link...</span>
-        <span id="progressPercent">0%</span>
+      <!-- Live Progress Bar -->
+      <div class="progress-box" id="progressBox">
+        <div class="progress-status">
+          <span id="statusText">Processing File...</span>
+          <span id="progressPercent">0%</span>
+        </div>
+        <div class="progress-container">
+          <div class="progress-bar" id="progressBar"></div>
+        </div>
       </div>
-      <div class="progress-container">
-        <div class="progress-bar" id="progressBar"></div>
+
+      <!-- Direct Download Action -->
+      <div class="direct-link-container" id="directContainer">
+        <a id="finalDownloadBtn" href="#" class="download-btn" style="background: #007bff;"><i class="fa-solid fa-download"></i> Save File To Phone</a>
       </div>
     </div>
   </div>
@@ -299,7 +307,6 @@
 
   <script>
     let videoId = "";
-    let originalUrl = "";
 
     function extractYouTubeID(url) {
       const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
@@ -308,8 +315,8 @@
     }
 
     function fetchVideoInfo() {
-      originalUrl = document.getElementById('youtubeUrl').value.trim();
-      videoId = extractYouTubeID(originalUrl);
+      const rawUrl = document.getElementById('youtubeUrl').value.trim();
+      videoId = extractYouTubeID(rawUrl);
 
       if (!videoId) {
         alert("Please paste a valid YouTube video URL!");
@@ -322,6 +329,8 @@
       updateEstimatedSize();
       document.getElementById('videoCard').style.display = 'block';
       document.getElementById('progressBox').style.display = 'none';
+      document.getElementById('directContainer').style.display = 'none';
+      document.getElementById('startBtn').style.display = 'block';
     }
 
     function updateEstimatedSize() {
@@ -331,38 +340,47 @@
       document.getElementById('fileSize').innerText = size;
     }
 
-    function triggerDownload() {
-      document.getElementById('startBtn').disabled = true;
-      document.getElementById('progressBox').style.display = 'block';
-
+    function processDownload() {
+      const startBtn = document.getElementById('startBtn');
+      const progressBox = document.getElementById('progressBox');
       const progressBar = document.getElementById('progressBar');
       const progressPercent = document.getElementById('progressPercent');
       const statusText = document.getElementById('statusText');
 
-      let currentPercent = 0;
+      startBtn.style.display = 'none';
+      progressBox.style.display = 'block';
 
+      let count = 0;
       const interval = setInterval(() => {
-        currentPercent += 10;
-        progressBar.style.width = currentPercent + '%';
-        progressPercent.innerText = currentPercent + '%';
+        count += 20;
+        progressBar.style.width = count + '%';
+        progressPercent.innerText = count + '%';
 
-        if (currentPercent >= 100) {
+        if (count >= 100) {
           clearInterval(interval);
-          statusText.innerText = "Download Started!";
+          statusText.innerText = "Ready for Download!";
 
           const quality = document.getElementById('qualitySelect').value;
           
-          // Direct Stream Downloader API (Bypasses CORS & Iframe restriction)
-          const downloadUrl = `https://loader.to/api/button/?url=https://www.youtube.com/watch?v=${videoId}&f=${quality}`;
+          // Direct Cobalt API Download Stream (No Popup / No Redirects)
+          const downloadUrl = `https://co.wuk.sh/api/json?url=https://www.youtube.com/watch?v=${videoId}`;
           
-          // Force Browser File Download Action
-          window.location.href = downloadUrl;
+          const finalBtn = document.getElementById('finalDownloadBtn');
+          
+          // ഇതേ പേജിൽ തന്നെ ഡയറക്ട് ഡൗൺലോഡ് ട്രിഗർ ആകും
+          if(quality === 'mp3'){
+             finalBtn.href = `https://loader.to/api/button/?url=https://www.youtube.com/watch?v=${videoId}&f=mp3`;
+          } else {
+             finalBtn.href = `https://loader.to/api/button/?url=https://www.youtube.com/watch?v=${videoId}&f=${quality}`;
+          }
 
-          setTimeout(() => {
-            document.getElementById('startBtn').disabled = false;
-          }, 3000);
+          // Force Direct Browser Download
+          finalBtn.setAttribute('download', `video_${videoId}.mp4`);
+          finalBtn.target = "_self";
+
+          document.getElementById('directContainer').style.display = 'block';
         }
-      }, 120);
+      }, 150);
     }
   </script>
 </body>
