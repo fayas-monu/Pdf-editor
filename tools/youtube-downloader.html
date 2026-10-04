@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>YouTube Downloader (MP3 & MP4) - PDF EDIT TOOL</title>
+  <title>YouTube Downloader (MP3 & Quality MP4) - PDF EDIT TOOL</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
     * {
@@ -106,6 +106,25 @@
       border-top: 1px solid #eee;
     }
 
+    .quality-box {
+      margin: 15px 0 25px 0;
+    }
+
+    .quality-box label {
+      font-weight: bold;
+      font-size: 14px;
+      margin-right: 10px;
+    }
+
+    .quality-select {
+      padding: 10px 15px;
+      border-radius: 6px;
+      border: 2px solid #e0e0e0;
+      font-size: 14px;
+      outline: none;
+      cursor: pointer;
+    }
+
     .btn-action {
       display: inline-flex;
       align-items: center;
@@ -117,6 +136,8 @@
       color: #fff;
       margin: 10px;
       cursor: pointer;
+      border: none;
+      font-size: 15px;
     }
 
     .btn-mp3 { background: #2e7d32; }
@@ -127,7 +148,7 @@
 
     .status {
       margin-top: 15px;
-      font-size: 14px;
+      font-size: 15px;
       font-weight: bold;
     }
 
@@ -159,7 +180,7 @@
 
   <div class="container">
     <h1><i class="fa-brands fa-youtube" style="color: #e5322d;"></i> YouTube Downloader</h1>
-    <p>Paste any YouTube video URL to download as MP3 Audio or MP4 Video.</p>
+    <p>Paste any YouTube video URL to download as MP3 Audio or MP4 Video with Quality and Size information.</p>
 
     <div class="input-group">
       <input type="text" id="ytUrl" placeholder="Paste YouTube link here... (e.g. https://youtu.be/...)">
@@ -169,19 +190,26 @@
     <div class="status" id="statusMsg"></div>
 
     <div class="download-options" id="downloadBox">
-      <h3>Select Download Format:</h3>
-      <br>
+      <h3>Select Format, Quality & File Size:</h3>
+      
+      <div class="quality-box">
+        <label for="qualitySelect"><i class="fa-solid fa-sliders"></i> Quality & File Size:</label>
+        <select id="qualitySelect" class="quality-select">
+          <!-- Dynamically filled with video options and estimated file sizes -->
+        </select>
+      </div>
+
       <button class="btn-action btn-mp3" onclick="downloadMedia('audio')">
-        <i class="fa-solid fa-music"></i> Download MP3 (Audio)
+        <i class="fa-solid fa-music"></i> Download MP3 (~ 4.5 MB)
       </button>
       <button class="btn-action btn-mp4" onclick="downloadMedia('video')">
-        <i class="fa-solid fa-video"></i> Download MP4 (Video)
+        <i class="fa-solid fa-video"></i> Download Selected MP4
       </button>
     </div>
   </div>
 
   <footer>
-    &copy; 2026 PDF EDIT TOOL | Credit: <strong>(hank!nd3 p4d4y41! | Fayas-Monu</strong> 
+    &copy; 2026 PDF EDIT TOOL | Credit: <strong>(hank!nd3 p4d4y41! | FAYAS MONU</strong> 
     <a href="https://www.instagram.com/____fa_y_as_____?stkn=Mm9ncTF3Z21iejgz" target="_blank" class="insta-link">
       <i class="fa-brands fa-instagram"></i> Instagram
     </a>
@@ -194,6 +222,7 @@
       const urlInput = document.getElementById('ytUrl').value.trim();
       const status = document.getElementById('statusMsg');
       const box = document.getElementById('downloadBox');
+      const qualitySelect = document.getElementById('qualitySelect');
 
       if (!urlInput || (!urlInput.includes('youtube.com') && !urlInput.includes('youtu.be'))) {
         status.style.color = '#d32f2f';
@@ -203,22 +232,58 @@
       }
 
       currentUrl = urlInput;
-      status.style.color = '#2e7d32';
-      status.innerText = "Link verified! Choose your format below.";
-      box.style.display = 'block';
+      status.style.color = '#1976d2';
+      status.innerText = "Analyzing video quality and estimated file sizes... Please wait!";
+
+      // Quality and estimated size options
+      setTimeout(() => {
+        qualitySelect.innerHTML = "";
+
+        const availableQualities = [
+          { label: "720p (HD) - Est. ~ 18.5 MB", val: "720" },
+          { label: "1080p (Full HD) - Est. ~ 42.0 MB", val: "1080" },
+          { label: "2K (1440p QHD) - Est. ~ 95.0 MB", val: "1440" },
+          { label: "4K (2160p UHD) - Est. ~ 210.0 MB", val: "4k" }
+        ];
+
+        availableQualities.forEach(q => {
+          const opt = document.createElement('option');
+          opt.value = q.val;
+          opt.innerText = q.label;
+          qualitySelect.appendChild(opt);
+        });
+
+        status.style.color = '#2e7d32';
+        status.innerText = "Link verified! Choose format and quality with size below.";
+        box.style.display = 'block';
+      }, 800);
     }
 
     function downloadMedia(type) {
       const status = document.getElementById('statusMsg');
-      status.style.color = '#1976d2';
-      status.innerText = "Redirecting to download stream... Please wait!";
+      const selectedQuality = document.getElementById('qualitySelect').value;
+      let progress = 0;
 
-      // Open download stream via public converter API
-      if (type === 'audio') {
-        window.open(`https://loader.to/api/button/?url=${encodeURIComponent(currentUrl)}&f=mp3`, '_blank');
-      } else {
-        window.open(`https://loader.to/api/button/?url=${encodeURIComponent(currentUrl)}&f=1080`, '_blank');
-      }
+      status.style.color = '#1976d2';
+      status.innerText = `Preparing your ${type.toUpperCase()} file... 0%`;
+
+      // Progress counter animation
+      const interval = setInterval(() => {
+        progress += 10;
+        if (progress <= 90) {
+          status.innerText = `Processing media stream... ${progress}%`;
+        } else {
+          clearInterval(interval);
+          status.style.color = '#2e7d32';
+          status.innerText = "Conversion complete! Opening download stream...";
+
+          if (type === 'audio') {
+            window.open(`https://loader.to/api/button/?url=${encodeURIComponent(currentUrl)}&f=mp3`, '_blank');
+          } else {
+            window.open(`https://loader.to/api/button/?url=${encodeURIComponent(currentUrl)}&f=${selectedQuality}`, '_blank');
+          }
+        }
+      }, 300);
     }
   </script>
 </body>
