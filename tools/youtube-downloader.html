@@ -219,8 +219,8 @@
       <div class="video-info">
         <img id="thumb" src="" alt="Thumbnail">
         <div class="video-details">
-          <h3 id="videoTitle">Video Title</h3>
-          <p>File Size: <span class="size-badge" id="fileSize">Calculating...</span></p>
+          <h3 id="videoTitle">YouTube Video</h3>
+          <p>File Size: <span class="size-badge" id="fileSize">Fetching Size...</span></p>
         </div>
       </div>
       <button class="download-btn" id="startBtn" onclick="startDirectDownload()">Start Download</button>
@@ -244,68 +244,82 @@
 
   <script>
     let downloadUrl = "";
-    let videoFilename = "youtube_video.mp4";
 
-    // Extract YouTube Video ID
-    function getYouTubeID(url) {
+    // YouTube Video ID വേർതിരിച്ചെടുക്കുന്ന ഫംഗ്ഷൻ
+    function extractYouTubeID(url) {
       const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
       const match = url.match(regExp);
       return (match && match[2].length === 11) ? match[2] : null;
     }
 
     async function fetchVideoDetails() {
-      const url = document.getElementById('youtubeUrl').value.trim();
-      const videoId = getYouTubeID(url);
+      const rawUrl = document.getElementById('youtubeUrl').value.trim();
+      const videoId = extractYouTubeID(rawUrl);
 
       if (!videoId) {
         alert("Please paste a valid YouTube video URL!");
         return;
       }
 
+      // ശുദ്ധീകരിച്ച ഒറിജിനൽ ലിങ്ക് മാത്രം എടുക്കുന്നു (?si താക്കോലുകൾ മാറ്റുന്നു)
+      const cleanUrl = `https://www.youtube.com/watch?v=${videoId}`;
+
       document.getElementById('getBtn').innerText = "Fetching...";
       document.getElementById('getBtn').disabled = true;
       document.getElementById('videoCard').style.display = 'none';
       document.getElementById('progressBox').style.display = 'none';
 
-      try {
-        // Fetch Video Meta Info using Cobalt Public Instance
-        const res = await fetch("https://api.cobalt.tools/api/json", {
-          method: "POST",
-          headers: {
-            "Accept": "application/json",
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify({
-            url: url,
-            vQuality: "1080"
-          })
-        });
+      // പബ്ലിക് എപിഐ സർവറുകൾ
+      const apiInstances = [
+        "https://co.wuk.sh/api/json",
+        "https://api.cobalt.tools/api/json"
+      ];
 
-        const data = await res.json();
+      let success = false;
 
-        if (data.status === "redirect" || data.status === "stream" || data.status === "picker") {
-          downloadUrl = data.url || (data.picker && data.picker[0].url);
-          
-          // Set Title & Thumbnail
-          document.getElementById('videoTitle').innerText = "YouTube Video (" + videoId + ")";
-          document.getElementById('thumb').src = `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`;
-          
-          // Fetch exact file size using HEAD request
-          fetchFileSize(downloadUrl);
+      for (let api of apiInstances) {
+        try {
+          const res = await fetch(api, {
+            method: "POST",
+            headers: {
+              "Accept": "application/json",
+              "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+              url: cleanUrl,
+              vQuality: "max"
+            })
+          });
 
-          document.getElementById('videoCard').style.display = 'block';
-        } else {
-          alert("Unable to fetch video. Please check the URL.");
+          const data = await res.json();
+
+          if (data.url || (data.picker && data.picker[0].url)) {
+            downloadUrl = data.url || data.picker[0].url;
+            
+            document.getElementById('videoTitle').innerText = "YouTube Video (" + videoId + ")";
+            document.getElementById('thumb').src = `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`;
+            
+            // ഫയൽ സൈസ് കണക്കാക്കുന്നു
+            fetchFileSize(downloadUrl);
+
+            document.getElementById('videoCard').style.display = 'block';
+            success = true;
+            break;
+          }
+        } catch (e) {
+          console.log("Retrying next API instance...");
         }
-      } catch (err) {
-        alert("Error connecting to API. Please try again.");
-      } finally {
-        document.getElementById('getBtn').innerText = "Get Video";
-        document.getElementById('getBtn').disabled = false;
       }
+
+      if (!success) {
+        alert("Server connection failed. Please try again after a moment.");
+      }
+
+      document.getElementById('getBtn').innerText = "Get Video";
+      document.getElementById('getBtn').disabled = false;
     }
 
-    // Get Exact File Size in MB
+    // കൃത്യമായ MB സൈസ് എടുക്കുന്നു
     async function fetchFileSize(url) {
       try {
         const response = await fetch(url, { method: 'HEAD' });
@@ -314,14 +328,14 @@
           const sizeInMB = (parseInt(size) / (1024 * 1024)).toFixed(2);
           document.getElementById('fileSize').innerText = sizeInMB + " MB";
         } else {
-          document.getElementById('fileSize').innerText = "Original Quality";
+          document.getElementById('fileSize').innerText = "Full HD Original";
         }
       } catch (e) {
-        document.getElementById('fileSize').innerText = "Original Quality";
+        document.getElementById('fileSize').innerText = "Full HD Original";
       }
     }
 
-    // Direct Download with 0-100% Progress Countdown
+    // 0 to 100% പ്രോഗ്രസ്സോടെ സ്വന്തം സൈറ്റിൽ ഡൗൺലോഡ് ചെയ്യൽ
     async function startDirectDownload() {
       if (!downloadUrl) return;
 
@@ -334,6 +348,9 @@
 
       try {
         const response = await fetch(downloadUrl);
+        
+        if (!response.ok) throw new Error("Network error");
+
         const reader = response.body.getReader();
         const contentLength = +response.headers.get('Content-Length');
 
@@ -348,27 +365,26 @@
           receivedBytes += value.length;
 
           if (contentLength) {
-            // Live 0% to 100% Calculation
             const percent = Math.round((receivedBytes / contentLength) * 100);
             progressBar.style.width = percent + '%';
             progressPercent.innerText = percent + '%';
           }
         }
 
-        statusText.innerText = "Saving to Device...";
+        statusText.innerText = "Saving to your device...";
         
-        // Save File directly on the user's browser without redirecting
-        const blob = new Blob(chunks);
-        const a = document.createElement('a');
-        a.href = URL.createObjectURL(blob);
-        a.download = "YouTube_Video.mp4";
-        document.body.appendChild(a);
-        a.click();
-        a.remove();
+        // പരസ്യങ്ങൾ ഇല്ലാതെ ഡയറക്ട് ഫോൾഡറിലേക്ക് ഫയൽ ഡൗൺലോഡ് ആക്കുന്നു
+        const blob = new Blob(chunks, { type: 'video/mp4' });
+        const downloadLink = document.createElement('a');
+        downloadLink.href = URL.createObjectURL(blob);
+        downloadLink.download = "YouTube_Video.mp4";
+        document.body.appendChild(downloadLink);
+        downloadLink.click();
+        downloadLink.remove();
 
         statusText.innerText = "Download Completed!";
       } catch (err) {
-        alert("Direct stream blocked. Fallback to browser direct download.");
+        // ഏതെങ്കിലും കാരണവശാൽ പ്രോഗ്രസ് ഡൗൺലോഡ് ബ്ലോക്ക് ആയാൽ ഡയറക്ട് ഫയൽ ലിങ്ക് വഴി നൽകും
         window.location.href = downloadUrl;
       } finally {
         document.getElementById('startBtn').disabled = false;
