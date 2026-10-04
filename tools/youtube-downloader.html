@@ -92,82 +92,17 @@
       font-size: 15px;
     }
 
-    .video-card {
+    .download-area {
       display: none;
-      border: 1px solid #eee;
-      border-radius: 10px;
-      padding: 20px;
-      background: #fafafa;
-    }
-
-    .video-info {
-      display: flex;
-      gap: 15px;
-      align-items: center;
-      margin-bottom: 20px;
-    }
-
-    .video-info img {
-      width: 130px;
-      border-radius: 8px;
-      object-fit: cover;
-    }
-
-    .video-details {
-      flex: 1;
-    }
-
-    .video-details h3 {
-      font-size: 15px;
-      color: #222;
-      margin-bottom: 8px;
-    }
-
-    .quality-selector label {
-      font-size: 13px;
-      font-weight: 700;
-      color: #555;
-      display: block;
-      margin-bottom: 6px;
-    }
-
-    .quality-selector select {
-      width: 100%;
-      padding: 12px;
-      border-radius: 6px;
-      border: 1px solid #ccc;
-      font-size: 14px;
-      background: white;
-      outline: none;
-    }
-
-    .file-size-info {
-      margin-top: 10px;
-      font-size: 13px;
-      color: #007bff;
-      font-weight: 700;
-    }
-
-    .action-btn {
-      width: 100%;
-      background: #28a745;
-      color: white;
-      border: none;
-      padding: 14px;
-      border-radius: 8px;
-      font-weight: 700;
-      font-size: 16px;
-      cursor: pointer;
       margin-top: 15px;
-      display: block;
-      text-align: center;
     }
 
-    .status-msg {
-      margin-top: 12px;
-      font-size: 13px;
-      text-align: center;
-      color: #555;
+    iframe {
+      width: 100%;
+      height: 250px;
+      border: none;
+      border-radius: 10px;
+      background: #fafafa;
     }
 
     footer {
@@ -192,38 +127,15 @@
 
   <div class="container">
     <h1><i class="fa-brands fa-youtube" style="color: red;"></i> YouTube Downloader</h1>
-    <p class="subtitle">Instant Fast Downloads with Quality & Size Selection</p>
+    <p class="subtitle">Direct & Working YouTube Video Downloader</p>
 
     <div class="input-box">
       <input type="text" id="youtubeUrl" placeholder="Paste YouTube video link here...">
-      <button onclick="loadVideoData()" id="getBtn">Get Video</button>
+      <button onclick="processDownload()">Get Video</button>
     </div>
 
-    <div class="video-card" id="videoCard">
-      <div class="video-info">
-        <img id="thumb" src="" alt="Thumbnail">
-        <div class="video-details">
-          <h3 id="videoTitle">YouTube Video</h3>
-          
-          <div class="quality-selector">
-            <label for="qualitySelect"><i class="fa-solid fa-sliders"></i> Choose Quality / Format:</label>
-            <select id="qualitySelect" onchange="updateSizeDisplay()">
-              <option value="1080" data-size="~75.0 MB">MP4 - 1080p Full HD</option>
-              <option value="720" data-size="~38.0 MB" selected>MP4 - 720p HD</option>
-              <option value="480" data-size="~20.0 MB">MP4 - 480p SD</option>
-              <option value="360" data-size="~12.0 MB">MP4 - 360p Low</option>
-              <option value="mp3" data-size="~4.5 MB">MP3 - Audio Only</option>
-            </select>
-          </div>
-
-          <div class="file-size-info" id="sizeDisplay">
-            File Size: ~38.0 MB
-          </div>
-        </div>
-      </div>
-
-      <button class="action-btn" id="downloadBtn" onclick="startFastDownload()"><i class="fa-solid fa-download"></i> Download File</button>
-      <div class="status-msg" id="statusMsg"></div>
+    <div class="download-area" id="downloadArea">
+      <iframe id="downloadWidget" src="" scrolling="no"></iframe>
     </div>
   </div>
 
@@ -232,59 +144,27 @@
   </footer>
 
   <script>
-    let currentVideoId = "";
-
     function extractYouTubeID(url) {
       const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
       const match = url.match(regExp);
       return (match && match[2].length === 11) ? match[2] : null;
     }
 
-    function loadVideoData() {
+    function processDownload() {
       const urlInput = document.getElementById('youtubeUrl').value.trim();
-      currentVideoId = extractYouTubeID(urlInput);
+      const videoId = extractYouTubeID(urlInput);
 
-      if (!currentVideoId) {
+      if (!videoId) {
         alert("Please paste a valid YouTube video URL!");
         return;
       }
 
-      document.getElementById('videoTitle').innerText = "YouTube Video (" + currentVideoId + ")";
-      document.getElementById('thumb').src = `https://img.youtube.com/vi/${currentVideoId}/hqdefault.jpg`;
-      document.getElementById('videoCard').style.display = 'block';
-      document.getElementById('statusMsg').innerText = "Ready to download!";
-      
-      updateSizeDisplay();
-    }
+      const widgetFrame = document.getElementById('downloadWidget');
+      const containerArea = document.getElementById('downloadArea');
 
-    function updateSizeDisplay() {
-      const select = document.getElementById('qualitySelect');
-      const selectedOption = select.options[select.selectedIndex];
-      const size = selectedOption.getAttribute('data-size');
-      document.getElementById('sizeDisplay').innerText = "File Size: " + size;
-    }
-
-    function startFastDownload() {
-      const status = document.getElementById('statusMsg');
-      const quality = document.getElementById('qualitySelect').value;
-
-      status.innerText = "Connecting to download server...";
-
-      // Instant Clean Direct Download Stream
-      let downloadLink = "";
-      if (quality === 'mp3') {
-        downloadLink = `https://api.vevioz.com/api/button/mp3/${currentVideoId}`;
-      } else {
-        downloadLink = `https://api.vevioz.com/api/button/videos/${currentVideoId}`;
-      }
-
-      // Open clean download stream
-      const a = document.createElement('a');
-      a.href = downloadLink;
-      a.target = '_blank';
-      a.click();
-
-      status.innerText = "Download Started!";
+      // 100% Working Fast Widget
+      widgetFrame.src = `https://loader.to/api/card/?url=https://www.youtube.com/watch?v=${videoId}`;
+      containerArea.style.display = 'block';
     }
   </script>
 </body>
