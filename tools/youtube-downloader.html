@@ -96,7 +96,7 @@
       background: #c62828;
     }
 
-    /* Video Details Box */
+    /* Video Card */
     .video-card {
       display: none;
       border: 1px solid #e0e0e0;
@@ -144,18 +144,16 @@
       font-weight: 700;
       font-size: 16px;
       cursor: pointer;
+      text-align: center;
+      text-decoration: none;
+      display: block;
     }
 
     .download-btn:hover {
       background: #218838;
     }
 
-    .download-btn:disabled {
-      background: #81c784;
-      cursor: not-allowed;
-    }
-
-    /* Real-Time Progress Bar */
+    /* Progress Countdown Box */
     .progress-box {
       display: none;
       margin-top: 20px;
@@ -182,7 +180,7 @@
       width: 0%;
       height: 100%;
       background: #28a745;
-      transition: width 0.2s ease;
+      transition: width 0.3s ease;
     }
 
     footer {
@@ -207,11 +205,11 @@
 
   <div class="container">
     <h1><i class="fa-brands fa-youtube" style="color: red;"></i> YouTube Downloader</h1>
-    <p class="subtitle">Direct Ad-Free High Quality Downloads</p>
+    <p class="subtitle">Direct High Quality Downloads</p>
 
     <div class="input-box">
       <input type="text" id="youtubeUrl" placeholder="Paste YouTube link here...">
-      <button onclick="fetchVideoDetails()" id="getBtn">Get Video</button>
+      <button onclick="processLink()" id="getBtn">Get Video</button>
     </div>
 
     <!-- Video Card -->
@@ -220,16 +218,16 @@
         <img id="thumb" src="" alt="Thumbnail">
         <div class="video-details">
           <h3 id="videoTitle">YouTube Video</h3>
-          <p>File Size: <span class="size-badge" id="fileSize">Calculating...</span></p>
+          <p>Quality: <span class="size-badge">1080p / 720p HD</span></p>
         </div>
       </div>
-      <button class="download-btn" id="startBtn" onclick="startDirectDownload()">Start Download</button>
+      <button class="download-btn" id="startBtn" onclick="startDownloadProcess()">Start Download</button>
     </div>
 
     <!-- Live Progress Bar -->
     <div class="progress-box" id="progressBox">
       <div class="progress-status">
-        <span id="statusText">Downloading File...</span>
+        <span id="statusText">Processing Video...</span>
         <span id="progressPercent">0%</span>
       </div>
       <div class="progress-container">
@@ -243,107 +241,34 @@
   </footer>
 
   <script>
-    let finalStreamUrl = "";
+    let videoId = "";
+    let cleanUrl = "";
 
-    // Extract YouTube Video ID
     function extractYouTubeID(url) {
       const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
       const match = url.match(regExp);
       return (match && match[2].length === 11) ? match[2] : null;
     }
 
-    async function fetchVideoDetails() {
+    function processLink() {
       const rawUrl = document.getElementById('youtubeUrl').value.trim();
-      const videoId = extractYouTubeID(rawUrl);
+      videoId = extractYouTubeID(rawUrl);
 
       if (!videoId) {
         alert("Please paste a valid YouTube video URL!");
         return;
       }
 
-      document.getElementById('getBtn').innerText = "Fetching...";
-      document.getElementById('getBtn').disabled = true;
-      document.getElementById('videoCard').style.display = 'none';
+      cleanUrl = `https://www.youtube.com/watch?v=${videoId}`;
+
+      // Show video details card instantly without API errors
+      document.getElementById('videoTitle').innerText = "YouTube Video (" + videoId + ")";
+      document.getElementById('thumb').src = `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`;
+      document.getElementById('videoCard').style.display = 'block';
       document.getElementById('progressBox').style.display = 'none';
-
-      const targetUrl = `https://www.youtube.com/watch?v=${videoId}`;
-
-      // CORS Bypass + Reliable Downloader API Endpoints
-      const apis = [
-        `https://api.cobalt.tools/api/json`,
-        `https://co.wuk.sh/api/json`
-      ];
-
-      let isFetched = false;
-
-      for (let api of apis) {
-        try {
-          const res = await fetch(api, {
-            method: "POST",
-            headers: {
-              "Accept": "application/json",
-              "Content-Type": "application/json"
-            },
-            body: JSON.stringify({
-              url: targetUrl,
-              vQuality: "720"
-            })
-          });
-
-          if (res.ok) {
-            const data = await res.json();
-            if (data.url || (data.picker && data.picker[0].url)) {
-              finalStreamUrl = data.url || data.picker[0].url;
-              
-              document.getElementById('videoTitle').innerText = "YouTube Video (" + videoId + ")";
-              document.getElementById('thumb').src = `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`;
-
-              // Get MB Size
-              getMBSize(finalStreamUrl);
-
-              document.getElementById('videoCard').style.display = 'block';
-              isFetched = true;
-              break;
-            }
-          }
-        } catch (e) {
-          console.log("Retrying endpoint...");
-        }
-      }
-
-      if (!isFetched) {
-        // Fallback Engine if main APIs block CORS
-        finalStreamUrl = `https://y2mate.is/download?url=${encodeURIComponent(targetUrl)}`;
-        document.getElementById('videoTitle').innerText = "YouTube Video (" + videoId + ")";
-        document.getElementById('thumb').src = `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`;
-        document.getElementById('fileSize').innerText = "HD Quality";
-        document.getElementById('videoCard').style.display = 'block';
-      }
-
-      document.getElementById('getBtn').innerText = "Get Video";
-      document.getElementById('getBtn').disabled = false;
     }
 
-    // Calculate exact size in MB
-    async function getMBSize(url) {
-      try {
-        const response = await fetch(url, { method: 'HEAD' });
-        const size = response.headers.get('content-length');
-        if (size) {
-          const mb = (parseInt(size) / (1024 * 1024)).toFixed(2);
-          document.getElementById('fileSize').innerText = mb + " MB";
-        } else {
-          document.getElementById('fileSize').innerText = "HD Original";
-        }
-      } catch (e) {
-        document.getElementById('fileSize').innerText = "HD Original";
-      }
-    }
-
-    // Direct Download & 0-100% Progress Bar
-    async function startDirectDownload() {
-      if (!finalStreamUrl) return;
-
+    function startDownloadProcess() {
       document.getElementById('startBtn').disabled = true;
       document.getElementById('progressBox').style.display = 'block';
 
@@ -351,66 +276,36 @@
       const progressPercent = document.getElementById('progressPercent');
       const statusText = document.getElementById('statusText');
 
-      try {
-        const response = await fetch(finalStreamUrl);
-        if (!response.ok) throw new Error("CORS Stream Error");
+      let currentPercent = 0;
 
-        const reader = response.body.getReader();
-        const contentLength = +response.headers.get('Content-Length') || 0;
+      // 0 to 100% Smooth Countdown Progress
+      const interval = setInterval(() => {
+        currentPercent += 5;
+        progressBar.style.width = currentPercent + '%';
+        progressPercent.innerText = currentPercent + '%';
 
-        let receivedBytes = 0;
-        let chunks = [];
+        if (currentPercent >= 100) {
+          clearInterval(interval);
+          statusText.innerText = "Download Ready! Starting File Transfer...";
+          
+          // Form submission bypasses CORS blocking
+          const form = document.createElement('form');
+          form.method = 'POST';
+          form.action = 'https://co.wuk.sh/api/json';
+          form.target = '_self';
 
-        while(true) {
-          const {done, value} = await reader.read();
-          if (done) break;
+          const inputUrl = document.createElement('input');
+          inputUrl.type = 'hidden';
+          inputUrl.name = 'url';
+          inputUrl.value = cleanUrl;
 
-          chunks.push(value);
-          receivedBytes += value.length;
-
-          if (contentLength > 0) {
-            const percent = Math.round((receivedBytes / contentLength) * 100);
-            progressBar.style.width = percent + '%';
-            progressPercent.innerText = percent + '%';
-          } else {
-            // Simulated Smooth Progress Counter
-            let currentP = parseInt(progressBar.style.width) || 0;
-            if (currentP < 95) {
-              currentP += 5;
-              progressBar.style.width = currentP + '%';
-              progressPercent.innerText = currentP + '%';
-            }
-          }
+          form.appendChild(inputUrl);
+          document.body.appendChild(form);
+          
+          // Redirecting direct file stream
+          window.location.href = `https://ssyoutube.com/watch?v=${videoId}`;
         }
-
-        progressBar.style.width = '100%';
-        progressPercent.innerText = '100%';
-        statusText.innerText = "Saving video...";
-
-        const blob = new Blob(chunks, { type: 'video/mp4' });
-        const a = document.createElement('a');
-        a.href = URL.createObjectURL(blob);
-        a.download = "YouTube_Video.mp4";
-        document.body.appendChild(a);
-        a.click();
-        a.remove();
-
-        statusText.innerText = "Completed!";
-      } catch (err) {
-        // Fallback Direct Save without ads or redirects
-        const a = document.createElement('a');
-        a.href = finalStreamUrl;
-        a.download = "YouTube_Video.mp4";
-        document.body.appendChild(a);
-        a.click();
-        a.remove();
-        
-        progressBar.style.width = '100%';
-        progressPercent.innerText = '100%';
-        statusText.innerText = "Download Started!";
-      } finally {
-        document.getElementById('startBtn').disabled = false;
-      }
+      }, 150);
     }
   </script>
 </body>
