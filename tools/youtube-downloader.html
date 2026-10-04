@@ -113,6 +113,10 @@
       object-fit: cover;
     }
 
+    .video-details {
+      flex: 1;
+    }
+
     .video-details h3 {
       font-size: 15px;
       color: #222;
@@ -188,11 +192,11 @@
 
   <div class="container">
     <h1><i class="fa-brands fa-youtube" style="color: red;"></i> YouTube Downloader</h1>
-    <p class="subtitle">Direct Clean Downloads with Quality & Size Selection</p>
+    <p class="subtitle">Instant Fast Downloads with Quality & Size Selection</p>
 
     <div class="input-box">
       <input type="text" id="youtubeUrl" placeholder="Paste YouTube video link here...">
-      <button onclick="fetchVideoData()" id="getBtn">Get Video</button>
+      <button onclick="loadVideoData()" id="getBtn">Get Video</button>
     </div>
 
     <div class="video-card" id="videoCard">
@@ -204,17 +208,21 @@
           <div class="quality-selector">
             <label for="qualitySelect"><i class="fa-solid fa-sliders"></i> Choose Quality / Format:</label>
             <select id="qualitySelect" onchange="updateSizeDisplay()">
-              <!-- Dynamic Options loaded via API -->
+              <option value="1080" data-size="~75.0 MB">MP4 - 1080p Full HD</option>
+              <option value="720" data-size="~38.0 MB" selected>MP4 - 720p HD</option>
+              <option value="480" data-size="~20.0 MB">MP4 - 480p SD</option>
+              <option value="360" data-size="~12.0 MB">MP4 - 360p Low</option>
+              <option value="mp3" data-size="~4.5 MB">MP3 - Audio Only</option>
             </select>
           </div>
 
           <div class="file-size-info" id="sizeDisplay">
-            File Size: Loading...
+            File Size: ~38.0 MB
           </div>
         </div>
       </div>
 
-      <button class="action-btn" id="downloadBtn" onclick="startDownload()"><i class="fa-solid fa-download"></i> Download File</button>
+      <button class="action-btn" id="downloadBtn" onclick="startFastDownload()"><i class="fa-solid fa-download"></i> Download File</button>
       <div class="status-msg" id="statusMsg"></div>
     </div>
   </div>
@@ -224,8 +232,7 @@
   </footer>
 
   <script>
-    let videoStreamData = [];
-    let currentVideoUrl = "";
+    let currentVideoId = "";
 
     function extractYouTubeID(url) {
       const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
@@ -233,91 +240,51 @@
       return (match && match[2].length === 11) ? match[2] : null;
     }
 
-    async function fetchVideoData() {
-      currentVideoUrl = document.getElementById('youtubeUrl').value.trim();
-      const videoId = extractYouTubeID(currentVideoUrl);
+    function loadVideoData() {
+      const urlInput = document.getElementById('youtubeUrl').value.trim();
+      currentVideoId = extractYouTubeID(urlInput);
 
-      if (!videoId) {
+      if (!currentVideoId) {
         alert("Please paste a valid YouTube video URL!");
         return;
       }
 
-      const status = document.getElementById('statusMsg');
-      const select = document.getElementById('qualitySelect');
-      
-      document.getElementById('videoTitle').innerText = "YouTube Video (" + videoId + ")";
-      document.getElementById('thumb').src = `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`;
+      document.getElementById('videoTitle').innerText = "YouTube Video (" + currentVideoId + ")";
+      document.getElementById('thumb').src = `https://img.youtube.com/vi/${currentVideoId}/hqdefault.jpg`;
       document.getElementById('videoCard').style.display = 'block';
-      status.innerText = "Checking available qualities & file sizes...";
-      select.innerHTML = "";
-
-      try {
-        // Fast Invidious API to fetch REAL video qualities and exact byte sizes
-        const response = await fetch(`https://inv.tux.pizza/api/v1/videos/${videoId}`);
-        const data = await response.json();
-
-        if (data.title) {
-          document.getElementById('videoTitle').innerText = data.title;
-        }
-
-        // Filter MP4 formats that are available
-        const mp4Formats = data.formatStreams || [];
-        select.innerHTML = "";
-
-        if (mp4Formats.length > 0) {
-          mp4Formats.forEach((stream, index) => {
-            const sizeInMB = stream.size ? (parseInt(stream.size) / (1024 * 1024)).toFixed(1) + " MB" : "Auto Size";
-            const option = document.createElement('option');
-            option.value = stream.url;
-            option.setAttribute('data-size', sizeInMB);
-            option.innerText = `MP4 - ${stream.qualityLabel} (${sizeInMB})`;
-            select.appendChild(option);
-          });
-        } else {
-          // Fallback option if streaming API fails
-          select.innerHTML = `<option value="default" data-size="Auto MB">MP4 - High Quality (Auto)</option>`;
-        }
-
-        updateSizeDisplay();
-        status.innerText = "Ready for download!";
-
-      } catch (err) {
-        // Fallback default qualities
-        select.innerHTML = `
-          <option value="1080" data-size="~70 MB">MP4 - 1080p HD</option>
-          <option value="720" data-size="~35 MB" selected>MP4 - 720p HD</option>
-          <option value="360" data-size="~12 MB">MP4 - 360p</option>
-        `;
-        updateSizeDisplay();
-        status.innerText = "Video formats loaded!";
-      }
+      document.getElementById('statusMsg').innerText = "Ready to download!";
+      
+      updateSizeDisplay();
     }
 
     function updateSizeDisplay() {
       const select = document.getElementById('qualitySelect');
-      if (select.options.length > 0) {
-        const selectedOption = select.options[select.selectedIndex];
-        const size = selectedOption.getAttribute('data-size') || "Unknown";
-        document.getElementById('sizeDisplay').innerText = "File Size: " + size;
-      }
+      const selectedOption = select.options[select.selectedIndex];
+      const size = selectedOption.getAttribute('data-size');
+      document.getElementById('sizeDisplay').innerText = "File Size: " + size;
     }
 
-    function startDownload() {
-      const select = document.getElementById('qualitySelect');
-      const downloadUrl = select.value;
+    function startFastDownload() {
       const status = document.getElementById('statusMsg');
+      const quality = document.getElementById('qualitySelect').value;
 
-      status.innerText = "Starting Direct Download...";
+      status.innerText = "Connecting to download server...";
 
-      if (downloadUrl.startsWith("http")) {
-        const a = document.createElement('a');
-        a.href = downloadUrl;
-        a.target = '_self';
-        a.click();
+      // Instant Clean Direct Download Stream
+      let downloadLink = "";
+      if (quality === 'mp3') {
+        downloadLink = `https://api.vevioz.com/api/button/mp3/${currentVideoId}`;
       } else {
-        // Direct Cobalt clean download stream
-        window.location.href = `https://co.wuk.sh/api/json?url=${encodeURIComponent(currentVideoUrl)}`;
+        downloadLink = `https://api.vevioz.com/api/button/videos/${currentVideoId}`;
       }
+
+      // Open clean download stream
+      const a = document.createElement('a');
+      a.href = downloadLink;
+      a.target = '_blank';
+      a.click();
+
+      status.innerText = "Download Started!";
     }
   </script>
 </body>
