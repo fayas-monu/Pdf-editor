@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>YouTube Video Downloader - PDF EDIT TOOL</title>
+  <title>YouTube Downloader - PDF EDIT TOOL</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   
   <style>
@@ -43,19 +43,19 @@
     }
 
     .container {
-      max-width: 700px;
-      margin: 40px auto;
+      max-width: 800px; /* വലിയ ബോക്‌സ് ഡിസൈൻ */
+      margin: 30px auto;
       background: #ffffff;
-      padding: 30px;
+      padding: 25px;
       border-radius: 12px;
       box-shadow: 0 4px 20px rgba(0,0,0,0.06);
-      width: 90%;
+      width: 95%;
     }
 
     h1 {
       font-size: 24px;
       color: #1a1a1a;
-      margin-bottom: 8px;
+      margin-bottom: 6px;
       text-align: center;
     }
 
@@ -63,7 +63,7 @@
       text-align: center;
       color: #666;
       font-size: 14px;
-      margin-bottom: 25px;
+      margin-bottom: 20px;
     }
 
     .input-box {
@@ -101,128 +101,38 @@
       background: #c62828;
     }
 
-    /* Video Card Section */
-    .video-card {
+    /* Size Info Helper Box */
+    .size-guide-box {
       display: none;
-      border: 1px solid #eee;
-      border-radius: 10px;
-      padding: 20px;
-      background: #fafafa;
-      margin-top: 20px;
-    }
-
-    .video-info {
-      display: flex;
-      gap: 15px;
-      align-items: flex-start;
-      margin-bottom: 20px;
-    }
-
-    .video-info img {
-      width: 150px;
+      background: #f0f7ff;
+      border: 1px solid #b6d4fe;
       border-radius: 8px;
-      object-fit: cover;
-    }
-
-    .video-details {
-      flex: 1;
-    }
-
-    .video-details h3 {
-      font-size: 16px;
-      color: #222;
-      margin-bottom: 8px;
-      line-height: 1.4;
-    }
-
-    .quality-selector {
-      margin-top: 15px;
-    }
-
-    .quality-selector label {
+      padding: 12px 15px;
+      margin-bottom: 15px;
       font-size: 13px;
-      font-weight: 700;
-      color: #555;
+      color: #084298;
+    }
+
+    .size-guide-box strong {
       display: block;
-      margin-bottom: 6px;
+      margin-bottom: 4px;
     }
 
-    .quality-selector select {
-      width: 100%;
-      padding: 10px;
-      border-radius: 6px;
-      border: 1px solid #ccc;
-      font-size: 14px;
-      background: white;
-      cursor: pointer;
-      outline: none;
-    }
-
-    .size-badge {
-      display: inline-block;
-      background: #e3f2fd;
-      color: #1976d2;
-      padding: 4px 10px;
-      border-radius: 4px;
-      font-weight: 700;
-      font-size: 13px;
-      margin-top: 10px;
-    }
-
-    .download-btn {
-      width: 100%;
-      background: #28a745;
-      color: white;
-      border: none;
-      padding: 14px;
-      border-radius: 8px;
-      font-weight: 700;
-      font-size: 16px;
-      cursor: pointer;
-      margin-top: 15px;
-      transition: background 0.3s;
-      text-align: center;
-      text-decoration: none;
-      display: block;
-    }
-
-    .download-btn:hover {
-      background: #218838;
-    }
-
-    /* Live Progress Bar */
-    .progress-box {
+    /* Embedded API Widget Box (വലിയ സൈസ്) */
+    .widget-container {
       display: none;
-      margin-top: 20px;
-    }
-
-    .progress-status {
-      display: flex;
-      justify-content: space-between;
-      font-size: 14px;
-      font-weight: 600;
-      margin-bottom: 8px;
-      color: #333;
-    }
-
-    .progress-container {
       width: 100%;
-      background: #e0e0e0;
-      height: 18px;
+      height: 480px; /* ഉയരം കൂട്ടി */
+      border: 1px solid #e0e0e0;
       border-radius: 10px;
       overflow: hidden;
+      background: #fff;
     }
 
-    .progress-bar {
-      width: 0%;
+    .widget-container iframe {
+      width: 100%;
       height: 100%;
-      background: #28a745;
-      transition: width 0.3s ease;
-    }
-
-    .direct-link-container {
-      display: none;
-      margin-top: 15px;
+      border: none;
     }
 
     footer {
@@ -247,57 +157,26 @@
 
   <div class="container">
     <h1><i class="fa-brands fa-youtube" style="color: red;"></i> YouTube Downloader</h1>
-    <p class="subtitle">Direct Clean Downloads - Up to 8K Quality</p>
+    <p class="subtitle">Download Videos Directly On This Page</p>
 
     <div class="input-box">
       <input type="text" id="youtubeUrl" placeholder="Paste YouTube video link here...">
-      <button onclick="fetchVideoInfo()" id="getBtn">Get Video</button>
+      <button onclick="loadDownloaderWidget()" id="getBtn">Get Video</button>
     </div>
 
-    <!-- Video Card -->
-    <div class="video-card" id="videoCard">
-      <div class="video-info">
-        <img id="thumb" src="" alt="Thumbnail">
-        <div class="video-details">
-          <h3 id="videoTitle">YouTube Video</h3>
-          
-          <div class="quality-selector">
-            <label for="qualitySelect"><i class="fa-solid fa-sliders"></i> Select Quality:</label>
-            <select id="qualitySelect" onchange="updateEstimatedSize()">
-              <option value="4320" data-size="850.0 MB">MP4 - 8K (4320p Ultra HD)</option>
-              <option value="2160" data-size="420.0 MB">MP4 - 4K (2160p Ultra HD)</option>
-              <option value="1440" data-size="180.0 MB">MP4 - 2K (1440p QHD)</option>
-              <option value="1080" data-size="75.5 MB" selected>MP4 - 1080p (Full HD)</option>
-              <option value="720" data-size="38.2 MB">MP4 - 720p (HD)</option>
-              <option value="480" data-size="21.0 MB">MP4 - 480p</option>
-              <option value="360" data-size="12.4 MB">MP4 - 360p</option>
-              <option value="mp3" data-size="4.8 MB">MP3 - Audio Only</option>
-            </select>
-          </div>
+    <!-- Size Guide Box -->
+    <div class="size-guide-box" id="sizeGuide">
+      <strong><i class="fa-solid fa-info-circle"></i> Estimated File Sizes (Approximate):</strong>
+      • 8K/4K: ~400MB - 850MB &nbsp;|&nbsp; 
+      • 1080p Full HD: ~75MB &nbsp;|&nbsp; 
+      • 720p HD: ~38MB &nbsp;|&nbsp; 
+      • 480p/360p: ~12MB - 20MB &nbsp;|&nbsp; 
+      • MP3 Audio: ~4MB
+    </div>
 
-          <div>
-            Est. Size: <span class="size-badge" id="fileSize">75.5 MB</span>
-          </div>
-        </div>
-      </div>
-
-      <button class="download-btn" id="startBtn" onclick="processDownload()"><i class="fa-solid fa-gear"></i> Convert Video</button>
-
-      <!-- Live Progress Bar -->
-      <div class="progress-box" id="progressBox">
-        <div class="progress-status">
-          <span id="statusText">Processing File...</span>
-          <span id="progressPercent">0%</span>
-        </div>
-        <div class="progress-container">
-          <div class="progress-bar" id="progressBar"></div>
-        </div>
-      </div>
-
-      <!-- Direct Download Action -->
-      <div class="direct-link-container" id="directContainer">
-        <a id="finalDownloadBtn" href="#" class="download-btn" style="background: #007bff;"><i class="fa-solid fa-download"></i> Save File To Phone</a>
-      </div>
+    <!-- Embedded Downloader Frame -->
+    <div class="widget-container" id="widgetContainer">
+      <iframe id="downloaderIframe" src="" allowtransparency="true" scrolling="no"></iframe>
     </div>
   </div>
 
@@ -306,81 +185,31 @@
   </footer>
 
   <script>
-    let videoId = "";
-
     function extractYouTubeID(url) {
       const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
       const match = url.match(regExp);
       return (match && match[2].length === 11) ? match[2] : null;
     }
 
-    function fetchVideoInfo() {
-      const rawUrl = document.getElementById('youtubeUrl').value.trim();
-      videoId = extractYouTubeID(rawUrl);
+    function loadDownloaderWidget() {
+      const urlInput = document.getElementById('youtubeUrl').value.trim();
+      const videoId = extractYouTubeID(urlInput);
 
       if (!videoId) {
         alert("Please paste a valid YouTube video URL!");
         return;
       }
 
-      document.getElementById('videoTitle').innerText = "YouTube Video (" + videoId + ")";
-      document.getElementById('thumb').src = `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`;
+      // Loader.to/Y2mate working embedded widget url
+      const widgetUrl = `https://loader.to/api/card/?url=https://www.youtube.com/watch?v=${videoId}`;
 
-      updateEstimatedSize();
-      document.getElementById('videoCard').style.display = 'block';
-      document.getElementById('progressBox').style.display = 'none';
-      document.getElementById('directContainer').style.display = 'none';
-      document.getElementById('startBtn').style.display = 'block';
-    }
+      // Show elements and load iframe
+      document.getElementById('sizeGuide').style.display = 'block';
+      const container = document.getElementById('widgetContainer');
+      const iframe = document.getElementById('downloaderIframe');
 
-    function updateEstimatedSize() {
-      const select = document.getElementById('qualitySelect');
-      const selectedOption = select.options[select.selectedIndex];
-      const size = selectedOption.getAttribute('data-size');
-      document.getElementById('fileSize').innerText = size;
-    }
-
-    function processDownload() {
-      const startBtn = document.getElementById('startBtn');
-      const progressBox = document.getElementById('progressBox');
-      const progressBar = document.getElementById('progressBar');
-      const progressPercent = document.getElementById('progressPercent');
-      const statusText = document.getElementById('statusText');
-
-      startBtn.style.display = 'none';
-      progressBox.style.display = 'block';
-
-      let count = 0;
-      const interval = setInterval(() => {
-        count += 20;
-        progressBar.style.width = count + '%';
-        progressPercent.innerText = count + '%';
-
-        if (count >= 100) {
-          clearInterval(interval);
-          statusText.innerText = "Ready for Download!";
-
-          const quality = document.getElementById('qualitySelect').value;
-          
-          // Direct Cobalt API Download Stream (No Popup / No Redirects)
-          const downloadUrl = `https://co.wuk.sh/api/json?url=https://www.youtube.com/watch?v=${videoId}`;
-          
-          const finalBtn = document.getElementById('finalDownloadBtn');
-          
-          // ഇതേ പേജിൽ തന്നെ ഡയറക്ട് ഡൗൺലോഡ് ട്രിഗർ ആകും
-          if(quality === 'mp3'){
-             finalBtn.href = `https://loader.to/api/button/?url=https://www.youtube.com/watch?v=${videoId}&f=mp3`;
-          } else {
-             finalBtn.href = `https://loader.to/api/button/?url=https://www.youtube.com/watch?v=${videoId}&f=${quality}`;
-          }
-
-          // Force Direct Browser Download
-          finalBtn.setAttribute('download', `video_${videoId}.mp4`);
-          finalBtn.target = "_self";
-
-          document.getElementById('directContainer').style.display = 'block';
-        }
-      }, 150);
+      iframe.src = widgetUrl;
+      container.style.display = 'block';
     }
   </script>
 </body>
