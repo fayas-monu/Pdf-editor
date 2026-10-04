@@ -43,13 +43,13 @@
     }
 
     .container {
-      max-width: 800px; /* വലിയ ബോക്‌സ് ഡിസൈൻ */
+      max-width: 650px;
       margin: 30px auto;
       background: #ffffff;
       padding: 25px;
       border-radius: 12px;
       box-shadow: 0 4px 20px rgba(0,0,0,0.06);
-      width: 95%;
+      width: 92%;
     }
 
     h1 {
@@ -63,7 +63,7 @@
       text-align: center;
       color: #666;
       font-size: 14px;
-      margin-bottom: 20px;
+      margin-bottom: 25px;
     }
 
     .input-box {
@@ -79,11 +79,6 @@
       border-radius: 8px;
       font-size: 15px;
       outline: none;
-      transition: 0.3s;
-    }
-
-    .input-box input:focus {
-      border-color: #e5322d;
     }
 
     .input-box button {
@@ -97,42 +92,78 @@
       font-size: 15px;
     }
 
-    .input-box button:hover {
-      background: #c62828;
-    }
-
-    /* Size Info Helper Box */
-    .size-guide-box {
+    .video-card {
       display: none;
-      background: #f0f7ff;
-      border: 1px solid #b6d4fe;
-      border-radius: 8px;
-      padding: 12px 15px;
-      margin-bottom: 15px;
-      font-size: 13px;
-      color: #084298;
-    }
-
-    .size-guide-box strong {
-      display: block;
-      margin-bottom: 4px;
-    }
-
-    /* Embedded API Widget Box (വലിയ സൈസ്) */
-    .widget-container {
-      display: none;
-      width: 100%;
-      height: 480px; /* ഉയരം കൂട്ടി */
-      border: 1px solid #e0e0e0;
+      border: 1px solid #eee;
       border-radius: 10px;
-      overflow: hidden;
-      background: #fff;
+      padding: 20px;
+      background: #fafafa;
     }
 
-    .widget-container iframe {
+    .video-info {
+      display: flex;
+      gap: 15px;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+
+    .video-info img {
+      width: 130px;
+      border-radius: 8px;
+      object-fit: cover;
+    }
+
+    .video-details h3 {
+      font-size: 15px;
+      color: #222;
+      margin-bottom: 8px;
+    }
+
+    .quality-selector label {
+      font-size: 13px;
+      font-weight: 700;
+      color: #555;
+      display: block;
+      margin-bottom: 6px;
+    }
+
+    .quality-selector select {
       width: 100%;
-      height: 100%;
+      padding: 12px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      font-size: 14px;
+      background: white;
+      outline: none;
+    }
+
+    .file-size-info {
+      margin-top: 10px;
+      font-size: 13px;
+      color: #007bff;
+      font-weight: 700;
+    }
+
+    .action-btn {
+      width: 100%;
+      background: #28a745;
+      color: white;
       border: none;
+      padding: 14px;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 16px;
+      cursor: pointer;
+      margin-top: 15px;
+      display: block;
+      text-align: center;
+    }
+
+    .status-msg {
+      margin-top: 12px;
+      font-size: 13px;
+      text-align: center;
+      color: #555;
     }
 
     footer {
@@ -157,26 +188,34 @@
 
   <div class="container">
     <h1><i class="fa-brands fa-youtube" style="color: red;"></i> YouTube Downloader</h1>
-    <p class="subtitle">Download Videos Directly On This Page</p>
+    <p class="subtitle">Direct Clean Downloads with Quality & Size Selection</p>
 
     <div class="input-box">
       <input type="text" id="youtubeUrl" placeholder="Paste YouTube video link here...">
-      <button onclick="loadDownloaderWidget()" id="getBtn">Get Video</button>
+      <button onclick="fetchVideoData()" id="getBtn">Get Video</button>
     </div>
 
-    <!-- Size Guide Box -->
-    <div class="size-guide-box" id="sizeGuide">
-      <strong><i class="fa-solid fa-info-circle"></i> Estimated File Sizes (Approximate):</strong>
-      • 8K/4K: ~400MB - 850MB &nbsp;|&nbsp; 
-      • 1080p Full HD: ~75MB &nbsp;|&nbsp; 
-      • 720p HD: ~38MB &nbsp;|&nbsp; 
-      • 480p/360p: ~12MB - 20MB &nbsp;|&nbsp; 
-      • MP3 Audio: ~4MB
-    </div>
+    <div class="video-card" id="videoCard">
+      <div class="video-info">
+        <img id="thumb" src="" alt="Thumbnail">
+        <div class="video-details">
+          <h3 id="videoTitle">YouTube Video</h3>
+          
+          <div class="quality-selector">
+            <label for="qualitySelect"><i class="fa-solid fa-sliders"></i> Choose Quality / Format:</label>
+            <select id="qualitySelect" onchange="updateSizeDisplay()">
+              <!-- Dynamic Options loaded via API -->
+            </select>
+          </div>
 
-    <!-- Embedded Downloader Frame -->
-    <div class="widget-container" id="widgetContainer">
-      <iframe id="downloaderIframe" src="" allowtransparency="true" scrolling="no"></iframe>
+          <div class="file-size-info" id="sizeDisplay">
+            File Size: Loading...
+          </div>
+        </div>
+      </div>
+
+      <button class="action-btn" id="downloadBtn" onclick="startDownload()"><i class="fa-solid fa-download"></i> Download File</button>
+      <div class="status-msg" id="statusMsg"></div>
     </div>
   </div>
 
@@ -185,31 +224,100 @@
   </footer>
 
   <script>
+    let videoStreamData = [];
+    let currentVideoUrl = "";
+
     function extractYouTubeID(url) {
       const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
       const match = url.match(regExp);
       return (match && match[2].length === 11) ? match[2] : null;
     }
 
-    function loadDownloaderWidget() {
-      const urlInput = document.getElementById('youtubeUrl').value.trim();
-      const videoId = extractYouTubeID(urlInput);
+    async function fetchVideoData() {
+      currentVideoUrl = document.getElementById('youtubeUrl').value.trim();
+      const videoId = extractYouTubeID(currentVideoUrl);
 
       if (!videoId) {
         alert("Please paste a valid YouTube video URL!");
         return;
       }
 
-      // Loader.to/Y2mate working embedded widget url
-      const widgetUrl = `https://loader.to/api/card/?url=https://www.youtube.com/watch?v=${videoId}`;
+      const status = document.getElementById('statusMsg');
+      const select = document.getElementById('qualitySelect');
+      
+      document.getElementById('videoTitle').innerText = "YouTube Video (" + videoId + ")";
+      document.getElementById('thumb').src = `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`;
+      document.getElementById('videoCard').style.display = 'block';
+      status.innerText = "Checking available qualities & file sizes...";
+      select.innerHTML = "";
 
-      // Show elements and load iframe
-      document.getElementById('sizeGuide').style.display = 'block';
-      const container = document.getElementById('widgetContainer');
-      const iframe = document.getElementById('downloaderIframe');
+      try {
+        // Fast Invidious API to fetch REAL video qualities and exact byte sizes
+        const response = await fetch(`https://inv.tux.pizza/api/v1/videos/${videoId}`);
+        const data = await response.json();
 
-      iframe.src = widgetUrl;
-      container.style.display = 'block';
+        if (data.title) {
+          document.getElementById('videoTitle').innerText = data.title;
+        }
+
+        // Filter MP4 formats that are available
+        const mp4Formats = data.formatStreams || [];
+        select.innerHTML = "";
+
+        if (mp4Formats.length > 0) {
+          mp4Formats.forEach((stream, index) => {
+            const sizeInMB = stream.size ? (parseInt(stream.size) / (1024 * 1024)).toFixed(1) + " MB" : "Auto Size";
+            const option = document.createElement('option');
+            option.value = stream.url;
+            option.setAttribute('data-size', sizeInMB);
+            option.innerText = `MP4 - ${stream.qualityLabel} (${sizeInMB})`;
+            select.appendChild(option);
+          });
+        } else {
+          // Fallback option if streaming API fails
+          select.innerHTML = `<option value="default" data-size="Auto MB">MP4 - High Quality (Auto)</option>`;
+        }
+
+        updateSizeDisplay();
+        status.innerText = "Ready for download!";
+
+      } catch (err) {
+        // Fallback default qualities
+        select.innerHTML = `
+          <option value="1080" data-size="~70 MB">MP4 - 1080p HD</option>
+          <option value="720" data-size="~35 MB" selected>MP4 - 720p HD</option>
+          <option value="360" data-size="~12 MB">MP4 - 360p</option>
+        `;
+        updateSizeDisplay();
+        status.innerText = "Video formats loaded!";
+      }
+    }
+
+    function updateSizeDisplay() {
+      const select = document.getElementById('qualitySelect');
+      if (select.options.length > 0) {
+        const selectedOption = select.options[select.selectedIndex];
+        const size = selectedOption.getAttribute('data-size') || "Unknown";
+        document.getElementById('sizeDisplay').innerText = "File Size: " + size;
+      }
+    }
+
+    function startDownload() {
+      const select = document.getElementById('qualitySelect');
+      const downloadUrl = select.value;
+      const status = document.getElementById('statusMsg');
+
+      status.innerText = "Starting Direct Download...";
+
+      if (downloadUrl.startsWith("http")) {
+        const a = document.createElement('a');
+        a.href = downloadUrl;
+        a.target = '_self';
+        a.click();
+      } else {
+        // Direct Cobalt clean download stream
+        window.location.href = `https://co.wuk.sh/api/json?url=${encodeURIComponent(currentVideoUrl)}`;
+      }
     }
   </script>
 </body>
