@@ -15,7 +15,7 @@
     }
 
     body {
-      background-color: #f3f5f8;
+      background-color: #f4f6f9;
       color: #333;
       display: flex;
       flex-direction: column;
@@ -43,12 +43,12 @@
     }
 
     .container {
-      max-width: 750px;
+      max-width: 700px;
       margin: 40px auto;
       background: #ffffff;
       padding: 30px;
       border-radius: 12px;
-      box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+      box-shadow: 0 4px 20px rgba(0,0,0,0.06);
       width: 90%;
     }
 
@@ -74,19 +74,24 @@
 
     .input-box input {
       flex: 1;
-      padding: 12px 15px;
+      padding: 14px 15px;
       border: 1px solid #ccc;
-      border-radius: 6px;
+      border-radius: 8px;
       font-size: 15px;
       outline: none;
+      transition: 0.3s;
+    }
+
+    .input-box input:focus {
+      border-color: #e5322d;
     }
 
     .input-box button {
       background: #e5322d;
       color: white;
       border: none;
-      padding: 12px 20px;
-      border-radius: 6px;
+      padding: 14px 24px;
+      border-radius: 8px;
       font-weight: 600;
       cursor: pointer;
       font-size: 15px;
@@ -96,11 +101,11 @@
       background: #c62828;
     }
 
-    /* Video Card */
+    /* Video Card Section */
     .video-card {
       display: none;
-      border: 1px solid #e0e0e0;
-      border-radius: 8px;
+      border: 1px solid #eee;
+      border-radius: 10px;
       padding: 20px;
       background: #fafafa;
       margin-top: 20px;
@@ -109,29 +114,55 @@
     .video-info {
       display: flex;
       gap: 15px;
-      align-items: center;
+      align-items: flex-start;
       margin-bottom: 20px;
     }
 
     .video-info img {
-      width: 140px;
-      border-radius: 6px;
+      width: 150px;
+      border-radius: 8px;
+      object-fit: cover;
     }
 
     .video-details h3 {
       font-size: 16px;
+      color: #222;
+      margin-bottom: 8px;
+      line-height: 1.4;
+    }
+
+    .quality-selector {
+      margin-top: 15px;
+    }
+
+    .quality-selector label {
+      font-size: 13px;
+      font-weight: 700;
+      color: #555;
+      display: block;
       margin-bottom: 6px;
+    }
+
+    .quality-selector select {
+      width: 100%;
+      padding: 10px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      font-size: 14px;
+      background: white;
+      cursor: pointer;
+      outline: none;
     }
 
     .size-badge {
       display: inline-block;
       background: #e3f2fd;
       color: #1976d2;
-      padding: 4px 8px;
+      padding: 4px 10px;
       border-radius: 4px;
       font-weight: 700;
       font-size: 13px;
-      margin-top: 5px;
+      margin-top: 10px;
     }
 
     .download-btn {
@@ -139,19 +170,25 @@
       background: #28a745;
       color: white;
       border: none;
-      padding: 12px;
-      border-radius: 6px;
+      padding: 14px;
+      border-radius: 8px;
       font-weight: 700;
       font-size: 16px;
       cursor: pointer;
-      text-align: center;
+      margin-top: 15px;
+      transition: background 0.3s;
     }
 
     .download-btn:hover {
       background: #218838;
     }
 
-    /* Progress Countdown Box */
+    .download-btn:disabled {
+      background: #a5d6a7;
+      cursor: not-allowed;
+    }
+
+    /* Live Progress Bar */
     .progress-box {
       display: none;
       margin-top: 20px;
@@ -169,7 +206,7 @@
     .progress-container {
       width: 100%;
       background: #e0e0e0;
-      height: 20px;
+      height: 18px;
       border-radius: 10px;
       overflow: hidden;
     }
@@ -178,24 +215,12 @@
       width: 0%;
       height: 100%;
       background: #28a745;
-      transition: width 0.2s ease;
+      transition: width 0.2s linear;
     }
 
-    /* In-Site Direct Downloader Frame Container */
-    .downloader-frame-container {
+    /* Invisible Download Frame */
+    #downloadIframe {
       display: none;
-      margin-top: 20px;
-      width: 100%;
-      height: 220px;
-      border: 1px solid #ddd;
-      border-radius: 8px;
-      overflow: hidden;
-    }
-
-    .downloader-frame-container iframe {
-      width: 100%;
-      height: 100%;
-      border: none;
     }
 
     footer {
@@ -220,11 +245,11 @@
 
   <div class="container">
     <h1><i class="fa-brands fa-youtube" style="color: red;"></i> YouTube Downloader</h1>
-    <p class="subtitle">Download Videos Directly On This Page</p>
+    <p class="subtitle">Direct Clean Downloads with Quality Selection</p>
 
     <div class="input-box">
-      <input type="text" id="youtubeUrl" placeholder="Paste YouTube link here...">
-      <button onclick="processLink()" id="getBtn">Get Video</button>
+      <input type="text" id="youtubeUrl" placeholder="Paste YouTube video link here...">
+      <button onclick="fetchVideoInfo()" id="getBtn">Get Video</button>
     </div>
 
     <!-- Video Card -->
@@ -233,28 +258,40 @@
         <img id="thumb" src="" alt="Thumbnail">
         <div class="video-details">
           <h3 id="videoTitle">YouTube Video</h3>
-          <p>Quality: <span class="size-badge">1080p / 720p HD</span></p>
+          
+          <div class="quality-selector">
+            <label for="qualitySelect"><i class="fa-solid fa-sliders"></i> Choose Quality / Format:</label>
+            <select id="qualitySelect" onchange="updateEstimatedSize()">
+              <option value="1080" data-size="75.5 MB">MP4 - 1080p (Full HD)</option>
+              <option value="720" data-size="38.2 MB" selected>MP4 - 720p (HD)</option>
+              <option value="480" data-size="21.0 MB">MP4 - 480p</option>
+              <option value="360" data-size="12.4 MB">MP4 - 360p</option>
+              <option value="mp3" data-size="4.8 MB">MP3 - Audio Only</option>
+            </select>
+          </div>
+
+          <div>
+            File Size: <span class="size-badge" id="fileSize">38.2 MB</span>
+          </div>
         </div>
       </div>
-      <button class="download-btn" id="startBtn" onclick="startInSiteDownload()">Download Video</button>
+
+      <button class="download-btn" id="startBtn" onclick="triggerDownload()"><i class="fa-solid fa-download"></i> Download File</button>
     </div>
 
     <!-- Live Progress Bar -->
     <div class="progress-box" id="progressBox">
       <div class="progress-status">
-        <span id="statusText">Processing File...</span>
+        <span id="statusText">Preparing File...</span>
         <span id="progressPercent">0%</span>
       </div>
       <div class="progress-container">
         <div class="progress-bar" id="progressBar"></div>
       </div>
     </div>
-
-    <!-- Embedded Downloader Container (Same Page) -->
-    <div class="downloader-frame-container" id="frameContainer">
-      <iframe id="downloadFrame" src=""></iframe>
-    </div>
   </div>
+
+  <iframe id="downloadIframe"></iframe>
 
   <footer>
     &copy; 2026 PDF EDIT TOOL. All rights reserved. | Credit: <strong>(hank!nd3 p4d4y41! | FAYAS MONU</strong>
@@ -269,7 +306,7 @@
       return (match && match[2].length === 11) ? match[2] : null;
     }
 
-    function processLink() {
+    function fetchVideoInfo() {
       const rawUrl = document.getElementById('youtubeUrl').value.trim();
       videoId = extractYouTubeID(rawUrl);
 
@@ -280,12 +317,22 @@
 
       document.getElementById('videoTitle').innerText = "YouTube Video (" + videoId + ")";
       document.getElementById('thumb').src = `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`;
+
+      // Reset & Display
+      updateEstimatedSize();
       document.getElementById('videoCard').style.display = 'block';
       document.getElementById('progressBox').style.display = 'none';
-      document.getElementById('frameContainer').style.display = 'none';
     }
 
-    function startInSiteDownload() {
+    // Select ചെയ്ത Quality-ക്ക് അനുസരിച്ച് ലൈവായി MB മാറും
+    function updateEstimatedSize() {
+      const select = document.getElementById('qualitySelect');
+      const selectedOption = select.options[select.selectedIndex];
+      const size = selectedOption.getAttribute('data-size');
+      document.getElementById('fileSize').innerText = size;
+    }
+
+    function triggerDownload() {
       document.getElementById('startBtn').disabled = true;
       document.getElementById('progressBox').style.display = 'block';
 
@@ -295,24 +342,27 @@
 
       let currentPercent = 0;
 
-      // 0-100% Progress Countdown Simulation
+      // Realtime Countdown Simulation
       const interval = setInterval(() => {
-        currentPercent += 10;
+        currentPercent += 5;
         progressBar.style.width = currentPercent + '%';
         progressPercent.innerText = currentPercent + '%';
 
         if (currentPercent >= 100) {
           clearInterval(interval);
-          statusText.innerText = "Download Ready! Click below to save file:";
+          statusText.innerText = "Download Started!";
+
+          const quality = document.getElementById('qualitySelect').value;
+          const downloadUrl = `https://loader.to/api/button/?url=https://www.youtube.com/watch?v=${videoId}&f=${quality}`;
           
-          // Embed Widget inside page without redirecting
-          const iframe = document.getElementById('downloadFrame');
-          iframe.src = `https://loader.to/api/card/?url=https://www.youtube.com/watch?v=${videoId}`;
-          document.getElementById('frameContainer').style.display = 'block';
-          
-          document.getElementById('startBtn').disabled = false;
+          // Hidden Iframe ഡൗൺലോഡ് പ്രോസസ്സ് ചെയ്യുന്നു
+          document.getElementById('downloadIframe').src = downloadUrl;
+
+          setTimeout(() => {
+            document.getElementById('startBtn').disabled = false;
+          }, 2000);
         }
-      }, 150);
+      }, 100);
     }
   </script>
 </body>
