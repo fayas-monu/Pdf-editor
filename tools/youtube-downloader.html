@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>YouTube Video Downloader - PDF EDIT TOOL</title>
+  <title>YouTube Downloader - PDF EDIT TOOL</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   
   <style>
@@ -124,6 +124,10 @@
       object-fit: cover;
     }
 
+    .video-details {
+      flex: 1;
+    }
+
     .video-details h3 {
       font-size: 16px;
       color: #222;
@@ -218,11 +222,6 @@
       transition: width 0.2s linear;
     }
 
-    /* Invisible Download Frame */
-    #downloadIframe {
-      display: none;
-    }
-
     footer {
       background: #ffffff;
       border-top: 1px solid #e0e0e0;
@@ -245,7 +244,7 @@
 
   <div class="container">
     <h1><i class="fa-brands fa-youtube" style="color: red;"></i> YouTube Downloader</h1>
-    <p class="subtitle">Direct Clean Downloads with Quality Selection</p>
+    <p class="subtitle">Direct Downloads</p>
 
     <div class="input-box">
       <input type="text" id="youtubeUrl" placeholder="Paste YouTube video link here...">
@@ -260,10 +259,13 @@
           <h3 id="videoTitle">YouTube Video</h3>
           
           <div class="quality-selector">
-            <label for="qualitySelect"><i class="fa-solid fa-sliders"></i> Choose Quality / Format:</label>
+            <label for="qualitySelect"><i class="fa-solid fa-sliders"></i> Select Quality:</label>
             <select id="qualitySelect" onchange="updateEstimatedSize()">
-              <option value="1080" data-size="75.5 MB">MP4 - 1080p (Full HD)</option>
-              <option value="720" data-size="38.2 MB" selected>MP4 - 720p (HD)</option>
+              <option value="4320" data-size="850.0 MB">MP4 - 8K (4320p Ultra HD)</option>
+              <option value="2160" data-size="420.0 MB">MP4 - 4K (2160p Ultra HD)</option>
+              <option value="1440" data-size="180.0 MB">MP4 - 2K (1440p QHD)</option>
+              <option value="1080" data-size="75.5 MB" selected>MP4 - 1080p (Full HD)</option>
+              <option value="720" data-size="38.2 MB">MP4 - 720p (HD)</option>
               <option value="480" data-size="21.0 MB">MP4 - 480p</option>
               <option value="360" data-size="12.4 MB">MP4 - 360p</option>
               <option value="mp3" data-size="4.8 MB">MP3 - Audio Only</option>
@@ -271,18 +273,18 @@
           </div>
 
           <div>
-            File Size: <span class="size-badge" id="fileSize">38.2 MB</span>
+            Est. Size: <span class="size-badge" id="fileSize">75.5 MB</span>
           </div>
         </div>
       </div>
 
-      <button class="download-btn" id="startBtn" onclick="triggerDownload()"><i class="fa-solid fa-download"></i> Download File</button>
+      <button class="download-btn" id="startBtn" onclick="triggerDownload()"><i class="fa-solid fa-download"></i> Download Video</button>
     </div>
 
     <!-- Live Progress Bar -->
     <div class="progress-box" id="progressBox">
       <div class="progress-status">
-        <span id="statusText">Preparing File...</span>
+        <span id="statusText">Generating Direct Link...</span>
         <span id="progressPercent">0%</span>
       </div>
       <div class="progress-container">
@@ -291,14 +293,13 @@
     </div>
   </div>
 
-  <iframe id="downloadIframe"></iframe>
-
   <footer>
     &copy; 2026 PDF EDIT TOOL. All rights reserved. | Credit: <strong>(hank!nd3 p4d4y41! | FAYAS MONU</strong>
   </footer>
 
   <script>
     let videoId = "";
+    let originalUrl = "";
 
     function extractYouTubeID(url) {
       const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
@@ -307,8 +308,8 @@
     }
 
     function fetchVideoInfo() {
-      const rawUrl = document.getElementById('youtubeUrl').value.trim();
-      videoId = extractYouTubeID(rawUrl);
+      originalUrl = document.getElementById('youtubeUrl').value.trim();
+      videoId = extractYouTubeID(originalUrl);
 
       if (!videoId) {
         alert("Please paste a valid YouTube video URL!");
@@ -318,13 +319,11 @@
       document.getElementById('videoTitle').innerText = "YouTube Video (" + videoId + ")";
       document.getElementById('thumb').src = `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`;
 
-      // Reset & Display
       updateEstimatedSize();
       document.getElementById('videoCard').style.display = 'block';
       document.getElementById('progressBox').style.display = 'none';
     }
 
-    // Select ചെയ്ത Quality-ക്ക് അനുസരിച്ച് ലൈവായി MB മാറും
     function updateEstimatedSize() {
       const select = document.getElementById('qualitySelect');
       const selectedOption = select.options[select.selectedIndex];
@@ -342,9 +341,8 @@
 
       let currentPercent = 0;
 
-      // Realtime Countdown Simulation
       const interval = setInterval(() => {
-        currentPercent += 5;
+        currentPercent += 10;
         progressBar.style.width = currentPercent + '%';
         progressPercent.innerText = currentPercent + '%';
 
@@ -353,16 +351,18 @@
           statusText.innerText = "Download Started!";
 
           const quality = document.getElementById('qualitySelect').value;
+          
+          // Direct Stream Downloader API (Bypasses CORS & Iframe restriction)
           const downloadUrl = `https://loader.to/api/button/?url=https://www.youtube.com/watch?v=${videoId}&f=${quality}`;
           
-          // Hidden Iframe ഡൗൺലോഡ് പ്രോസസ്സ് ചെയ്യുന്നു
-          document.getElementById('downloadIframe').src = downloadUrl;
+          // Force Browser File Download Action
+          window.location.href = downloadUrl;
 
           setTimeout(() => {
             document.getElementById('startBtn').disabled = false;
-          }, 2000);
+          }, 3000);
         }
-      }, 100);
+      }, 120);
     }
   </script>
 </body>
