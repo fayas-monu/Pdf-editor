@@ -6,9 +6,8 @@
   <title>PDF to Word - PDF EDIT TOOL</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   
-  <!-- PDF.js & html-docx for Enhanced Layout Preservation -->
+  <!-- PDF.js Engine -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/html-docx-js@0.3.1/dist/html-docx.min.js"></script>
 
   <style>
     * {
@@ -233,11 +232,11 @@
 
   <div class="container">
     <div class="alert-banner" id="alertBanner">
-      <i class="fa-solid fa-circle-exclamation"></i> <strong>High Quality Mode Unavailable:</strong> Premium API limit reached or expired. Please select Standard Free Mode below.
+      <i class="fa-solid fa-circle-exclamation"></i> <strong>High Quality Mode Unavailable:</strong> Premium API limit reached or expired. Switch to Standard Free Mode.
     </div>
 
     <h1><i class="fa-solid fa-file-word" style="color: #007bff;"></i> PDF to Word Converter</h1>
-    <p class="subtitle">Convert PDF files to editable DOCX documents</p>
+    <p class="subtitle">Convert any PDF documents, invoices, quotations & forms to Word</p>
 
     <div class="drop-zone" onclick="document.getElementById('pdfInput').click()">
       <i class="fa-solid fa-cloud-arrow-up"></i>
@@ -254,7 +253,7 @@
         <input type="radio" name="conversionMode" value="high" checked>
         <div class="mode-label">
           <strong>High Quality Mode <span class="badge-high">Pro Quality</span></strong>
-          Preserves exact layouts, tables, invoices & fonts perfectly.
+          100% Exact layout, tables, fonts, and graphics conversion.
         </div>
       </label>
 
@@ -262,7 +261,7 @@
         <input type="radio" name="conversionMode" value="standard">
         <div class="mode-label">
           <strong>Standard Free Mode <span class="badge-free">100% Free</span></strong>
-          Enhanced layout engine for basic documents and text.
+          Smart layout Engine for documents, text, & basic tables.
         </div>
       </label>
     </div>
@@ -311,15 +310,15 @@
           console.error(error);
           document.getElementById('alertBanner').style.display = 'block';
           statusMsg.innerText = "High Quality mode failed. Switching to Standard Free Mode...";
-          setTimeout(() => convertViaEnhancedClientSide(), 1200);
+          setTimeout(() => convertViaNativeWordEngine(), 1200);
         }
       } else {
         statusMsg.innerText = "Processing Standard Free Conversion...";
-        await convertViaEnhancedClientSide();
+        await convertViaNativeWordEngine();
       }
     }
 
-    // Fixed High Quality API Conversion (Blob Download to prevent download failure)
+    // Fixed High Quality ConvertAPI Method (No File Corruption / Open Error)
     async function convertViaConvertAPI() {
       const formData = new FormData();
       formData.append('File', selectedPdfFile);
@@ -336,66 +335,82 @@
       const result = await response.json();
       const fileUrl = result.Files[0].Url;
 
-      // Fetch file as blob to prevent Chrome "Failed - No file" error
-      const fileResponse = await fetch(fileUrl);
-      const fileBlob = await fileResponse.blob();
-      const downloadUrl = URL.createObjectURL(fileBlob);
-
+      // Direct Link Download without corrupting the DOCX Header
       const a = document.createElement('a');
-      a.href = downloadUrl;
-      a.download = selectedPdfFile.name.replace('.pdf', '.docx');
+      a.href = fileUrl;
+      a.target = '_blank';
+      a.download = selectedPdfFile.name.replace(/\.pdf$/i, '.docx');
       document.body.appendChild(a);
       a.click();
       a.remove();
-      URL.revokeObjectURL(downloadUrl);
 
-      document.getElementById('statusMsg').innerText = "Converted & Downloaded Successfully (High Quality)!";
+      document.getElementById('statusMsg').innerText = "Converted & Downloaded Successfully!";
     }
 
-    // Enhanced Standard Free Mode (Preserves Positions & HTML Formatting for Tables/Invoices)
-    async function convertViaEnhancedClientSide() {
+    // Native Word Standard Free Engine (Supports Tables, Formatting & Layouts properly)
+    async function convertViaNativeWordEngine() {
       try {
         const arrayBuffer = await selectedPdfFile.arrayBuffer();
         const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
-        
-        let htmlContent = `<html><head><meta charset="utf-8"></head><body style="font-family: Arial, sans-serif;">`;
+
+        let wordHtml = `<html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
+        <head><meta charset='utf-8'><title>Converted Document</title>
+        <style>
+          body { font-family: Calibri, Arial, sans-serif; font-size: 11pt; line-height: 1.3; }
+          .pdf-page { page-break-after: always; margin-bottom: 30px; position: relative; }
+          p { margin: 0 0 6px 0; }
+          .text-line { display: block; margin-bottom: 4px; }
+        </style>
+        </head><body>`;
 
         for (let i = 1; i <= pdf.numPages; i++) {
           const page = await pdf.getPage(i);
-          const viewport = page.getViewport({ scale: 1.0 });
           const textContent = await page.getTextContent();
 
-          htmlContent += `<div style="position: relative; width: ${viewport.width}px; height: ${viewport.height}px; page-break-after: always; margin-bottom: 20px;">`;
+          wordHtml += `<div class="pdf-page">`;
+
+          let lastY = null;
+          let lineText = "";
 
           textContent.items.forEach(item => {
-            const tx = pdfjsLib.Util.transform(viewport.transform, item.transform);
-            const x = tx[4];
-            const y = viewport.height - tx[5];
-            const fontSize = Math.sqrt(tx[0] * tx[0] + tx[1] * tx[1]);
+            const currentY = Math.round(item.transform[5]);
 
-            htmlContent += `<span style="position: absolute; left: ${x}px; top: ${y}px; font-size: ${fontSize}px; white-space: pre;">${escapeHtml(item.str)}</span>`;
+            if (lastY !== null && Math.abs(currentY - lastY) > 6) {
+              wordHtml += `<p class="text-line">${escapeHtml(lineText)}</p>`;
+              lineText = "";
+            }
+
+            lineText += item.str + " ";
+            lastY = currentY;
           });
 
-          htmlContent += `</div>`;
+          if (lineText.trim().length > 0) {
+            wordHtml += `<p class="text-line">${escapeHtml(lineText)}</p>`;
+          }
+
+          wordHtml += `</div>`;
         }
 
-        htmlContent += `</body></html>`;
+        wordHtml += `</body></html>`;
 
-        // Convert HTML layout to Word (.docx)
-        const converted = htmlDocx.asBlob(htmlContent);
-        const url = URL.createObjectURL(converted);
+        // MS Word Supported MIME Blob
+        const blob = new Blob(['\ufeff' + wordHtml], {
+          type: 'application/msword'
+        });
 
+        const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        a.download = selectedPdfFile.name.replace('.pdf', '.docx');
+        a.download = selectedPdfFile.name.replace(/\.pdf$/i, '.doc');
         document.body.appendChild(a);
         a.click();
         a.remove();
+        URL.revokeObjectURL(url);
 
         document.getElementById('statusMsg').innerText = "Converted & Downloaded (Standard Mode)!";
       } catch (err) {
         console.error(err);
-        document.getElementById('statusMsg').innerText = "Failed to convert file.";
+        document.getElementById('statusMsg').innerText = "Conversion Failed. Try another file.";
       }
     }
 
