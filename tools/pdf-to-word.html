@@ -6,7 +6,7 @@
   <title>PDF to Word - PDF EDIT TOOL</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   
-  <!-- PDF.js Engine -->
+  <!-- PDF.js Core Library -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
 
   <style>
@@ -232,15 +232,15 @@
 
   <div class="container">
     <div class="alert-banner" id="alertBanner">
-      <i class="fa-solid fa-circle-exclamation"></i> <strong>High Quality Mode Unavailable:</strong> Premium API limit reached or expired. Switch to Standard Free Mode.
+      <i class="fa-solid fa-circle-exclamation"></i> <strong>High Quality Mode Limit Reached:</strong> Switched to Universal Free Engine.
     </div>
 
     <h1><i class="fa-solid fa-file-word" style="color: #007bff;"></i> PDF to Word Converter</h1>
-    <p class="subtitle">Convert any PDF documents, invoices, quotations & forms to Word</p>
+    <p class="subtitle">Convert Invoices, Quotations, Forms & Documents to Editable Word</p>
 
     <div class="drop-zone" onclick="document.getElementById('pdfInput').click()">
       <i class="fa-solid fa-cloud-arrow-up"></i>
-      <p>Click here to select a PDF file</p>
+      <p>Click here to select any PDF file</p>
       <input type="file" id="pdfInput" accept="application/pdf" onchange="handleFileSelection(event)">
     </div>
 
@@ -253,7 +253,7 @@
         <input type="radio" name="conversionMode" value="high" checked>
         <div class="mode-label">
           <strong>High Quality Mode <span class="badge-high">Pro Quality</span></strong>
-          100% Exact layout, tables, fonts, and graphics conversion.
+          Server-side conversion for exact pixel-perfect layouts & fonts.
         </div>
       </label>
 
@@ -261,13 +261,13 @@
         <input type="radio" name="conversionMode" value="standard">
         <div class="mode-label">
           <strong>Standard Free Mode <span class="badge-free">100% Free</span></strong>
-          Smart layout Engine for documents, text, & basic tables.
+          Universal Layout Engine for all PDF types (Invoices, Documents, Forms).
         </div>
       </label>
     </div>
 
     <button class="convert-btn" id="convertBtn" onclick="processConversion()">
-      <i class="fa-solid fa-file-word"></i> Convert & Download DOCX
+      <i class="fa-solid fa-file-word"></i> Convert & Download Word Document
     </button>
 
     <div class="status-msg" id="statusMsg"></div>
@@ -303,22 +303,22 @@
       document.getElementById('alertBanner').style.display = 'none';
 
       if (selectedMode === 'high') {
-        statusMsg.innerText = "Processing High Quality Conversion...";
+        statusMsg.innerText = "Converting with Pro Server Engine...";
         try {
           await convertViaConvertAPI();
         } catch (error) {
           console.error(error);
           document.getElementById('alertBanner').style.display = 'block';
-          statusMsg.innerText = "High Quality mode failed. Switching to Standard Free Mode...";
-          setTimeout(() => convertViaNativeWordEngine(), 1200);
+          statusMsg.innerText = "Switching to Universal Free Engine...";
+          setTimeout(() => convertUniversalFreeEngine(), 1200);
         }
       } else {
-        statusMsg.innerText = "Processing Standard Free Conversion...";
-        await convertViaNativeWordEngine();
+        statusMsg.innerText = "Converting with Universal Free Engine...";
+        await convertUniversalFreeEngine();
       }
     }
 
-    // Fixed High Quality ConvertAPI Method (No File Corruption / Open Error)
+    // High Quality API Mode
     async function convertViaConvertAPI() {
       const formData = new FormData();
       formData.append('File', selectedPdfFile);
@@ -335,83 +335,107 @@
       const result = await response.json();
       const fileUrl = result.Files[0].Url;
 
-      // Direct Link Download without corrupting the DOCX Header
-      const a = document.createElement('a');
-      a.href = fileUrl;
-      a.target = '_blank';
-      a.download = selectedPdfFile.name.replace(/\.pdf$/i, '.docx');
-      document.body.appendChild(a);
-      a.click();
-      a.remove();
+      // Reliable Download Trigger
+      const link = document.createElement('a');
+      link.href = fileUrl;
+      link.setAttribute('download', selectedPdfFile.name.replace(/\.pdf$/i, '.docx'));
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
 
       document.getElementById('statusMsg').innerText = "Converted & Downloaded Successfully!";
     }
 
-    // Native Word Standard Free Engine (Supports Tables, Formatting & Layouts properly)
-    async function convertViaNativeWordEngine() {
+    // Universal All-in-One Engine for Free Mode
+    async function convertUniversalFreeEngine() {
       try {
         const arrayBuffer = await selectedPdfFile.arrayBuffer();
         const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
 
-        let wordHtml = `<html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
-        <head><meta charset='utf-8'><title>Converted Document</title>
+        let wordDocumentHtml = `<html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
+        <head><meta charset='utf-8'>
         <style>
-          body { font-family: Calibri, Arial, sans-serif; font-size: 11pt; line-height: 1.3; }
-          .pdf-page { page-break-after: always; margin-bottom: 30px; position: relative; }
-          p { margin: 0 0 6px 0; }
-          .text-line { display: block; margin-bottom: 4px; }
+          body { font-family: Calibri, Arial, sans-serif; font-size: 11pt; line-height: 1.25; }
+          .pdf-page { page-break-after: always; margin-bottom: 20px; position: relative; }
+          .block-line { display: block; margin-bottom: 6px; }
+          table { width: 100%; border-collapse: collapse; margin: 10px 0; }
+          td { border: 1px solid #ccc; padding: 5px; font-size: 10pt; vertical-align: top; }
         </style>
         </head><body>`;
 
-        for (let i = 1; i <= pdf.numPages; i++) {
-          const page = await pdf.getPage(i);
+        for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
+          const page = await pdf.getPage(pageNum);
+          const viewport = page.getViewport({ scale: 1.0 });
           const textContent = await page.getTextContent();
 
-          wordHtml += `<div class="pdf-page">`;
+          wordDocumentHtml += `<div class="pdf-page">`;
 
-          let lastY = null;
-          let lineText = "";
+          // Grouping logic for preserving structured lines and columns
+          let lineMap = new Map();
 
           textContent.items.forEach(item => {
-            const currentY = Math.round(item.transform[5]);
-
-            if (lastY !== null && Math.abs(currentY - lastY) > 6) {
-              wordHtml += `<p class="text-line">${escapeHtml(lineText)}</p>`;
-              lineText = "";
+            let yCoord = Math.round(item.transform[5] / 5) * 5; // Y-tolerance
+            if (!lineMap.has(yCoord)) {
+              lineMap.set(yCoord, []);
             }
-
-            lineText += item.str + " ";
-            lastY = currentY;
+            lineMap.get(yCoord).push(item);
           });
 
-          if (lineText.trim().length > 0) {
-            wordHtml += `<p class="text-line">${escapeHtml(lineText)}</p>`;
-          }
+          // Sort Y coordinates top to bottom
+          let sortedY = Array.from(lineMap.keys()).sort((a, b) => b - a);
 
-          wordHtml += `</div>`;
+          sortedY.forEach(y => {
+            let items = lineMap.get(y).sort((a, b) => a.transform[4] - b.transform[4]);
+
+            // Check if this line looks like a multi-column row/table (Invoices, Quotations)
+            if (items.length > 2 && isStructuredRow(items)) {
+              wordDocumentHtml += `<table><tr>`;
+              items.forEach(it => {
+                wordDocumentHtml += `<td>${escapeHtml(it.str)}</td>`;
+              });
+              wordDocumentHtml += `</tr></table>`;
+            } else {
+              // Standard text paragraph / letter / document
+              let lineText = items.map(it => it.str).join(' ');
+              if (lineText.trim().length > 0) {
+                wordDocumentHtml += `<p class="block-line">${escapeHtml(lineText)}</p>`;
+              }
+            }
+          });
+
+          wordDocumentHtml += `</div>`;
         }
 
-        wordHtml += `</body></html>`;
+        wordDocumentHtml += `</body></html>`;
 
-        // MS Word Supported MIME Blob
-        const blob = new Blob(['\ufeff' + wordHtml], {
+        // Create Blob as official MS Word doc
+        const blob = new Blob(['\ufeff' + wordDocumentHtml], {
           type: 'application/msword'
         });
 
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = selectedPdfFile.name.replace(/\.pdf$/i, '.doc');
-        document.body.appendChild(a);
-        a.click();
-        a.remove();
-        URL.revokeObjectURL(url);
+        const downloadUrl = URL.createObjectURL(blob);
+        const downloadLink = document.createElement('a');
+        downloadLink.href = downloadUrl;
+        downloadLink.download = selectedPdfFile.name.replace(/\.pdf$/i, '.doc');
+        document.body.appendChild(downloadLink);
+        downloadLink.click();
+        downloadLink.remove();
+        URL.revokeObjectURL(downloadUrl);
 
-        document.getElementById('statusMsg').innerText = "Converted & Downloaded (Standard Mode)!";
+        document.getElementById('statusMsg').innerText = "Converted & Downloaded (Free Engine)!";
       } catch (err) {
         console.error(err);
         document.getElementById('statusMsg').innerText = "Conversion Failed. Try another file.";
       }
+    }
+
+    function isStructuredRow(items) {
+      // Determines if horizontal items are spaced out like table columns
+      for (let i = 1; i < items.length; i++) {
+        let gap = items[i].transform[4] - (items[i-1].transform[4] + (items[i-1].width || 0));
+        if (gap > 20) return true;
+      }
+      return false;
     }
 
     function escapeHtml(text) {
