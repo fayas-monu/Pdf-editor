@@ -124,7 +124,7 @@
     /* Hero Section */
     .hero {
       text-align: center;
-      padding: 60px 20px 30px 20px;
+      padding: 50px 20px 25px 20px;
       background: linear-gradient(180deg, #ffffff 0%, var(--bg-color) 100%);
     }
 
@@ -142,7 +142,7 @@
     }
 
     .hero h1 {
-      font-size: 40px;
+      font-size: 38px;
       font-weight: 800;
       color: var(--text-main);
       margin-bottom: 16px;
@@ -157,10 +157,10 @@
     }
 
     .hero p {
-      font-size: 16px;
+      font-size: 15px;
       color: var(--text-muted);
-      max-width: 680px;
-      margin: 0 auto 35px auto;
+      max-width: 720px;
+      margin: 0 auto 30px auto;
       line-height: 1.6;
     }
 
@@ -170,13 +170,13 @@
       justify-content: center;
       gap: 10px;
       flex-wrap: wrap;
-      margin-bottom: 40px;
+      margin-bottom: 35px;
     }
 
     .tab-btn {
       background: #ffffff;
       border: 1px solid var(--border-color);
-      padding: 9px 20px;
+      padding: 8px 18px;
       border-radius: 30px;
       font-size: 13.5px;
       font-weight: 600;
@@ -194,19 +194,19 @@
 
     /* Tools Grid */
     .tools-container {
-      max-width: 1300px;
+      max-width: 1350px;
       margin: 0 auto;
       padding: 0 20px 80px 20px;
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(270px, 1fr));
-      gap: 24px;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 20px;
       width: 100%;
     }
 
     .tool-card {
       background: var(--card-bg);
       border-radius: 16px;
-      padding: 26px;
+      padding: 24px;
       text-decoration: none;
       color: inherit;
       border: 1px solid var(--border-color);
@@ -218,39 +218,39 @@
     }
 
     .tool-card:hover {
-      transform: translateY(-6px);
-      box-shadow: 0 12px 30px rgba(0,0,0,0.06);
+      transform: translateY(-5px);
+      box-shadow: 0 10px 25px rgba(0,0,0,0.06);
       border-color: #cbd5e1;
     }
 
     .icon-wrapper {
-      width: 52px;
-      height: 52px;
+      width: 48px;
+      height: 48px;
       border-radius: 12px;
       display: flex;
       align-items: center;
       justify-content: center;
-      margin-bottom: 20px;
-      font-size: 22px;
+      margin-bottom: 16px;
+      font-size: 20px;
     }
 
     .tool-title {
-      font-size: 18px;
+      font-size: 17px;
       font-weight: 700;
       color: var(--text-main);
-      margin-bottom: 10px;
+      margin-bottom: 8px;
     }
 
     .tool-desc {
-      font-size: 13px;
+      font-size: 12.5px;
       color: var(--text-muted);
-      line-height: 1.5;
+      line-height: 1.45;
     }
 
     .badge {
       position: absolute;
-      top: 18px;
-      right: 18px;
+      top: 16px;
+      right: 16px;
       font-size: 10px;
       font-weight: 700;
       padding: 4px 8px;
@@ -261,12 +261,14 @@
 
     .badge-soon { background: #fef3c7; color: #d97706; }
 
-    /* Custom Icon Background Styles */
+    /* Custom Icon Color Themes */
     .ic-indigo { background: #eef2ff; color: #4f46e5; }
     .ic-cyan { background: #ecfeff; color: #0891b2; }
     .ic-emerald { background: #ecfdf5; color: #059669; }
     .ic-amber { background: #fffbeb; color: #d97706; }
     .ic-rose { background: #fff1f2; color: #e11d48; }
+    .ic-purple { background: #faf5ff; color: #9333ea; }
+    .ic-teal { background: #f0fdf4; color: #0d9488; }
 
     /* Footer Styles */
     footer {
@@ -429,7 +431,7 @@
   <!-- Hero Section -->
   <div class="hero">
     <div class="hero-badge">
-      <i class="fa-solid fa-shield-halved"></i> 100% Private & Browser-Based Processing
+      <i class="fa-solid fa-shield-halved"></i> 100% Client-Side & Private Processing
     </div>
     <h1>Powerful PDF Workspace<br><span>Simplified for Everyone.</span></h1>
     <p>Streamline your document workflow with lightweight, lightning-fast PDF tools. Merge, organize, compress, and edit files right inside your browser without compromising data privacy.</p>
@@ -442,38 +444,42 @@
       <button class="tab-btn" onclick="filterTools('convert', this)">Convert</button>
       <button class="tab-btn" onclick="filterTools('edit', this)">Edit & Sign</button>
       <button class="tab-btn" onclick="filterTools('security', this)">Security</button>
+      <button class="tab-btn" onclick="filterTools('intelligence', this)">AI Utilities</button>
     </div>
   </div>
 
-  <!-- Tools Grid -->
+  <!-- Tools Grid (All 33 Tools Included) -->
   <div class="tools-container" id="all-tools">
 
-    <!-- Working Tools -->
+    <!-- 1. Merge PDF (Working) -->
     <a href="tools/merge-pdf.html" class="tool-card" data-category="organize">
       <div class="icon-wrapper ic-indigo"><i class="fa-solid fa-object-group"></i></div>
       <div class="tool-title">Merge PDF</div>
       <div class="tool-desc">Combine multiple PDF documents into one seamless, organized file instantly.</div>
     </a>
 
+    <!-- 2. Split PDF (Working) -->
     <a href="tools/split-pdf.html" class="tool-card" data-category="organize">
       <div class="icon-wrapper ic-rose"><i class="fa-solid fa-scissors"></i></div>
       <div class="tool-title">Split PDF</div>
       <div class="tool-desc">Extract specific pages or break a large file into separate standalone PDFs.</div>
     </a>
 
+    <!-- 3. Compress PDF (Working) -->
     <a href="tools/compress-pdf.html" class="tool-card" data-category="optimize">
       <div class="icon-wrapper ic-emerald"><i class="fa-solid fa-compress"></i></div>
       <div class="tool-title">Compress PDF</div>
       <div class="tool-desc">Minimize PDF file size efficiently while maintaining crisp text and visual quality.</div>
     </a>
 
+    <!-- 4. JPG to PDF (Working) -->
     <a href="tools/jpg-to-pdf.html" class="tool-card" data-category="convert">
       <div class="icon-wrapper ic-amber"><i class="fa-solid fa-images"></i></div>
       <div class="tool-title">JPG to PDF</div>
       <div class="tool-desc">Convert standard image formats like JPG/PNG into clean, standardized PDF documents.</div>
     </a>
 
-    <!-- Coming Soon Tools -->
+    <!-- 5. PDF to Word (Coming Soon) -->
     <div class="tool-card" data-category="convert" onclick="openComingSoon('PDF to Word')">
       <span class="badge badge-soon">Coming Soon</span>
       <div class="icon-wrapper ic-cyan"><i class="fa-solid fa-file-word"></i></div>
@@ -481,25 +487,228 @@
       <div class="tool-desc">Transform complex PDF structures into editable Word (.docx) documents.</div>
     </div>
 
+    <!-- 6. PDF to PowerPoint (Coming Soon) -->
+    <div class="tool-card" data-category="convert" onclick="openComingSoon('PDF to PowerPoint')">
+      <span class="badge badge-soon">Coming Soon</span>
+      <div class="icon-wrapper ic-rose"><i class="fa-solid fa-file-powerpoint"></i></div>
+      <div class="tool-title">PDF to PowerPoint</div>
+      <div class="tool-desc">Turn PDF slide decks into fully editable PowerPoint presentation files.</div>
+    </div>
+
+    <!-- 7. PDF to Excel (Coming Soon) -->
+    <div class="tool-card" data-category="convert" onclick="openComingSoon('PDF to Excel')">
+      <span class="badge badge-soon">Coming Soon</span>
+      <div class="icon-wrapper ic-emerald"><i class="fa-solid fa-file-excel"></i></div>
+      <div class="tool-title">PDF to Excel</div>
+      <div class="tool-desc">Extract structured data and tables directly into Excel spreadsheets.</div>
+    </div>
+
+    <!-- 8. Word to PDF (Coming Soon) -->
+    <div class="tool-card" data-category="convert" onclick="openComingSoon('Word to PDF')">
+      <span class="badge badge-soon">Coming Soon</span>
+      <div class="icon-wrapper ic-cyan"><i class="fa-solid fa-file-export"></i></div>
+      <div class="tool-title">Word to PDF</div>
+      <div class="tool-desc">Convert Microsoft Word documents into universal, read-only PDF files.</div>
+    </div>
+
+    <!-- 9. PowerPoint to PDF (Coming Soon) -->
+    <div class="tool-card" data-category="convert" onclick="openComingSoon('PowerPoint to PDF')">
+      <span class="badge badge-soon">Coming Soon</span>
+      <div class="icon-wrapper ic-rose"><i class="fa-solid fa-file-arrow-up"></i></div>
+      <div class="tool-title">PowerPoint to PDF</div>
+      <div class="tool-desc">Convert presentation slides into compact PDF documents for sharing.</div>
+    </div>
+
+    <!-- 10. Excel to PDF (Coming Soon) -->
+    <div class="tool-card" data-category="convert" onclick="openComingSoon('Excel to PDF')">
+      <span class="badge badge-soon">Coming Soon</span>
+      <div class="icon-wrapper ic-emerald"><i class="fa-solid fa-table"></i></div>
+      <div class="tool-title">Excel to PDF</div>
+      <div class="tool-desc">Render spreadsheet tables into formatted, easy-to-read PDF pages.</div>
+    </div>
+
+    <!-- 11. Edit PDF (Coming Soon) -->
     <div class="tool-card" data-category="edit" onclick="openComingSoon('Edit PDF')">
       <span class="badge badge-soon">Coming Soon</span>
       <div class="icon-wrapper ic-amber"><i class="fa-solid fa-pen-nib"></i></div>
       <div class="tool-title">Edit PDF</div>
-      <div class="tool-desc">Add text annotations, shapes, and highlights directly onto your PDF pages.</div>
+      <div class="tool-desc">Add text annotations, shapes, images, and highlights directly onto your PDFs.</div>
     </div>
 
-    <div class="tool-card" data-category="security" onclick="openComingSoon('Protect & Unlock')">
+    <!-- 12. PDF to JPG (Coming Soon) -->
+    <div class="tool-card" data-category="convert" onclick="openComingSoon('PDF to JPG')">
       <span class="badge badge-soon">Coming Soon</span>
-      <div class="icon-wrapper ic-indigo"><i class="fa-solid fa-lock"></i></div>
+      <div class="icon-wrapper ic-purple"><i class="fa-solid fa-file-image"></i></div>
+      <div class="tool-title">PDF to JPG</div>
+      <div class="tool-desc">Export each PDF page or embedded graphic into high-res JPG images.</div>
+    </div>
+
+    <!-- 13. Sign PDF (Coming Soon) -->
+    <div class="tool-card" data-category="edit" onclick="openComingSoon('Sign PDF')">
+      <span class="badge badge-soon">Coming Soon</span>
+      <div class="icon-wrapper ic-indigo"><i class="fa-solid fa-signature"></i></div>
+      <div class="tool-title">Sign PDF</div>
+      <div class="tool-desc">Apply your legally-binding digital signature or initials onto PDF forms.</div>
+    </div>
+
+    <!-- 14. Watermark (Coming Soon) -->
+    <div class="tool-card" data-category="edit" onclick="openComingSoon('Watermark')">
+      <span class="badge badge-soon">Coming Soon</span>
+      <div class="icon-wrapper ic-teal"><i class="fa-solid fa-stamp"></i></div>
+      <div class="tool-title">Watermark</div>
+      <div class="tool-desc">Overlay custom text or image watermarks for copyright protection.</div>
+    </div>
+
+    <!-- 15. Rotate PDF (Coming Soon) -->
+    <div class="tool-card" data-category="organize" onclick="openComingSoon('Rotate PDF')">
+      <span class="badge badge-soon">Coming Soon</span>
+      <div class="icon-wrapper ic-purple"><i class="fa-solid fa-rotate-right"></i></div>
+      <div class="tool-title">Rotate PDF</div>
+      <div class="tool-desc">Adjust page orientations (portrait/landscape) for whole files or single pages.</div>
+    </div>
+
+    <!-- 16. HTML to PDF (Coming Soon) -->
+    <div class="tool-card" data-category="convert" onclick="openComingSoon('HTML to PDF')">
+      <span class="badge badge-soon">Coming Soon</span>
+      <div class="icon-wrapper ic-cyan"><i class="fa-solid fa-code"></i></div>
+      <div class="tool-title">HTML to PDF</div>
+      <div class="tool-desc">Render web pages or raw HTML code strings straight into PDF files.</div>
+    </div>
+
+    <!-- 17. Unlock PDF (Coming Soon) -->
+    <div class="tool-card" data-category="security" onclick="openComingSoon('Unlock PDF')">
+      <span class="badge badge-soon">Coming Soon</span>
+      <div class="icon-wrapper ic-indigo"><i class="fa-solid fa-lock-open"></i></div>
+      <div class="tool-title">Unlock PDF</div>
+      <div class="tool-desc">Remove password restrictions to easily view and edit protected PDFs.</div>
+    </div>
+
+    <!-- 18. Protect PDF (Coming Soon) -->
+    <div class="tool-card" data-category="security" onclick="openComingSoon('Protect PDF')">
+      <span class="badge badge-soon">Coming Soon</span>
+      <div class="icon-wrapper ic-indigo"><i class="fa-solid fa-shield-halved"></i></div>
       <div class="tool-title">Protect PDF</div>
       <div class="tool-desc">Encrypt sensitive PDF files with password permissions and restriction shields.</div>
     </div>
 
-    <div class="tool-card" data-category="edit" onclick="openComingSoon('Digital Signature')">
+    <!-- 19. Organize PDF (Coming Soon) -->
+    <div class="tool-card" data-category="organize" onclick="openComingSoon('Organize PDF')">
       <span class="badge badge-soon">Coming Soon</span>
-      <div class="icon-wrapper ic-rose"><i class="fa-solid fa-signature"></i></div>
-      <div class="tool-title">Sign PDF</div>
-      <div class="tool-desc">Apply your legally-binding digital signature or initials onto PDF forms easily.</div>
+      <div class="icon-wrapper ic-rose"><i class="fa-solid fa-folder-tree"></i></div>
+      <div class="tool-title">Organize PDF</div>
+      <div class="tool-desc">Rearrange, delete, or insert new pages into your PDF documents.</div>
+    </div>
+
+    <!-- 20. PDF to PDF/A (Coming Soon) -->
+    <div class="tool-card" data-category="convert" onclick="openComingSoon('PDF to PDF/A')">
+      <span class="badge badge-soon">Coming Soon</span>
+      <div class="icon-wrapper ic-teal"><i class="fa-solid fa-box-archive"></i></div>
+      <div class="tool-title">PDF to PDF/A</div>
+      <div class="tool-desc">Convert files to ISO-compliant archival standards for long-term storage.</div>
+    </div>
+
+    <!-- 21. Repair PDF (Coming Soon) -->
+    <div class="tool-card" data-category="optimize" onclick="openComingSoon('Repair PDF')">
+      <span class="badge badge-soon">Coming Soon</span>
+      <div class="icon-wrapper ic-emerald"><i class="fa-solid fa-wrench"></i></div>
+      <div class="tool-title">Repair PDF</div>
+      <div class="tool-desc">Recover data and fix broken structure in damaged or corrupt PDF files.</div>
+    </div>
+
+    <!-- 22. Page numbers (Coming Soon) -->
+    <div class="tool-card" data-category="edit" onclick="openComingSoon('Page Numbers')">
+      <span class="badge badge-soon">Coming Soon</span>
+      <div class="icon-wrapper ic-amber"><i class="fa-solid fa-list-ol"></i></div>
+      <div class="tool-title">Page Numbers</div>
+      <div class="tool-desc">Insert customized page numbering, headers, and footers with ease.</div>
+    </div>
+
+    <!-- 23. Scan to PDF (Coming Soon) -->
+    <div class="tool-card" data-category="convert" onclick="openComingSoon('Scan to PDF')">
+      <span class="badge badge-soon">Coming Soon</span>
+      <div class="icon-wrapper ic-cyan"><i class="fa-solid fa-camera"></i></div>
+      <div class="tool-title">Scan to PDF</div>
+      <div class="tool-desc">Capture physical document photos directly from your camera as PDF pages.</div>
+    </div>
+
+    <!-- 24. OCR PDF (Coming Soon) -->
+    <div class="tool-card" data-category="optimize" onclick="openComingSoon('OCR PDF')">
+      <span class="badge badge-soon">Coming Soon</span>
+      <div class="icon-wrapper ic-emerald"><i class="fa-solid fa-eye"></i></div>
+      <div class="tool-title">OCR PDF</div>
+      <div class="tool-desc">Convert scanned image PDFs into searchable, selectable digital text.</div>
+    </div>
+
+    <!-- 25. Compare PDF (Coming Soon) -->
+    <div class="tool-card" data-category="intelligence" onclick="openComingSoon('Compare PDF')">
+      <span class="badge badge-soon">Coming Soon</span>
+      <div class="icon-wrapper ic-purple"><i class="fa-solid fa-code-compare"></i></div>
+      <div class="tool-title">Compare PDF</div>
+      <div class="tool-desc">Side-by-side visual comparison to highlight differences across document versions.</div>
+    </div>
+
+    <!-- 26. Redact PDF (Coming Soon) -->
+    <div class="tool-card" data-category="security" onclick="openComingSoon('Redact PDF')">
+      <span class="badge badge-soon">Coming Soon</span>
+      <div class="icon-wrapper ic-rose"><i class="fa-solid fa-user-ninja"></i></div>
+      <div class="tool-title">Redact PDF</div>
+      <div class="tool-desc">Permanently black out private text or graphic areas from view.</div>
+    </div>
+
+    <!-- 27. Crop PDF (Coming Soon) -->
+    <div class="tool-card" data-category="edit" onclick="openComingSoon('Crop PDF')">
+      <span class="badge badge-soon">Coming Soon</span>
+      <div class="icon-wrapper ic-amber"><i class="fa-solid fa-crop-simple"></i></div>
+      <div class="tool-title">Crop PDF</div>
+      <div class="tool-desc">Trim margins or select custom frame bounds on your PDF pages.</div>
+    </div>
+
+    <!-- 28. PDF Forms (Coming Soon) -->
+    <div class="tool-card" data-category="edit" onclick="openComingSoon('PDF Forms')">
+      <span class="badge badge-soon">Coming Soon</span>
+      <div class="icon-wrapper ic-indigo"><i class="fa-solid fa-square-check"></i></div>
+      <div class="tool-title">PDF Forms</div>
+      <div class="tool-desc">Fill out interactive PDF fields, checkboxes, or create new form layouts.</div>
+    </div>
+
+    <!-- 29. AI Summarizer (Coming Soon) -->
+    <div class="tool-card" data-category="intelligence" onclick="openComingSoon('AI Summarizer')">
+      <span class="badge badge-soon">Coming Soon</span>
+      <div class="icon-wrapper ic-purple"><i class="fa-solid fa-wand-magic-sparkles"></i></div>
+      <div class="tool-title">AI Summarizer</div>
+      <div class="tool-desc">Generate quick AI key points and executive summaries from long reports.</div>
+    </div>
+
+    <!-- 30. Translate PDF (Coming Soon) -->
+    <div class="tool-card" data-category="intelligence" onclick="openComingSoon('Translate PDF')">
+      <span class="badge badge-soon">Coming Soon</span>
+      <div class="icon-wrapper ic-purple"><i class="fa-solid fa-language"></i></div>
+      <div class="tool-title">Translate PDF</div>
+      <div class="tool-desc">Instantly translate document text into 100+ languages with original layout.</div>
+    </div>
+
+    <!-- 31. PDF to Markdown (Coming Soon) -->
+    <div class="tool-card" data-category="convert" onclick="openComingSoon('PDF to Markdown')">
+      <span class="badge badge-soon">Coming Soon</span>
+      <div class="icon-wrapper ic-cyan"><i class="fa-solid fa-file-code"></i></div>
+      <div class="tool-title">PDF to Markdown</div>
+      <div class="tool-desc">Convert PDF document contents into clean Markdown format (.md).</div>
+    </div>
+
+    <!-- 32. Video to MP3 (Coming Soon) -->
+    <div class="tool-card" data-category="convert" onclick="openComingSoon('Video to MP3')">
+      <span class="badge badge-soon">Coming Soon</span>
+      <div class="icon-wrapper ic-amber"><i class="fa-solid fa-file-audio"></i></div>
+      <div class="tool-title">Video to MP3</div>
+      <div class="tool-desc">Extract high-quality audio tracks from video files quickly.</div>
+    </div>
+
+    <!-- 33. YouTube Downloader (Coming Soon) -->
+    <div class="tool-card" data-category="convert" onclick="openComingSoon('YouTube Downloader')">
+      <span class="badge badge-soon">Coming Soon</span>
+      <div class="icon-wrapper ic-rose"><i class="fa-brands fa-youtube"></i></div>
+      <div class="tool-title">YouTube Downloader</div>
+      <div class="tool-desc">Download public online video streams into local MP3 or MP4 format.</div>
     </div>
 
   </div>
@@ -529,7 +738,7 @@
     </div>
   </div>
 
-  <!-- Terms Modal (Detailed) -->
+  <!-- Terms Modal -->
   <div class="modal" id="termsModal">
     <div class="modal-content">
       <span class="close-btn" onclick="closeModal('termsModal')">&times;</span>
@@ -541,15 +750,14 @@
     </div>
   </div>
 
-  <!-- Privacy Policy Modal (Detailed) -->
+  <!-- Privacy Policy Modal -->
   <div class="modal" id="privacyModal">
     <div class="modal-content">
       <span class="close-btn" onclick="closeModal('privacyModal')">&times;</span>
       <h2>Privacy & Security Architecture</h2>
-      <p>Your privacy is hardcoded into our architecture. We follow a strict **Zero-Server Processing Policy**.</p>
+      <p>Your privacy is hardcoded into our architecture. We follow a strict <strong>Zero-Server Processing Policy</strong>.</p>
       <p><strong>• Zero Cloud Storage:</strong> None of your documents are uploaded, transmitted, or cached on external remote servers.</p>
       <p><strong>• Local Sandbox Memory:</strong> All file conversions and page manipulation tasks occur strictly inside your device's isolated browser memory space.</p>
-
       <p><strong>• Analytics & Telemetry:</strong> We do not track, profile, or log personal user metadata or file contents.</p>
     </div>
   </div>
@@ -593,7 +801,7 @@
   </div>
 
   <script>
-    // Category Filter
+    // Category Filter Function
     function filterTools(category, element) {
       const tabs = document.querySelectorAll('.tab-btn');
       tabs.forEach(tab => tab.classList.remove('active'));
@@ -609,7 +817,7 @@
       });
     }
 
-    // Modal Control
+    // Modal Control Functions
     function openModal(id) {
       document.getElementById(id).style.display = 'flex';
     }
