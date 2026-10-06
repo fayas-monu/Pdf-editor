@@ -195,8 +195,8 @@
 
   <script>
     // Secure Split Gemini API Configuration
-    const part1 = "AQ.Ab8RN6KiMWC";
-    const part2 = "OiurNw5iHvd9pDIrW3H4T4UCQj-4JFDPz-48yNg";
+    const part1 = "AQ.Ab8RN6Iten_";
+    const part2 = "QRAvqXY3rMopg48AuQlyfHrWVzMyWbG4KbuZNLw";
     const GEMINI_API_KEY = part1 + part2;
 
     function handleKeyPress(e) {
@@ -228,7 +228,6 @@
       chatBody.scrollTop = chatBody.scrollHeight;
 
       try {
-        // Direct fetch using CORS mode with Google's public endpoint
         const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`;
         
         const response = await fetch(url, {
