@@ -3,22 +3,33 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>PDF EDIT TOOL - Every tool you need to work with PDFs in one place</title>
+  <title>PDF EDIT TOOL - Fast, Secure & All-in-One Online PDF Suite</title>
   
   <!-- FontAwesome Icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
   <style>
+    :root {
+      --primary-color: #4f46e5;
+      --primary-hover: #4338ca;
+      --accent-color: #06b6d4;
+      --bg-color: #f8fafc;
+      --card-bg: #ffffff;
+      --text-main: #0f172a;
+      --text-muted: #64748b;
+      --border-color: #e2e8f0;
+    }
+
     * {
       box-sizing: border-box;
       margin: 0;
       padding: 0;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
     }
 
     body {
-      background-color: #f3f5f8;
-      color: #333333;
+      background-color: var(--bg-color);
+      color: var(--text-main);
       display: flex;
       flex-direction: column;
       min-height: 100vh;
@@ -26,50 +37,51 @@
 
     /* Header Navigation */
     header {
-      background-color: #ffffff;
-      border-bottom: 1px solid #e0e0e0;
-      padding: 14px 30px;
+      background-color: rgba(255, 255, 255, 0.9);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid var(--border-color);
+      padding: 16px 40px;
       display: flex;
       justify-content: space-between;
       align-items: center;
       position: sticky;
       top: 0;
       z-index: 1000;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.03);
     }
 
     .logo-container {
       display: flex;
       align-items: center;
-      gap: 10px;
-      font-size: 22px;
-      font-weight: 900;
-      color: #e5322d;
+      gap: 12px;
+      font-size: 20px;
+      font-weight: 800;
+      color: var(--primary-color);
       text-decoration: none;
-      letter-spacing: 0.5px;
-      text-transform: uppercase;
+      letter-spacing: -0.5px;
     }
 
     .logo-container i {
-      font-size: 26px;
+      font-size: 24px;
+      background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
     }
 
     nav {
       display: flex;
-      gap: 20px;
+      gap: 24px;
     }
 
     nav a {
       text-decoration: none;
-      color: #4a4a4a;
+      color: var(--text-muted);
       font-weight: 600;
       font-size: 14px;
-      text-transform: uppercase;
       transition: color 0.2s;
     }
 
     nav a:hover {
-      color: #e5322d;
+      color: var(--primary-color);
     }
 
     .auth-buttons {
@@ -79,54 +91,76 @@
 
     .btn-login {
       background: transparent;
-      border: 1px solid #dcdcdc;
-      color: #333;
+      border: 1px solid var(--border-color);
+      color: var(--text-main);
       font-weight: 600;
-      padding: 8px 18px;
-      border-radius: 6px;
+      padding: 9px 20px;
+      border-radius: 8px;
       cursor: pointer;
       transition: all 0.2s;
     }
 
     .btn-login:hover {
-      background: #f8f9fa;
-      border-color: #bbb;
+      background: #f1f5f9;
     }
 
     .btn-signup {
-      background: #e5322d;
+      background: var(--primary-color);
       color: white;
       border: none;
-      padding: 8px 18px;
-      border-radius: 6px;
+      padding: 9px 20px;
+      border-radius: 8px;
       font-weight: 600;
       cursor: pointer;
       text-decoration: none;
       transition: background 0.2s;
+      box-shadow: 0 4px 12px rgba(79, 70, 229, 0.2);
     }
 
     .btn-signup:hover {
-      background: #c62828;
+      background: var(--primary-hover);
     }
 
     /* Hero Section */
     .hero {
       text-align: center;
-      padding: 45px 20px 25px 20px;
+      padding: 60px 20px 30px 20px;
+      background: linear-gradient(180deg, #ffffff 0%, var(--bg-color) 100%);
+    }
+
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: #eeeefd;
+      color: var(--primary-color);
+      padding: 6px 16px;
+      border-radius: 30px;
+      font-size: 13px;
+      font-weight: 700;
+      margin-bottom: 20px;
     }
 
     .hero h1 {
-      font-size: 34px;
+      font-size: 40px;
       font-weight: 800;
-      color: #161616;
-      margin-bottom: 12px;
+      color: var(--text-main);
+      margin-bottom: 16px;
+      letter-spacing: -1px;
+      line-height: 1.2;
+    }
+
+    .hero h1 span {
+      background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
     }
 
     .hero p {
-      font-size: 15px;
-      color: #666666;
-      max-width: 750px;
-      margin: 0 auto 30px auto;
+      font-size: 16px;
+      color: var(--text-muted);
+      max-width: 680px;
+      margin: 0 auto 35px auto;
       line-height: 1.6;
     }
 
@@ -136,124 +170,122 @@
       justify-content: center;
       gap: 10px;
       flex-wrap: wrap;
-      margin-bottom: 35px;
+      margin-bottom: 40px;
     }
 
     .tab-btn {
       background: #ffffff;
-      border: 1px solid #dcdcdc;
-      padding: 8px 18px;
-      border-radius: 20px;
+      border: 1px solid var(--border-color);
+      padding: 9px 20px;
+      border-radius: 30px;
       font-size: 13.5px;
       font-weight: 600;
-      color: #555;
+      color: var(--text-muted);
       cursor: pointer;
       transition: all 0.2s;
-      outline: none;
     }
 
     .tab-btn.active, .tab-btn:hover {
-      background: #e5322d;
+      background: var(--primary-color);
       color: #ffffff;
-      border-color: #e5322d;
-      box-shadow: 0 4px 10px rgba(229, 50, 45, 0.2);
+      border-color: var(--primary-color);
+      box-shadow: 0 4px 14px rgba(79, 70, 229, 0.25);
     }
 
     /* Tools Grid */
     .tools-container {
-      max-width: 1350px;
+      max-width: 1300px;
       margin: 0 auto;
-      padding: 0 20px 60px 20px;
+      padding: 0 20px 80px 20px;
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-      gap: 20px;
+      grid-template-columns: repeat(auto-fill, minmax(270px, 1fr));
+      gap: 24px;
       width: 100%;
     }
 
     .tool-card {
-      background: #ffffff;
-      border-radius: 12px;
-      padding: 22px;
+      background: var(--card-bg);
+      border-radius: 16px;
+      padding: 26px;
       text-decoration: none;
       color: inherit;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.03);
-      border: 1px solid #eef0f2;
-      transition: transform 0.25s ease, box-shadow 0.25s ease;
+      border: 1px solid var(--border-color);
+      transition: all 0.25s ease;
       display: flex;
       flex-direction: column;
       position: relative;
+      cursor: pointer;
     }
 
     .tool-card:hover {
-      transform: translateY(-5px);
-      box-shadow: 0 10px 25px rgba(0,0,0,0.08);
-      border-color: #ffdcdb;
+      transform: translateY(-6px);
+      box-shadow: 0 12px 30px rgba(0,0,0,0.06);
+      border-color: #cbd5e1;
     }
 
     .icon-wrapper {
-      width: 46px;
-      height: 46px;
-      border-radius: 10px;
+      width: 52px;
+      height: 52px;
+      border-radius: 12px;
       display: flex;
       align-items: center;
       justify-content: center;
-      margin-bottom: 16px;
+      margin-bottom: 20px;
       font-size: 22px;
     }
 
     .tool-title {
-      font-size: 17px;
+      font-size: 18px;
       font-weight: 700;
-      color: #1a1a1a;
-      margin-bottom: 8px;
+      color: var(--text-main);
+      margin-bottom: 10px;
     }
 
     .tool-desc {
-      font-size: 12.5px;
-      color: #707070;
-      line-height: 1.45;
+      font-size: 13px;
+      color: var(--text-muted);
+      line-height: 1.5;
     }
 
     .badge {
       position: absolute;
-      top: 15px;
-      right: 15px;
+      top: 18px;
+      right: 18px;
       font-size: 10px;
-      font-weight: bold;
-      padding: 3px 7px;
-      border-radius: 4px;
+      font-weight: 700;
+      padding: 4px 8px;
+      border-radius: 6px;
       text-transform: uppercase;
+      letter-spacing: 0.5px;
     }
 
-    .badge-new { background: #e3f2fd; color: #1976d2; }
+    .badge-soon { background: #fef3c7; color: #d97706; }
 
-    /* Custom Icon Colors */
-    .ic-red { background: #ffebee; color: #e5322d; }
-    .ic-orange { background: #fff3e0; color: #f57c00; }
-    .ic-blue { background: #e3f2fd; color: #1976d2; }
-    .ic-green { background: #e8f5e9; color: #388e3c; }
-    .ic-purple { background: #f3e5f5; color: #7b1fa2; }
-    .ic-yellow { background: #fffde7; color: #fbc02d; }
-    .ic-teal { background: #e0f2f1; color: #00796b; }
+    /* Custom Icon Background Styles */
+    .ic-indigo { background: #eef2ff; color: #4f46e5; }
+    .ic-cyan { background: #ecfeff; color: #0891b2; }
+    .ic-emerald { background: #ecfdf5; color: #059669; }
+    .ic-amber { background: #fffbeb; color: #d97706; }
+    .ic-rose { background: #fff1f2; color: #e11d48; }
 
     /* Footer Styles */
     footer {
       background: #ffffff;
-      border-top: 1px solid #e0e0e0;
+      border-top: 1px solid var(--border-color);
       margin-top: auto;
-      padding: 25px 30px;
+      padding: 30px;
       text-align: center;
     }
 
     .footer-links {
       display: flex;
       justify-content: center;
-      gap: 25px;
-      margin-bottom: 12px;
+      gap: 30px;
+      margin-bottom: 16px;
     }
 
     .footer-links a {
-      color: #555555;
+      color: var(--text-muted);
       text-decoration: none;
       font-weight: 600;
       font-size: 14px;
@@ -262,15 +294,15 @@
     }
 
     .footer-links a:hover {
-      color: #e5322d;
+      color: var(--primary-color);
     }
 
     .copyright {
       font-size: 13px;
-      color: #777777;
-      border-top: 1px solid #f0f0f0;
-      padding-top: 12px;
-      margin-top: 8px;
+      color: #94a3b8;
+      border-top: 1px solid #f1f5f9;
+      padding-top: 16px;
+      margin-top: 10px;
     }
 
     .insta-link {
@@ -278,15 +310,9 @@
       text-decoration: none;
       font-weight: 600;
       margin-left: 5px;
-      transition: color 0.2s;
     }
 
-    .insta-link:hover {
-      color: #c13584;
-      text-decoration: underline;
-    }
-
-    /* Modal Popup Styles */
+    /* Modal Styles */
     .modal {
       display: none;
       position: fixed;
@@ -294,7 +320,8 @@
       left: 0;
       width: 100%;
       height: 100%;
-      background: rgba(0,0,0,0.5);
+      background: rgba(15, 23, 42, 0.6);
+      backdrop-filter: blur(4px);
       justify-content: center;
       align-items: center;
       z-index: 2000;
@@ -302,42 +329,56 @@
 
     .modal-content {
       background: #ffffff;
-      border-radius: 10px;
-      max-width: 550px;
+      border-radius: 16px;
+      max-width: 520px;
       width: 90%;
       max-height: 85vh;
       overflow-y: auto;
-      padding: 30px;
+      padding: 32px;
       position: relative;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+      box-shadow: 0 20px 40px rgba(0,0,0,0.15);
     }
 
     .close-btn {
       position: absolute;
-      top: 15px;
-      right: 20px;
+      top: 18px;
+      right: 22px;
       font-size: 22px;
       cursor: pointer;
-      color: #888888;
+      color: #94a3b8;
     }
 
-    .close-btn:hover { color: #000; }
+    .close-btn:hover { color: var(--text-main); }
 
     .modal-content h2 {
-      margin-bottom: 15px;
-      color: #e5322d;
+      margin-bottom: 14px;
+      color: var(--text-main);
       font-size: 22px;
+      font-weight: 800;
     }
 
     .modal-content p {
       font-size: 14px;
       line-height: 1.6;
-      color: #444444;
-      margin-bottom: 12px;
+      color: var(--text-muted);
+      margin-bottom: 16px;
+    }
+
+    .modal-btn {
+      width: 100%;
+      background: var(--primary-color);
+      color: #fff;
+      border: none;
+      padding: 12px;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 15px;
+      cursor: pointer;
+      margin-top: 10px;
     }
 
     .form-group {
-      margin-bottom: 15px;
+      margin-bottom: 16px;
       text-align: left;
     }
 
@@ -345,52 +386,39 @@
       display: block;
       font-size: 13px;
       font-weight: 600;
-      margin-bottom: 5px;
-      color: #333;
+      margin-bottom: 6px;
+      color: var(--text-main);
     }
 
     .form-group input {
       width: 100%;
-      padding: 10px;
-      border: 1px solid #ccc;
-      border-radius: 6px;
+      padding: 11px;
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
       font-size: 14px;
       outline: none;
     }
 
-    .modal-btn {
-      width: 100%;
-      background: #e5322d;
-      color: #fff;
-      border: none;
-      padding: 12px;
-      border-radius: 6px;
-      font-weight: 700;
-      font-size: 15px;
-      cursor: pointer;
-      margin-top: 10px;
-    }
-
     @media (max-width: 768px) {
-      header { flex-direction: column; gap: 15px; padding: 15px; }
+      header { flex-direction: column; gap: 15px; padding: 20px; }
       nav { flex-wrap: wrap; justify-content: center; }
     }
   </style>
 </head>
 <body>
 
-  <!-- Header -->
+  <!-- Header Navigation -->
   <header>
     <a href="index.html" class="logo-container">
-      <i class="fa-solid fa-file-pdf"></i>
+      <i class="fa-solid fa-layer-group"></i>
       <span>PDF EDIT TOOL</span>
     </a>
     <nav>
-      <a href="tools/merge-pdf.html">Merge PDF</a>
-      <a href="tools/split-pdf.html">Split PDF</a>
-      <a href="tools/compress-pdf.html">Compress PDF</a>
-      <a href="tools/convert-pdf.html">Convert PDF</a>
-      <a href="#all-tools">All PDF Tools</a>
+      <a href="tools/merge-pdf.html">Merge</a>
+      <a href="tools/split-pdf.html">Split</a>
+      <a href="tools/compress-pdf.html">Compress</a>
+      <a href="javascript:void(0)" onclick="openComingSoon('Convert Tool Suite')">Convert</a>
+      <a href="#all-tools">All Tools</a>
     </nav>
     <div class="auth-buttons">
       <button class="btn-login" onclick="openModal('loginModal')">Log in</button>
@@ -398,292 +426,148 @@
     </div>
   </header>
 
-  <!-- Hero -->
+  <!-- Hero Section -->
   <div class="hero">
-    <h1>Every tool you need to work with PDFs in one place</h1>
-    <p>Every tool you need to use PDFs, at your fingertips. All are 100% FREE and easy to use! Merge, split, compress, convert, rotate, unlock and watermark PDFs with just a few clicks.</p>
+    <div class="hero-badge">
+      <i class="fa-solid fa-shield-halved"></i> 100% Private & Browser-Based Processing
+    </div>
+    <h1>Powerful PDF Workspace<br><span>Simplified for Everyone.</span></h1>
+    <p>Streamline your document workflow with lightweight, lightning-fast PDF tools. Merge, organize, compress, and edit files right inside your browser without compromising data privacy.</p>
     
     <!-- Category Tabs -->
     <div class="filter-tabs">
-      <button class="tab-btn active" onclick="filterTools('all', this)">All</button>
-      <button class="tab-btn" onclick="filterTools('organize', this)">Organize PDF</button>
-      <button class="tab-btn" onclick="filterTools('optimize', this)">Optimize PDF</button>
-      <button class="tab-btn" onclick="filterTools('convert', this)">Convert PDF</button>
-      <button class="tab-btn" onclick="filterTools('edit', this)">Edit PDF</button>
-      <button class="tab-btn" onclick="filterTools('security', this)">PDF Security</button>
-      <button class="tab-btn" onclick="filterTools('intelligence', this)">PDF Intelligence</button>
+      <button class="tab-btn active" onclick="filterTools('all', this)">All Utilities</button>
+      <button class="tab-btn" onclick="filterTools('organize', this)">Organize</button>
+      <button class="tab-btn" onclick="filterTools('optimize', this)">Optimize</button>
+      <button class="tab-btn" onclick="filterTools('convert', this)">Convert</button>
+      <button class="tab-btn" onclick="filterTools('edit', this)">Edit & Sign</button>
+      <button class="tab-btn" onclick="filterTools('security', this)">Security</button>
     </div>
   </div>
 
   <!-- Tools Grid -->
   <div class="tools-container" id="all-tools">
 
-    <!-- 1. Merge PDF -->
+    <!-- Working Tools -->
     <a href="tools/merge-pdf.html" class="tool-card" data-category="organize">
-      <div class="icon-wrapper ic-red"><i class="fa-solid fa-object-group"></i></div>
+      <div class="icon-wrapper ic-indigo"><i class="fa-solid fa-object-group"></i></div>
       <div class="tool-title">Merge PDF</div>
-      <div class="tool-desc">Combine PDFs in the order you want with the easiest PDF merger available.</div>
+      <div class="tool-desc">Combine multiple PDF documents into one seamless, organized file instantly.</div>
     </a>
 
-    <!-- 2. Split PDF -->
     <a href="tools/split-pdf.html" class="tool-card" data-category="organize">
-      <div class="icon-wrapper ic-orange"><i class="fa-solid fa-scissors"></i></div>
+      <div class="icon-wrapper ic-rose"><i class="fa-solid fa-scissors"></i></div>
       <div class="tool-title">Split PDF</div>
-      <div class="tool-desc">Separate one page or a whole set for easy conversion into independent PDF files.</div>
+      <div class="tool-desc">Extract specific pages or break a large file into separate standalone PDFs.</div>
     </a>
 
-    <!-- 3. Compress PDF -->
     <a href="tools/compress-pdf.html" class="tool-card" data-category="optimize">
-      <div class="icon-wrapper ic-green"><i class="fa-solid fa-file-contract"></i></div>
+      <div class="icon-wrapper ic-emerald"><i class="fa-solid fa-compress"></i></div>
       <div class="tool-title">Compress PDF</div>
-      <div class="tool-desc">Reduce file size while optimizing for maximal PDF quality.</div>
+      <div class="tool-desc">Minimize PDF file size efficiently while maintaining crisp text and visual quality.</div>
     </a>
 
-    <!-- 4. PDF to Word -->
-    <a href="tools/pdf-to-word.html" class="tool-card" data-category="convert">
-      <div class="icon-wrapper ic-blue"><i class="fa-solid fa-file-word"></i></div>
-      <div class="tool-title">PDF to Word</div>
-      <div class="tool-desc">Easily convert your PDF files into easy to edit DOC and DOCX documents.</div>
-    </a>
-
-    <!-- 5. PDF to PowerPoint -->
-    <a href="tools/pdf-to-powerpoint.html" class="tool-card" data-category="convert">
-      <div class="icon-wrapper ic-orange"><i class="fa-solid fa-file-powerpoint"></i></div>
-      <div class="tool-title">PDF to PowerPoint</div>
-      <div class="tool-desc">Turn your PDF files into easy to edit PPT and PPTX slideshows.</div>
-    </a>
-
-    <!-- 6. PDF to Excel -->
-    <a href="tools/pdf-to-excel.html" class="tool-card" data-category="convert">
-      <div class="icon-wrapper ic-green"><i class="fa-solid fa-file-excel"></i></div>
-      <div class="tool-title">PDF to Excel</div>
-      <div class="tool-desc">Pull data straight from PDFs into Excel spreadsheets in a few short seconds.</div>
-    </a>
-
-    <!-- 7. Word to PDF -->
-    <a href="tools/word-to-pdf.html" class="tool-card" data-category="convert">
-      <div class="icon-wrapper ic-blue"><i class="fa-solid fa-file-export"></i></div>
-      <div class="tool-title">Word to PDF</div>
-      <div class="tool-desc">Make DOC and DOCX files easy to read by converting them to PDF.</div>
-    </a>
-
-    <!-- 8. PowerPoint to PDF -->
-    <a href="tools/powerpoint-to-pdf.html" class="tool-card" data-category="convert">
-      <div class="icon-wrapper ic-red"><i class="fa-solid fa-file-arrow-up"></i></div>
-      <div class="tool-title">PowerPoint to PDF</div>
-      <div class="tool-desc">Make PPT and PPTX slideshows easy to view by converting them to PDF.</div>
-    </a>
-
-    <!-- 9. Excel to PDF -->
-    <a href="tools/excel-to-pdf.html" class="tool-card" data-category="convert">
-      <div class="icon-wrapper ic-green"><i class="fa-solid fa-table"></i></div>
-      <div class="tool-title">Excel to PDF</div>
-      <div class="tool-desc">Make EXCEL spreadsheets easy to read by converting them to PDF.</div>
-    </a>
-
-    <!-- 10. Edit PDF -->
-    <a href="tools/edit-pdf.html" class="tool-card" data-category="edit">
-      <div class="icon-wrapper ic-yellow"><i class="fa-solid fa-pen-to-square"></i></div>
-      <div class="tool-title">Edit PDF</div>
-      <div class="tool-desc">Add text, images, shapes or freehand annotations to a PDF document.</div>
-    </a>
-
-    <!-- 11. PDF to JPG -->
-    <a href="tools/pdf-to-jpg.html" class="tool-card" data-category="convert">
-      <div class="icon-wrapper ic-yellow"><i class="fa-solid fa-file-image"></i></div>
-      <div class="tool-title">PDF to JPG</div>
-      <div class="tool-desc">Extract all images contained in a PDF or convert each page to a JPG file.</div>
-    </a>
-
-    <!-- 12. JPG to PDF -->
     <a href="tools/jpg-to-pdf.html" class="tool-card" data-category="convert">
-      <div class="icon-wrapper ic-red"><i class="fa-solid fa-image"></i></div>
+      <div class="icon-wrapper ic-amber"><i class="fa-solid fa-images"></i></div>
       <div class="tool-title">JPG to PDF</div>
-      <div class="tool-desc">Convert JPG images to PDF in seconds. Easily adjust orientation and margins.</div>
+      <div class="tool-desc">Convert standard image formats like JPG/PNG into clean, standardized PDF documents.</div>
     </a>
 
-    <!-- 13. Sign PDF -->
-    <a href="tools/sign-pdf.html" class="tool-card" data-category="edit">
-      <div class="icon-wrapper ic-purple"><i class="fa-solid fa-signature"></i></div>
-      <div class="tool-title">Sign PDF</div>
-      <div class="tool-desc">Sign yourself or request electronic signatures from others.</div>
-    </a>
+    <!-- Coming Soon Tools -->
+    <div class="tool-card" data-category="convert" onclick="openComingSoon('PDF to Word')">
+      <span class="badge badge-soon">Coming Soon</span>
+      <div class="icon-wrapper ic-cyan"><i class="fa-solid fa-file-word"></i></div>
+      <div class="tool-title">PDF to Word</div>
+      <div class="tool-desc">Transform complex PDF structures into editable Word (.docx) documents.</div>
+    </div>
 
-    <!-- 14. Watermark -->
-    <a href="tools/watermark.html" class="tool-card" data-category="edit">
-      <div class="icon-wrapper ic-teal"><i class="fa-solid fa-stamp"></i></div>
-      <div class="tool-title">Watermark</div>
-      <div class="tool-desc">Stamp an image or text over your PDF in seconds. Choose position, typography and transparency.</div>
-    </a>
+    <div class="tool-card" data-category="edit" onclick="openComingSoon('Edit PDF')">
+      <span class="badge badge-soon">Coming Soon</span>
+      <div class="icon-wrapper ic-amber"><i class="fa-solid fa-pen-nib"></i></div>
+      <div class="tool-title">Edit PDF</div>
+      <div class="tool-desc">Add text annotations, shapes, and highlights directly onto your PDF pages.</div>
+    </div>
 
-    <!-- 15. Rotate PDF -->
-    <a href="tools/rotate-pdf.html" class="tool-card" data-category="organize">
-      <div class="icon-wrapper ic-purple"><i class="fa-solid fa-rotate-right"></i></div>
-      <div class="tool-title">Rotate PDF</div>
-      <div class="tool-desc">Rotate your PDFs the way you need them. You can even rotate multiple PDFs at once!</div>
-    </a>
-
-    <!-- 16. HTML to PDF -->
-    <a href="tools/html-to-pdf.html" class="tool-card" data-category="convert">
-      <div class="icon-wrapper ic-yellow"><i class="fa-solid fa-code"></i></div>
-      <div class="tool-title">HTML to PDF</div>
-      <div class="tool-desc">Convert webpages in HTML to PDF. Copy and paste the URL of the page you want and convert it.</div>
-    </a>
-
-    <!-- 17. Unlock PDF -->
-    <a href="tools/unlock-pdf.html" class="tool-card" data-category="security">
-      <div class="icon-wrapper ic-blue"><i class="fa-solid fa-lock-open"></i></div>
-      <div class="tool-title">Unlock PDF</div>
-      <div class="tool-desc">Remove PDF password security, giving you the freedom to use your PDFs as you want.</div>
-    </a>
-
-    <!-- 18. Protect PDF -->
-    <a href="tools/protect-pdf.html" class="tool-card" data-category="security">
-      <div class="icon-wrapper ic-blue"><i class="fa-solid fa-shield-halved"></i></div>
+    <div class="tool-card" data-category="security" onclick="openComingSoon('Protect & Unlock')">
+      <span class="badge badge-soon">Coming Soon</span>
+      <div class="icon-wrapper ic-indigo"><i class="fa-solid fa-lock"></i></div>
       <div class="tool-title">Protect PDF</div>
-      <div class="tool-desc">Protect PDF files with a password. Encrypt PDF documents to prevent unauthorized access.</div>
-    </a>
+      <div class="tool-desc">Encrypt sensitive PDF files with password permissions and restriction shields.</div>
+    </div>
 
-    <!-- 19. Organize PDF -->
-    <a href="tools/organize-pdf.html" class="tool-card" data-category="organize">
-      <div class="icon-wrapper ic-red"><i class="fa-solid fa-folder-tree"></i></div>
-      <div class="tool-title">Organize PDF</div>
-      <div class="tool-desc">Sort pages of your PDF file however you like. Delete PDF pages or add PDF pages.</div>
-    </a>
-
-    <!-- 20. PDF to PDF/A -->
-    <a href="tools/pdf-to-pdfa.html" class="tool-card" data-category="convert">
-      <div class="icon-wrapper ic-blue"><i class="fa-solid fa-box-archive"></i></div>
-      <div class="tool-title">PDF to PDF/A</div>
-      <div class="tool-desc">Transform your PDF to PDF/A, the ISO-standardized version of PDF for long-term archiving.</div>
-    </a>
-
-    <!-- 21. Repair PDF -->
-    <a href="tools/repair-pdf.html" class="tool-card" data-category="optimize">
-      <div class="icon-wrapper ic-green"><i class="fa-solid fa-wrench"></i></div>
-      <div class="tool-title">Repair PDF</div>
-      <div class="tool-desc">Repair a damaged PDF and recover data from corrupt PDF. Fix PDF files with our Repair tool.</div>
-    </a>
-
-    <!-- 22. Page numbers -->
-    <a href="tools/page-numbers.html" class="tool-card" data-category="edit">
-      <div class="icon-wrapper ic-purple"><i class="fa-solid fa-list-ol"></i></div>
-      <div class="tool-title">Page numbers</div>
-      <div class="tool-desc">Add page numbers into PDFs with ease. Choose position, dimensions, format and typography!</div>
-    </a>
-
-    <!-- 23. Scan to PDF -->
-    <a href="tools/scan-to-pdf.html" class="tool-card" data-category="convert">
-      <div class="icon-wrapper ic-teal"><i class="fa-solid fa-camera"></i></div>
-      <div class="tool-title">Scan to PDF</div>
-      <div class="tool-desc">Capture document scans from your mobile device and send them instantly to your browser.</div>
-    </a>
-
-    <!-- 24. OCR PDF -->
-    <a href="tools/ocr-pdf.html" class="tool-card" data-category="optimize">
-      <div class="icon-wrapper ic-teal"><i class="fa-solid fa-eye"></i></div>
-      <div class="tool-title">OCR PDF</div>
-      <div class="tool-desc">Easily convert scanned PDF into searchable and selectable documents.</div>
-    </a>
-
-    <!-- 25. Compare PDF -->
-    <a href="tools/compare-pdf.html" class="tool-card" data-category="intelligence">
-      <div class="icon-wrapper ic-blue"><i class="fa-solid fa-code-compare"></i></div>
-      <div class="tool-title">Compare PDF</div>
-      <div class="tool-desc">Display two PDF documents side-by-side to easily compare changes and differences.</div>
-    </a>
-
-    <!-- 26. Redact PDF -->
-    <a href="tools/redact-pdf.html" class="tool-card" data-category="security">
-      <div class="icon-wrapper ic-red"><i class="fa-solid fa-user-ninja"></i></div>
-      <div class="tool-title">Redact PDF</div>
-      <div class="tool-desc">Black out sensitive text and graphics permanently from your PDF document.</div>
-    </a>
-
-    <!-- 27. Crop PDF -->
-    <a href="tools/crop-pdf.html" class="tool-card" data-category="edit">
-      <div class="icon-wrapper ic-purple"><i class="fa-solid fa-crop-simple"></i></div>
-      <div class="tool-title">Crop PDF</div>
-      <div class="tool-desc">Trim margins or selected areas of your PDF pages to fit any frame or size.</div>
-    </a>
-
-    <!-- 28. PDF Forms -->
-    <a href="tools/pdf-forms.html" class="tool-card" data-category="edit">
-      <div class="icon-wrapper ic-purple"><i class="fa-solid fa-square-check"></i></div>
-      <div class="tool-title">PDF Forms</div>
-      <div class="tool-desc">Fill out interactive PDF forms online or add fillable text fields and checkboxes.</div>
-    </a>
-
-    <!-- 29. AI Summarizer -->
-    <a href="tools/ai-summarizer.html" class="tool-card" data-category="intelligence">
-      <span class="badge badge-new">New</span>
-      <div class="icon-wrapper ic-purple"><i class="fa-solid fa-wand-magic-sparkles"></i></div>
-      <div class="tool-title">AI Summarizer</div>
-      <div class="tool-desc">Extract key insights and automatically generate concise summaries of long PDFs.</div>
-    </a>
-
-    <!-- 30. Translate PDF -->
-    <a href="tools/translate-pdf.html" class="tool-card" data-category="intelligence">
-      <span class="badge badge-new">New</span>
-      <div class="icon-wrapper ic-purple"><i class="fa-solid fa-language"></i></div>
-      <div class="tool-title">Translate PDF</div>
-      <div class="tool-desc">Instantly translate PDF documents into over 100+ languages accurately.</div>
-    </a>
-
-    <!-- 31. PDF to Markdown -->
-    <a href="tools/pdf-to-markdown.html" class="tool-card" data-category="convert">
-      <span class="badge badge-new">New</span>
-      <div class="icon-wrapper ic-blue"><i class="fa-solid fa-file-code"></i></div>
-      <div class="tool-title">PDF to Markdown</div>
-      <div class="tool-desc">Convert your PDF file into Markdown (.md) format cleanly and effortlessly.</div>
-    </a>
-
-    <!-- 32. Video to MP3 -->
-    <a href="tools/video-to-mp3.html" class="tool-card" data-category="convert">
-      <span class="badge badge-new">New</span>
-      <div class="icon-wrapper ic-red"><i class="fa-solid fa-file-audio"></i></div>
-      <div class="tool-title">Video to MP3</div>
-      <div class="tool-desc">Convert MP4, WEBM or AVI video files to MP3 audio effortlessly.</div>
-    </a>
-
-    <!-- 33. YouTube Downloader -->
-    <a href="tools/youtube-downloader.html" class="tool-card" data-category="convert">
-      <span class="badge badge-new">New</span>
-      <div class="icon-wrapper ic-red"><i class="fa-brands fa-youtube"></i></div>
-      <div class="tool-title">YouTube Downloader</div>
-      <div class="tool-desc">Download YouTube videos as MP3 audio or MP4 video with quality selection.</div>
-    </a>
+    <div class="tool-card" data-category="edit" onclick="openComingSoon('Digital Signature')">
+      <span class="badge badge-soon">Coming Soon</span>
+      <div class="icon-wrapper ic-rose"><i class="fa-solid fa-signature"></i></div>
+      <div class="tool-title">Sign PDF</div>
+      <div class="tool-desc">Apply your legally-binding digital signature or initials onto PDF forms easily.</div>
+    </div>
 
   </div>
 
   <!-- Footer -->
   <footer>
     <div class="footer-links">
-      <a onclick="openModal('termsModal')">Terms & Conditions</a>
-      <a onclick="openModal('privacyModal')">Privacy Policy</a>
+      <a onclick="openModal('termsModal')">Terms of Service</a>
+      <a onclick="openModal('privacyModal')">Privacy Architecture</a>
     </div>
     <div class="copyright">
-      &copy; 2026 PDF EDIT TOOL. All rights reserved. | Credit: <strong>(hank!nd3 p4d4y41! | FAYAS MONU</strong> 
+      &copy; 2026 PDF EDIT TOOL. Engineered for privacy and performance. | Credit: <strong>(hank!nd3 p4d4y41! | FAYAS MONU</strong> 
       <a href="https://www.instagram.com/____fa_y_as_____?stkn=Mm9ncTF3Z21iejgz" target="_blank" class="insta-link">
         <i class="fa-brands fa-instagram"></i> Instagram
       </a>
     </div>
   </footer>
 
+  <!-- Coming Soon Modal -->
+  <div class="modal" id="comingSoonModal">
+    <div class="modal-content" style="text-align: center;">
+      <span class="close-btn" onclick="closeModal('comingSoonModal')">&times;</span>
+      <div style="font-size: 48px; color: var(--primary-color); margin-bottom: 16px;"><i class="fa-solid fa-rocket"></i></div>
+      <h2 id="comingSoonTitle">Feature Under Development</h2>
+      <p>We are optimizing this engine to run securely inside your browser. It will be released in an upcoming update!</p>
+      <button class="modal-btn" onclick="closeModal('comingSoonModal')">Acknowledge</button>
+    </div>
+  </div>
+
+  <!-- Terms Modal (Detailed) -->
+  <div class="modal" id="termsModal">
+    <div class="modal-content">
+      <span class="close-btn" onclick="closeModal('termsModal')">&times;</span>
+      <h2>Terms & Conditions</h2>
+      <p>By using <strong>PDF EDIT TOOL</strong>, you acknowledge and agree to the following terms:</p>
+      <p><strong>1. Local Execution Framework:</strong> All operations including merging, splitting, compressing, and rendering are executed purely through client-side WebAssembly and JavaScript engines inside your browser environment.</p>
+      <p><strong>2. Document Ownership & Legal Responsibility:</strong> You retain complete legal rights to any document processed through our suite. You must ensure you possess authorization before editing copyrighted or confidential material.</p>
+      <p><strong>3. Service Scope & Reliability:</strong> Our web utilities are provided "as is". While we aim for maximum formatting accuracy, we are not responsible for formatting variations or file corruption resulting from non-standard PDF specifications.</p>
+    </div>
+  </div>
+
+  <!-- Privacy Policy Modal (Detailed) -->
+  <div class="modal" id="privacyModal">
+    <div class="modal-content">
+      <span class="close-btn" onclick="closeModal('privacyModal')">&times;</span>
+      <h2>Privacy & Security Architecture</h2>
+      <p>Your privacy is hardcoded into our architecture. We follow a strict **Zero-Server Processing Policy**.</p>
+      <p><strong>• Zero Cloud Storage:</strong> None of your documents are uploaded, transmitted, or cached on external remote servers.</p>
+      <p><strong>• Local Sandbox Memory:</strong> All file conversions and page manipulation tasks occur strictly inside your device's isolated browser memory space.</p>
+
+      <p><strong>• Analytics & Telemetry:</strong> We do not track, profile, or log personal user metadata or file contents.</p>
+    </div>
+  </div>
+
   <!-- Login Modal -->
   <div class="modal" id="loginModal">
     <div class="modal-content">
       <span class="close-btn" onclick="closeModal('loginModal')">&times;</span>
-      <h2>Log In to PDF EDIT TOOL</h2>
+      <h2>Welcome Back</h2>
       <div class="form-group">
         <label>Email Address</label>
-        <input type="email" placeholder="enter your email">
+        <input type="email" placeholder="name@company.com">
       </div>
       <div class="form-group">
         <label>Password</label>
-        <input type="password" placeholder="enter password">
+        <input type="password" placeholder="••••••••">
       </div>
-      <button class="modal-btn" onclick="alert('Login feature coming soon!')">Log In</button>
+      <button class="modal-btn" onclick="alert('Account system is currently disabled for free access.')">Sign In</button>
     </div>
   </div>
 
@@ -694,44 +578,22 @@
       <h2>Create Free Account</h2>
       <div class="form-group">
         <label>Full Name</label>
-        <input type="text" placeholder="enter full name">
+        <input type="text" placeholder="John Doe">
       </div>
       <div class="form-group">
         <label>Email Address</label>
-        <input type="email" placeholder="enter your email">
+        <input type="email" placeholder="name@company.com">
       </div>
       <div class="form-group">
         <label>Password</label>
-        <input type="password" placeholder="create password">
+        <input type="password" placeholder="••••••••">
       </div>
-      <button class="modal-btn" onclick="alert('Sign up feature coming soon!')">Sign Up</button>
-    </div>
-  </div>
-
-  <!-- Terms Modal -->
-  <div class="modal" id="termsModal">
-    <div class="modal-content">
-      <span class="close-btn" onclick="closeModal('termsModal')">&times;</span>
-      <h2>Terms & Conditions</h2>
-      <p>Welcome to <strong>PDF EDIT TOOL</strong>. By accessing and using our web services, you accept and agree to be bound by the terms and provisions of this agreement.</p>
-      <p><strong>1. Privacy & Client-side Processing:</strong> All file handling, PDF editing, splitting, merging, and compression operations occur entirely within your client browser. Your files are never uploaded to any remote server.</p>
-      <p><strong>2. User Responsibility:</strong> You are strictly responsible for maintaining ownership or authorization of the documents processed through this website.</p>
-      <p><strong>3. Disclaimer:</strong> All tools are provided "as is" without warranty. We hold no liability for document alteration or loss resulting from web execution.</p>
-    </div>
-  </div>
-
-  <!-- Privacy Modal -->
-  <div class="modal" id="privacyModal">
-    <div class="modal-content">
-      <span class="close-btn" onclick="closeModal('privacyModal')">&times;</span>
-      <h2>Privacy Policy</h2>
-      <p>Your document privacy is our top priority. <strong>PDF EDIT TOOL</strong> operates 100% locally on your browser session.</p>
-      <p>We do not collect, store, transmit, or share any PDF content or user metadata to third-party databases or remote cloud platforms.</p>
+      <button class="modal-btn" onclick="alert('Account system is currently disabled for free access.')">Register</button>
     </div>
   </div>
 
   <script>
-    // Category Filter Function
+    // Category Filter
     function filterTools(category, element) {
       const tabs = document.querySelectorAll('.tab-btn');
       tabs.forEach(tab => tab.classList.remove('active'));
@@ -747,13 +609,18 @@
       });
     }
 
-    // Modal Control Functions
+    // Modal Control
     function openModal(id) {
       document.getElementById(id).style.display = 'flex';
     }
 
     function closeModal(id) {
       document.getElementById(id).style.display = 'none';
+    }
+
+    function openComingSoon(toolName) {
+      document.getElementById('comingSoonTitle').innerText = toolName;
+      openModal('comingSoonModal');
     }
 
     window.onclick = function(e) {
