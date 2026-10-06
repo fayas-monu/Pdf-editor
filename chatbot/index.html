@@ -224,6 +224,8 @@
       chatBody.appendChild(loadingDiv);
       chatBody.scrollTop = chatBody.scrollHeight;
 
+      let botReply = "";
+
       try {
         const response = await fetch("https://api.bazaarlink.ai/v1/chat/completions", {
           method: 'POST',
@@ -250,26 +252,34 @@
         document.getElementById('loadingMsg').remove();
 
         if (data.choices && data.choices[0].message.content) {
-          const botReply = data.choices[0].message.content;
-          const botDiv = document.createElement('div');
-          botDiv.className = 'chat-msg bot-msg';
-          botDiv.innerHTML = botReply.replace(/\n/g, '<br>');
-          chatBody.appendChild(botDiv);
+          botReply = data.choices[0].message.content;
         } else {
-          throw new Error('Invalid API response');
+          throw new Error('Invalid response');
         }
-
-        chatBody.scrollTop = chatBody.scrollHeight;
 
       } catch (error) {
         document.getElementById('loadingMsg').remove();
         
-        const botDiv = document.createElement('div');
-        botDiv.className = 'chat-msg bot-msg';
-        botDiv.innerHTML = `Hello! I am your PDF Assistant created by chank!nd3 p4d4y41!. Regarding your query about "<b>${text}</b>", you can easily use our tools like Merge PDF, Compress PDF, or Crop PDF directly from the dashboard!`;
-        chatBody.appendChild(botDiv);
-        chatBody.scrollTop = chatBody.scrollHeight;
+        // Smart Fallback when API fails or blocks
+        const lowerText = text.toLowerCase();
+        if (lowerText.includes('hi') || lowerText.includes('hello') || lowerText.includes('hey')) {
+          botReply = "Hello there! 👋 Welcome to **PDF Edit Tool** created by chank!nd3 p4d4y41!. How can I assist you with your documents today?";
+        } else if (lowerText.includes('merge')) {
+          botReply = "To **Merge PDFs**, simply go to the main dashboard, select the 'Merge PDF' tool, upload your separate PDF files, and click merge to combine them!";
+        } else if (lowerText.includes('compress')) {
+          botReply = "To **Compress PDF**, navigate to the dashboard, click on 'Compress PDF', upload your large PDF file, and choose your desired compression level.";
+        } else if (lowerText.includes('crop')) {
+          botReply = "To **Crop PDF**, open the 'Crop PDF' tool from the main page, upload your document, select the specific area you want to keep, and download it!";
+        } else {
+          botReply = `Hello! I am your PDF Assistant created by chank!nd3 p4d4y41!. Regarding your query about "<b>${text}</b>", you can easily use our tools like Merge PDF, Compress PDF, or Crop PDF directly from the dashboard!`;
+        }
       }
+
+      const botDiv = document.createElement('div');
+      botDiv.className = 'chat-msg bot-msg';
+      botDiv.innerHTML = botReply.replace(/\n/g, '<br>');
+      chatBody.appendChild(botDiv);
+      chatBody.scrollTop = chatBody.scrollHeight;
     }
   </script>
 </body>
