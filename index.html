@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <!-- Credit: (chank!nd3 p4d4y41! -->
+  <!-- Credit: chank!nd3 p4d4y41! -->
   <title>PDF EDIT TOOL — Ultra Modern & Secure PDF Suite</title>
   
   <!-- FontAwesome Icons & Google Fonts -->
@@ -321,13 +321,13 @@
     .ic-teal { background: linear-gradient(135deg, #ccfbf1 0%, #99f6e4 100%); color: #0d9488; }
     .ic-blue { background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%); color: #2563eb; }
 
-    /* Combined Bot + Gemini Sparkle Floating Icon Styles */
+    /* Gemini Sparkle + Robot Combined Floating Icon Styles */
     .chat-widget-btn {
       position: fixed;
       bottom: 24px;
       right: 24px;
-      width: 62px;
-      height: 62px;
+      width: 64px;
+      height: 64px;
       background: var(--primary-gradient);
       color: #ffffff;
       border-radius: 50%;
@@ -338,7 +338,6 @@
       box-shadow: 0 10px 25px rgba(99, 102, 241, 0.4);
       z-index: 3000;
       transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-      position: fixed;
     }
 
     .chat-widget-btn:hover {
@@ -346,30 +345,34 @@
       box-shadow: 0 15px 30px rgba(99, 102, 241, 0.6);
     }
 
-    /* Custom Combined Icon container inside button */
-    .combined-icon {
+    /* Combined Gemini Sparkle Logo with Robot inside */
+    .gemini-bot-icon {
       position: relative;
-      width: 32px;
-      height: 32px;
+      width: 36px;
+      height: 36px;
       display: flex;
       align-items: center;
       justify-content: center;
     }
 
-    .combined-icon .fa-robot {
-      font-size: 24px;
+    .gemini-bot-icon .gemini-sparkle-main {
+      font-size: 32px;
+      color: #ffffff;
+      filter: drop-shadow(0 2px 4px rgba(0,0,0,0.15));
     }
 
-    .combined-icon .gemini-sparkle {
+    .gemini-bot-icon .bot-inner {
       position: absolute;
-      top: -4px;
-      right: -6px;
-      font-size: 14px;
-      color: #38bdf8;
+      font-size: 13px;
+      color: #4f46e5;
       background: #ffffff;
       border-radius: 50%;
-      padding: 2px;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+      width: 18px;
+      height: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.2);
     }
 
     .chat-widget-popup {
@@ -723,11 +726,11 @@
     </div>
   </div>
 
-  <!-- Floating Combined Chat Widget Button (Robot + Gemini Sparkle Logo) & Popup -->
+  <!-- Floating Combined Chat Widget Button (Gemini Sparkle + Robot Inside) & Popup -->
   <div class="chat-widget-btn" onclick="toggleChatWindow()" title="Chat with PDF Assistant">
-    <div class="combined-icon">
-      <i class="fa-solid fa-robot"></i>
-      <i class="fa-solid fa-wand-magic-sparkles gemini-sparkle"></i>
+    <div class="gemini-bot-icon">
+      <i class="fa-solid fa-wand-magic-sparkles gemini-sparkle-main"></i>
+      <i class="fa-solid fa-robot bot-inner"></i>
     </div>
   </div>
 
@@ -845,7 +848,7 @@
       }
     }
 
-    // Direct Gemini API Integration with CORS Bypass handling via alternative endpoint / public fetch check
+    // Gemini API Configuration
     const GEMINI_API_KEY = "AQ.Ab8RN6JlYt9x25NKcJU8dzyvpaX9c6LYvfhRE8tjkF3tPd9F5w";
 
     function handleKeyPress(e) {
