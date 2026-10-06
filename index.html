@@ -864,13 +864,13 @@
     
     <div class="chat-body" id="chatBody">
       <div class="chat-msg bot-msg">
-        Hello! 👋 I am your <b>PDF EDIT TOOL</b> Assistant. How can I help you today?
-        Feel free to type your question below or click an option:
+        Hello. Welcome to <b>PDF EDIT TOOL</b> Assistant. How can I help you today?
+        Feel free to type your question below or select an option:
         <div class="chat-suggestions">
-          <div class="sug-chip" onclick="askQuestion('Is it secure?')">🛡️ Security & Privacy</div>
-          <div class="sug-chip" onclick="askQuestion('How is the speed and performance?')">⚡ Speed & Performance</div>
-          <div class="sug-chip" onclick="askQuestion('Who created this tool?')">👤 Credit & Owner</div>
-          <div class="sug-chip" onclick="askQuestion('What tools are available?')">🛠️ Available Tools</div>
+          <div class="sug-chip" onclick="askQuestion('Is it secure?')">Security & Privacy</div>
+          <div class="sug-chip" onclick="askQuestion('How is the speed and performance?')">Speed & Performance</div>
+          <div class="sug-chip" onclick="askQuestion('Who created this tool?')">Credit & Owner</div>
+          <div class="sug-chip" onclick="askQuestion('What tools are available?')">Available Tools</div>
         </div>
       </div>
     </div>
@@ -888,7 +888,7 @@
       <a onclick="openModal('privacyModal')">Privacy Policy</a>
     </div>
     <div class="copyright">
-      &copy; 2026 PDF EDIT TOOL. All rights reserved. | Credit: <strong>FAYAS MONU</strong> 
+      &copy; 2026 PDF EDIT TOOL. All rights reserved. | Credit: <strong>(hank!nd3 p4d4y41!</strong> 
       <a href="https://www.instagram.com/____fa_y_as_____?stkn=Mm9ncTF3Z21iejgz" target="_blank" class="insta-link">
         <i class="fa-brands fa-instagram"></i> Instagram
       </a>
@@ -901,7 +901,7 @@
       <span class="close-btn" onclick="closeModal('comingSoonModal')">&times;</span>
       <div style="font-size: 42px; color: var(--primary); margin-bottom: 12px;"><i class="fa-solid fa-rocket"></i></div>
       <h2 id="comingSoonTitle">Feature Under Development</h2>
-      <p>We are fine-tuning this client-side engine for high performance. It will be released soon in our upcoming updates!</p>
+      <p>We are fine-tuning this client-side engine for high performance. It will be released soon in our upcoming updates.</p>
       <button class="modal-btn" onclick="closeModal('comingSoonModal')">Understood</button>
     </div>
   </div>
@@ -1042,59 +1042,59 @@
 
       // Security / Privacy Queries
       if (q.includes('secure') || q.includes('security') || q.includes('upload') || q.includes('privacy') || q.includes('safe')) {
-        return '🔒 <b>100% Secure Client-Side Engine!</b> Your files are processed locally inside your web browser memory. Zero files are uploaded to external servers, making data leakage completely impossible.';
+        return '<b>100% Secure Client-Side Engine:</b> Your files are processed locally inside your web browser memory. Zero files are uploaded to external servers, making data leakage completely impossible.';
       }
 
       // Speed & Performance Queries
       else if (q.includes('performance') || q.includes('speed') || q.includes('fast') || q.includes('work')) {
-        return '⚡ <b>Blazing Fast Performance!</b> Operations finish in milliseconds using client-side execution, eliminating server queues and network lag.';
+        return '<b>Blazing Fast Performance:</b> Operations finish in milliseconds using client-side execution, eliminating server queues and network lag.';
       }
 
       // Accuracy & Quality
       else if (q.includes('quality') || q.includes('accuracy') || q.includes('clarity')) {
-        return '🎯 <b>High Precision Quality!</b> Layouts, vector fonts, and image resolutions are preserved without degradation during processing.';
+        return '<b>High Precision Quality:</b> Layouts, vector fonts, and image resolutions are preserved without degradation during processing.';
       }
 
       // Cost / Free
       else if (q.includes('free') || q.includes('cost') || q.includes('charge') || q.includes('price') || q.includes('pay')) {
-        return '💯 <b>100% Free Forever!</b> No subscriptions, no hidden charges, and no daily file limit restrictions.';
+        return '<b>100% Free Forever:</b> No subscriptions, no hidden charges, and no daily file limit restrictions.';
       }
 
       // Owner / Credit Queries
       else if (q.includes('owner') || q.includes('credit') || q.includes('creator') || q.includes('author') || q.includes('developer') || q.includes('instagram') || q.includes('admin') || q.includes('who made')) {
-        return '👤 <b>Credit & Development:</b> Created & Maintained by <b>FAYAS MONU</b>.<br><br>📩 For suggestions or queries, connect via Instagram: <a href="https://www.instagram.com/____fa_y_as_____?stkn=Mm9ncTF3Z21iejgz" target="_blank" style="color:var(--primary); font-weight:700;">@____fa_y_as_____</a>';
+        return '<b>Credit & Development:</b> Created & Maintained by <b>(hank!nd3 p4d4y41!</b>.<br><br>For suggestions or queries, connect via Instagram: <a href="https://www.instagram.com/____fa_y_as_____?stkn=Mm9ncTF3Z21iejgz" target="_blank" style="color:var(--primary); font-weight:700;">@____fa_y_as_____</a>';
       }
 
       // Working PDF Tools Info
       else if (q.includes('merge') || q.includes('combine')) {
-        return '🧩 <b>Merge PDF:</b> Combines multiple PDF documents into a single organized file seamlessly with full layout integrity.';
+        return '<b>Merge PDF:</b> Combines multiple PDF documents into a single organized file seamlessly with full layout integrity.';
       }
       else if (q.includes('compress') || q.includes('reduce') || q.includes('size')) {
-        return '📉 <b>Compress PDF:</b> Shrinks file sizes by up to 80% while retaining crisp visual quality and clear text rendering.';
+        return '<b>Compress PDF:</b> Shrinks file sizes by up to 80% while retaining crisp visual quality and clear text rendering.';
       }
       else if (q.includes('crop')) {
-        return '✂️ <b>Crop PDF:</b> Lets you trim extra page margins or select custom dimensions across pages easily.';
+        return '<b>Crop PDF:</b> Lets you trim extra page margins or select custom dimensions across pages easily.';
       }
       else if (q.includes('rotate')) {
-        return '🔄 <b>Rotate PDF:</b> Turn misaligned PDF pages to landscape or portrait mode effortlessly.';
+        return '<b>Rotate PDF:</b> Turn misaligned PDF pages to landscape or portrait mode effortlessly.';
       }
       else if (q.includes('watermark')) {
-        return '🛡️ <b>Watermark PDF:</b> Overlay text or logos onto your documents to protect legal rights and copyright.';
+        return '<b>Watermark PDF:</b> Overlay text or logos onto your documents to protect legal rights and copyright.';
       }
 
       // Coming Soon Tools Info (Upcoming Updates)
       else if (q.includes('word') || q.includes('excel') || q.includes('ppt') || q.includes('ocr') || q.includes('split') || q.includes('unlock') || q.includes('protect') || q.includes('coming soon') || q.includes('update') || q.includes('future')) {
-        return '🚀 <b>Upcoming Features:</b> Tools like <i>PDF to Word, PDF to Excel, OCR Scanner, Split PDF, Protect & Unlock PDF</i> are currently under development and will be added in our next feature update!';
+        return '<b>Upcoming Features:</b> Tools like <i>PDF to Word, PDF to Excel, OCR Scanner, Split PDF, Protect & Unlock PDF</i> are currently under development and will be added in our next feature update.';
       }
 
       // General Available Tools Summary
       else if (q.includes('tool') || q.includes('list') || q.includes('feature')) {
-        return '🛠️ Currently, we offer active client-side utilities including <b>Merge PDF, Compress PDF, Crop PDF, Rotate PDF, JPG to PDF, PDF to JPG, Watermark, Video to MP3,</b> and <b>YouTube Downloader</b>. More features are launching soon in upcoming updates!';
+        return 'Currently, we offer active client-side utilities including <b>Merge PDF, Compress PDF, Crop PDF, Rotate PDF, JPG to PDF, PDF to JPG, Watermark, Video to MP3,</b> and <b>YouTube Downloader</b>. More features are launching soon in upcoming updates.';
       }
 
       // Generic Fallback with Contact Option
       else {
-        return '😊 Thank you for reaching out! PDF EDIT TOOL is a 100% free, secure, client-side utility suite.<br><br>If you have specific queries or feedback, feel free to contact owner <b>FAYAS MONU</b> on Instagram: <a href="https://www.instagram.com/____fa_y_as_____?stkn=Mm9ncTF3Z21iejgz" target="_blank" style="color:var(--primary); font-weight:700;">@____fa_y_as_____</a>';
+        return 'Thank you for reaching out. PDF EDIT TOOL is a 100% free, secure, client-side utility suite.<br><br>If you have specific queries or feedback, feel free to contact owner <b>(hank!nd3 p4d4y41!</b> on Instagram: <a href="https://www.instagram.com/____fa_y_as_____?stkn=Mm9ncTF3Z21iejgz" target="_blank" style="color:var(--primary); font-weight:700;">@____fa_y_as_____</a>';
       }
     }
   </script>
