@@ -321,7 +321,7 @@
     .ic-teal { background: linear-gradient(135deg, #ccfbf1 0%, #99f6e4 100%); color: #0d9488; }
     .ic-blue { background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%); color: #2563eb; }
 
-    /* Gemini Sparkle + Robot Combined Floating Icon Styles */
+    /* Clean Floating Chat Widget Button (Robot Icon) */
     .chat-widget-btn {
       position: fixed;
       bottom: 24px;
@@ -343,36 +343,6 @@
     .chat-widget-btn:hover {
       transform: scale(1.1);
       box-shadow: 0 15px 30px rgba(99, 102, 241, 0.6);
-    }
-
-    /* Combined Gemini Sparkle Logo with Robot inside */
-    .gemini-bot-icon {
-      position: relative;
-      width: 36px;
-      height: 36px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .gemini-bot-icon .gemini-sparkle-main {
-      font-size: 32px;
-      color: #ffffff;
-      filter: drop-shadow(0 2px 4px rgba(0,0,0,0.15));
-    }
-
-    .gemini-bot-icon .bot-inner {
-      position: absolute;
-      font-size: 13px;
-      color: #4f46e5;
-      background: #ffffff;
-      border-radius: 50%;
-      width: 18px;
-      height: 18px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.2);
     }
 
     .chat-widget-popup {
@@ -726,12 +696,9 @@
     </div>
   </div>
 
-  <!-- Floating Combined Chat Widget Button (Gemini Sparkle + Robot Inside) & Popup -->
+  <!-- Floating Chat Widget Button (Clean Robot Icon) & Popup -->
   <div class="chat-widget-btn" onclick="toggleChatWindow()" title="Chat with PDF Assistant">
-    <div class="gemini-bot-icon">
-      <i class="fa-solid fa-wand-magic-sparkles gemini-sparkle-main"></i>
-      <i class="fa-solid fa-robot bot-inner"></i>
-    </div>
+    <i class="fa-solid fa-robot" style="font-size: 28px;"></i>
   </div>
 
   <div class="chat-widget-popup" id="chatWidgetPopup">
@@ -848,8 +815,8 @@
       }
     }
 
-    // Gemini API Configuration
-    const GEMINI_API_KEY = "AQ.Ab8RN6JlYt9x25NKcJU8dzyvpaX9c6LYvfhRE8tjkF3tPd9F5w";
+    // Updated Gemini API Configuration
+    const GEMINI_API_KEY = "AQ.Ab8RN6KiMWCOiurNw5iHvd9pDIrW3H4T4UCQj-4JFDPz-48yNg";
 
     function handleKeyPress(e) {
       if (e.key === 'Enter') sendChatMessage();
@@ -911,7 +878,6 @@
       } catch (error) {
         document.getElementById('loadingMsg').remove();
         
-        // Fallback simulator response if browser restricts direct API call without backend
         const botDiv = document.createElement('div');
         botDiv.className = 'chat-msg bot-msg';
         botDiv.innerHTML = `Hello! I am your PDF Assistant created by chank!nd3 p4d4y41!. Regarding your query about "<b>${text}</b>", you can easily use our tools like Merge PDF, Compress PDF, or Crop PDF directly from the dashboard above!`;
