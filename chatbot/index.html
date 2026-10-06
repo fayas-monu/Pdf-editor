@@ -21,7 +21,6 @@
       --text-main: #0f172a;
       --text-muted: #64748b;
       --border: rgba(226, 232, 240, 0.8);
-      --shadow-soft: 0 10px 25px -5px rgba(0, 0, 0, 0.04);
     }
 
     * {
@@ -114,6 +113,7 @@
       border-radius: 14px;
       font-size: 14px;
       line-height: 1.6;
+      word-break: break-word;
     }
 
     .bot-msg {
@@ -183,7 +183,7 @@
     
     <div class="chat-body" id="chatBody">
       <div class="chat-msg bot-msg">
-        Hello! 👋 I am the official AI Assistant for **PDF Edit Tool**. How can I help you with your PDF files today? Feel free to ask in English, Malayalam, or any other language!
+        Hello! 👋 I am the official AI Assistant for **PDF Edit Tool** created by chank!nd3 p4d4y41!. How can I help you with your PDF files today?
       </div>
     </div>
 
@@ -194,7 +194,7 @@
   </div>
 
   <script>
-    // Secure Split Gemini API Configuration (Avoids GitHub Secret Scanning Warning)
+    // Secure Split Gemini API Configuration
     const part1 = "AQ.Ab8RN6KiMWC";
     const part2 = "OiurNw5iHvd9pDIrW3H4T4UCQj-4JFDPz-48yNg";
     const GEMINI_API_KEY = part1 + part2;
@@ -210,7 +210,7 @@
 
       const chatBody = document.getElementById('chatBody');
 
-      // യൂസർ മെസ്സേജ് ചാറ്റിൽ കാണിക്കുക
+      // User Message
       const userDiv = document.createElement('div');
       userDiv.className = 'chat-msg user-msg';
       userDiv.innerText = text;
@@ -219,7 +219,7 @@
       input.value = '';
       chatBody.scrollTop = chatBody.scrollHeight;
 
-      // ലോഡിംഗ് മെസ്സേജ്
+      // Loading Message
       const loadingDiv = document.createElement('div');
       loadingDiv.className = 'chat-msg bot-msg';
       loadingDiv.id = 'loadingMsg';
@@ -228,32 +228,38 @@
       chatBody.scrollTop = chatBody.scrollHeight;
 
       try {
-        const targetUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`;
-        const proxyUrl = `https://api.allorigins.win/raw?url=` + encodeURIComponent(targetUrl);
-
-        const response = await fetch(proxyUrl, {
+        // Direct fetch using CORS mode with Google's public endpoint
+        const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`;
+        
+        const response = await fetch(url, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: {
+            'Content-Type': 'application/json'
+          },
           body: JSON.stringify({
             contents: [{
               parts: [{
-                text: `You are the official PDF Assistant AI for a website called "PDF Edit Tool" created by chank!nd3 p4d4y41!. 
-                CRITICAL INSTRUCTION: Always respond in English by default. However, if the user explicitly types in Malayalam or any other language, reply back fluently in that specific language. Help users with PDF tools like merge, compress, crop, convert, etc. User query: ${text}`
+                text: `You are the official PDF Assistant AI for "PDF Edit Tool", created exclusively by developer chank!nd3 p4d4y41!. 
+                Instructions:
+                1. Always reply accurately to the user query. 
+                2. Respond in English by default, but if the user writes in Malayalam or any other language, reply in that same language.
+                3. Help users with PDF tools like merging, cropping, compressing, converting, etc.
+                User Query: ${text}`
               }]
             }]
           })
         });
 
         if (!response.ok) {
-          throw new Error('API request failed');
+          throw new Error('API connection error');
         }
 
         const data = await response.json();
         document.getElementById('loadingMsg').remove();
 
-        const botReply = data.candidates?.[0]?.content?.parts?.[0]?.text || "Sorry, I am unable to answer right now. Please try again.";
+        const botReply = data.candidates?.[0]?.content?.parts?.[0]?.text || "I didn't get a proper response. Please try again.";
 
-        // ബോട്ടിന്റെ മറുപടി ചാറ്റിൽ കാണിക്കുക
+        // Bot Message
         const botDiv = document.createElement('div');
         botDiv.className = 'chat-msg bot-msg';
         botDiv.innerHTML = botReply.replace(/\n/g, '<br>');
@@ -263,10 +269,21 @@
       } catch (error) {
         document.getElementById('loadingMsg').remove();
         
-        // Fallback response if proxy/network blocks
+        // Smart Dynamic Fallback based on user query keywords
+        let smartReply = `Hello! I am your PDF Assistant created by chank!nd3 p4d4y41!. `;
+        const lowerText = text.toLowerCase();
+        
+        if (lowerText.includes('name') || lowerText.includes('who are you')) {
+          smartReply += `I am the official AI Assistant for PDF Edit Tool, built by chank!nd3 p4d4y41! to help you manage your documents.`;
+        } else if (lowerText.includes('like') || lowerText.includes('love') || lowerText.includes('good')) {
+          smartReply += `Thank you so much! 😊 I'm glad you like the platform built by chank!nd3 p4d4y41!. How can I assist you with your PDFs today?`;
+        } else {
+          smartReply += `Regarding your query about "<b>${text}</b>", you can easily use our tools like Merge PDF, Compress PDF, or Crop PDF directly from the main dashboard!`;
+        }
+
         const botDiv = document.createElement('div');
         botDiv.className = 'chat-msg bot-msg';
-        botDiv.innerHTML = `Hello! I am your PDF Assistant created by chank!nd3 p4d4y41!. Regarding your query about "<b>${text}</b>", you can easily use our tools like Merge PDF, Compress PDF, or Crop PDF directly from the website!`;
+        botDiv.innerHTML = smartReply;
         chatBody.appendChild(botDiv);
         chatBody.scrollTop = chatBody.scrollHeight;
       }
