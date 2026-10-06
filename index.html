@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- Credit: (chank!nd3 p4d4y41! -->
   <title>PDF EDIT TOOL — Ultra Modern & Secure PDF Suite</title>
   
   <!-- FontAwesome Icons & Google Fonts -->
@@ -319,189 +320,6 @@
     .ic-teal { background: linear-gradient(135deg, #ccfbf1 0%, #99f6e4 100%); color: #0d9488; }
     .ic-blue { background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%); color: #2563eb; }
 
-    /* CHATBOT WIDGET STYLES */
-    .chat-widget-btn {
-      position: fixed;
-      bottom: 28px;
-      right: 28px;
-      width: 60px;
-      height: 60px;
-      background: var(--primary-gradient);
-      color: #ffffff;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 24px;
-      box-shadow: 0 10px 25px rgba(99, 102, 241, 0.4);
-      cursor: pointer;
-      z-index: 3000;
-      transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-    }
-
-    .chat-widget-btn:hover {
-      transform: scale(1.1);
-    }
-
-    .chat-box {
-      display: none;
-      position: fixed;
-      bottom: 100px;
-      right: 28px;
-      width: 380px;
-      max-width: calc(100vw - 40px);
-      height: 520px;
-      background: #ffffff;
-      border-radius: 20px;
-      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
-      border: 1px solid var(--border);
-      flex-direction: column;
-      overflow: hidden;
-      z-index: 3000;
-      animation: popUp 0.3s ease forwards;
-    }
-
-    @keyframes popUp {
-      from { opacity: 0; transform: translateY(20px) scale(0.95); }
-      to { opacity: 1; transform: translateY(0) scale(1); }
-    }
-
-    .chat-header {
-      background: var(--primary-gradient);
-      color: #ffffff;
-      padding: 16px 20px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-    }
-
-    .chat-header-info {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-
-    .bot-avatar {
-      width: 36px;
-      height: 36px;
-      background: rgba(255,255,255,0.2);
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 16px;
-    }
-
-    .chat-header h4 { font-size: 15px; font-weight: 700; }
-    .chat-header p { font-size: 11px; opacity: 0.8; }
-
-    .close-chat {
-      cursor: pointer;
-      font-size: 18px;
-      opacity: 0.8;
-    }
-
-    .close-chat:hover { opacity: 1; }
-
-    .chat-body {
-      flex: 1;
-      padding: 16px;
-      overflow-y: auto;
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-      background: #f8fafc;
-    }
-
-    .chat-msg {
-      max-width: 88%;
-      padding: 12px 16px;
-      border-radius: 14px;
-      font-size: 13px;
-      line-height: 1.5;
-    }
-
-    .bot-msg {
-      background: #ffffff;
-      color: var(--text-main);
-      align-self: flex-start;
-      border: 1px solid var(--border);
-      border-bottom-left-radius: 4px;
-    }
-
-    .user-msg {
-      background: var(--primary);
-      color: #ffffff;
-      align-self: flex-end;
-      border-bottom-right-radius: 4px;
-    }
-
-    .chat-btn-link {
-      display: inline-block;
-      margin-top: 8px;
-      padding: 6px 14px;
-      background: var(--primary-gradient);
-      color: #fff !important;
-      text-decoration: none;
-      border-radius: 8px;
-      font-weight: 600;
-      font-size: 12px;
-    }
-
-    .chat-suggestions {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 6px;
-      margin-top: 10px;
-    }
-
-    .sug-chip {
-      background: #eef2ff;
-      color: var(--primary);
-      padding: 6px 12px;
-      border-radius: 20px;
-      font-size: 11.5px;
-      font-weight: 600;
-      cursor: pointer;
-      border: 1px solid rgba(99, 102, 241, 0.2);
-      transition: all 0.2s;
-    }
-
-    .sug-chip:hover {
-      background: var(--primary);
-      color: #ffffff;
-    }
-
-    .chat-footer {
-      padding: 12px;
-      background: #ffffff;
-      border-top: 1px solid var(--border);
-      display: flex;
-      gap: 8px;
-    }
-
-    .chat-footer input {
-      flex: 1;
-      padding: 10px 14px;
-      border-radius: 10px;
-      border: 1px solid var(--border);
-      outline: none;
-      font-size: 13px;
-    }
-
-    .chat-footer button {
-      background: var(--primary-gradient);
-      color: #ffffff;
-      border: none;
-      width: 38px;
-      height: 38px;
-      border-radius: 10px;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
     footer {
       background: #ffffff;
       border-top: 1px solid var(--border);
@@ -528,7 +346,27 @@
 
     .footer-links a:hover { color: var(--primary); }
 
-    .copyright { font-size: 13px; color: #94a3b8; }
+    .copyright { 
+      font-size: 13.5px; 
+      color: #64748b; 
+      line-height: 1.6;
+    }
+
+    .copyright a {
+      color: var(--primary);
+      text-decoration: none;
+      font-weight: 700;
+      transition: all 0.2s;
+    }
+
+    .copyright a:hover {
+      text-decoration: underline;
+    }
+
+    .credit-divider {
+      margin: 0 6px;
+      color: #cbd5e1;
+    }
 
     .modal {
       display: none;
@@ -564,7 +402,6 @@
 
     .close-btn:hover { color: var(--text-main); }
     .modal-content h2 { margin-bottom: 16px; color: var(--text-main); font-size: 22px; font-weight: 800; border-bottom: 1px solid var(--border); padding-bottom: 12px; }
-    .modal-content h3 { font-size: 15px; color: var(--primary); margin: 16px 0 6px 0; }
     .modal-content p { font-size: 13.5px; line-height: 1.6; color: var(--text-muted); }
 
     .modal-btn {
@@ -713,41 +550,6 @@
     </div>
   </div>
 
-  <!-- FLOATING CHATBOT WIDGET -->
-  <div class="chat-widget-btn" onclick="toggleChat()">
-    <i class="fa-solid fa-comments" id="chatBtnIcon"></i>
-  </div>
-
-  <div class="chat-box" id="chatBox">
-    <div class="chat-header">
-      <div class="chat-header-info">
-        <div class="bot-avatar"><i class="fa-solid fa-robot"></i></div>
-        <div>
-          <h4>PDF Assistant Bot</h4>
-          <p>Always active to assist you</p>
-        </div>
-      </div>
-      <i class="fa-solid fa-xmark close-chat" onclick="toggleChat()"></i>
-    </div>
-    
-    <div class="chat-body" id="chatBody">
-      <div class="chat-msg bot-msg">
-        Hello! 👋 Welcome to <b>PDF EDIT TOOL</b>. How can I help you today?
-        <br><br>Select an option below or type your query:
-        <div class="chat-suggestions">
-          <div class="sug-chip" onclick="askQuestion('How to use Crop Tool?')"> Crop Tool Guide</div>
-          <div class="sug-chip" onclick="askQuestion('How to Merge PDFs?')"> Merge PDF Guide</div>
-          <div class="sug-chip" onclick="askQuestion('Is my data safe?')"> Security & Privacy</div>
-        </div>
-      </div>
-    </div>
-
-    <div class="chat-footer">
-      <input type="text" id="chatInput" placeholder="Type your message here..." onkeypress="handleKeyPress(event)">
-      <button onclick="sendChatMessage()"><i class="fa-solid fa-paper-plane"></i></button>
-    </div>
-  </div>
-
   <!-- Footer -->
   <footer>
     <div class="footer-links">
@@ -755,7 +557,7 @@
       <a onclick="openModal('privacyModal')">Privacy Policy</a>
     </div>
     <div class="copyright">
-      &copy; 2026 PDF EDIT TOOL. All rights reserved.
+      &copy; 2026 PDF EDIT TOOL. All rights reserved. <span class="credit-divider">|</span> Created by <a href="https://www.instagram.com/____fa_y_as_____?stkn=Mm9ncTF3Z21iejgz" target="_blank"><i class="fa-brands fa-instagram"></i> FAYAS-MONU</a>
     </div>
   </footer>
 
@@ -825,131 +627,6 @@
     function openComingSoon(toolName) {
       document.getElementById('comingSoonTitle').innerText = toolName;
       openModal('comingSoonModal');
-    }
-
-    // CHATBOT ENGINE
-    function toggleChat() {
-      const chatBox = document.getElementById('chatBox');
-      const chatIcon = document.getElementById('chatBtnIcon');
-      if (chatBox.style.display === 'flex') {
-        chatBox.style.display = 'none';
-        chatIcon.className = 'fa-solid fa-comments';
-      } else {
-        chatBox.style.display = 'flex';
-        chatIcon.className = 'fa-solid fa-xmark';
-      }
-    }
-
-    function handleKeyPress(e) {
-      if (e.key === 'Enter') sendChatMessage();
-    }
-
-    function askQuestion(text) {
-      document.getElementById('chatInput').value = text;
-      sendChatMessage();
-    }
-
-    function sendChatMessage() {
-      const input = document.getElementById('chatInput');
-      const text = input.value.trim();
-      if (!text) return;
-
-      const chatBody = document.getElementById('chatBody');
-
-      // User Message
-      const userDiv = document.createElement('div');
-      userDiv.className = 'chat-msg user-msg';
-      userDiv.innerText = text;
-      chatBody.appendChild(userDiv);
-
-      input.value = '';
-      chatBody.scrollTop = chatBody.scrollHeight;
-
-      // Smart Responsive Bot Reply
-      setTimeout(() => {
-        const botDiv = document.createElement('div');
-        botDiv.className = 'chat-msg bot-msg';
-        botDiv.innerHTML = getComprehensiveBotReply(text);
-        chatBody.appendChild(botDiv);
-        chatBody.scrollTop = chatBody.scrollHeight;
-      }, 400);
-    }
-
-    // ENGLISH ACCURATE BOT ENGINE
-    function getComprehensiveBotReply(query) {
-      const q = query.toLowerCase();
-
-      // Greetings
-      if (q.match(/\b(hi|hello|hey|greetings|good morning|good evening)\b/)) {
-        return "Hello! How can I assist you with your PDF files today?";
-      }
-
-      // Crop Tool Guide
-      if (q.includes("crop")) {
-        return " <b>PDF Crop Tool:</b><br>" +
-               "1. Open the Crop Tool.<br>" +
-               "2. Upload your PDF file.<br>" +
-               "3. Adjust the crop boundaries.<br>" +
-               "4. Click 'Crop PDF' and download.<br><br>" +
-               "<a href='tools/crop-pdf.html' class='chat-btn-link'>Open Crop Tool ➔</a>";
-      }
-
-      // Merge Tool Guide
-      if (q.includes("merge") || q.includes("combine")) {
-        return " <b>Merge PDF Tool:</b><br>" +
-               "1. Access the Merge Tool.<br>" +
-               "2. Choose or drop multiple PDF files.<br>" +
-               "3. Reorder as needed.<br>" +
-               "4. Click 'Merge PDF' and download.<br><br>" +
-               "<a href='tools/merge-pdf.html' class='chat-btn-link'>Open Merge Tool ➔</a>";
-      }
-
-      // Compress Tool Guide
-      if (q.includes("compress") || q.includes("reduce") || q.includes("size")) {
-        return " <b>Compress PDF Tool:</b><br>" +
-               "1. Launch the Compress Tool.<br>" +
-               "2. Upload your PDF.<br>" +
-               "3. Select compression level and process.<br><br>" +
-               "<a href='tools/compress-pdf.html' class='chat-btn-link'>Open Compress Tool ➔</a>";
-      }
-
-      // JPG to PDF
-      if (q.includes("jpg to pdf") || q.includes("image to pdf")) {
-        return " <b>JPG to PDF Tool:</b><br>" +
-               "Convert your images into a PDF file instantly.<br><br>" +
-               "<a href='tools/jpg-to-pdf.html' class='chat-btn-link'>Open JPG to PDF ➔</a>";
-      }
-
-      // PDF to JPG
-      if (q.includes("pdf to jpg") || q.includes("pdf to image")) {
-        return " <b>PDF to JPG Tool:</b><br>" +
-               "Extract images or export pages as high-resolution JPGs.<br><br>" +
-               "<a href='tools/pdf-to-jpg.html' class='chat-btn-link'>Open PDF to JPG ➔</a>";
-      }
-
-      // Rotate Tool
-      if (q.includes("rotate")) {
-        return " <b>Rotate PDF Tool:</b><br>" +
-               "Rotate pages to your desired orientation.<br><br>" +
-               "<a href='tools/rotate-pdf.html' class='chat-btn-link'>Open Rotate Tool ➔</a>";
-      }
-
-      // Security / Privacy
-      if (q.includes("safe") || q.includes("secure") || q.includes("privacy") || q.includes("upload") || q.includes("leak")) {
-        return " <b>100% Privacy & Security:</b><br>" +
-               "All processing happens directly inside your web browser (Client-Side). No files are uploaded to any server.";
-      }
-
-      // Owner Inquiry / Specific Contact Help (Only triggers when specifically asked)
-      if (q.includes("owner") || q.includes("creator") || q.includes("admin") || q.includes("developer") || q.includes("contact") || q.includes("instagram")) {
-        return " <b>Owner Info & Support:</b><br>" +
-               "Website Owner: <b>Faiyas</b><br><br>" +
-               "For support or inquiry, you can reach out via Instagram:<br>" +
-               "<a href='https://www.instagram.com/____fa_y_as_____?stkn=Mm9ncTF3Z21iejgz' target='_blank' class='chat-btn-link'>Contact via Instagram ➔</a>";
-      }
-
-      // Default Help Response
-      return "I can help you navigate tools like <b>Crop, Merge, Compress, Rotate, or Convert PDFs</b>. What feature are you looking for?";
     }
   </script>
 </body>
